@@ -64,7 +64,7 @@ EPOCHS_BEFORE_SAVING = NUM_EPOCHS + 1  # Number of epochs before starting to sav
 SAVING_INTERVAL_IN_EPOCHS = 100  # Interval in epochs for saving the TF model
 TRAIN_SUMMARY_INTERVAL_IN_STEPS = 100  # Interval in learning steps for writing TF train summaries
 EVAL_SUMMARY_INTERVAL_IN_STEPS = 100  # Interval in learning steps for evaluating test set and writing TF test summaries
-FILE_NAME = 'model_train_ladder.py'
+FILE_NAME = '100_labels_gamma.py'
 MODEL_NAME = 'mnist_ladder' + \
              '_lr=' + str(INITIAL_LEARNING_RATE) + \
              '_lrdf=' + str(LR_DECAY_FIRST) + \
@@ -156,7 +156,7 @@ Load data.
 """
 
 # Downloaded MNIST from http://deeplearning.net/tutorial/gettingstarted.html
-with open('mnist.pkl', 'rb') as f:
+with open('./data/mnist.pkl', 'rb') as f:
     unpickler = pickle._Unpickler(f)
     unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
     train_set, valid_set, test_set = unpickler.load()
