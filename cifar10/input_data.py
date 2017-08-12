@@ -143,7 +143,7 @@ Reformat into a TensorFlow-friendly shape:
 
 def reformat(dataset, labels):
     dataset = dataset.reshape(
-        (-1, image_size, image_size, num_channels)).astype(np.float32)
+        (-1, num_channels, image_size, image_size)).transpose((0, 2, 3, 1)).astype(np.float32)
     labels = (np.arange(num_labels) == labels[:, None]).astype(np.float32)
     return dataset, labels
 
@@ -166,7 +166,7 @@ print('\nPickling data...')
 print("\tPickling complete data set")
 pickle_dict = {'train_data': train_data, 'train_labels': train_labels,
                'test_data': test_data, 'test_labels': test_labels}
-pickle.dump(pickle_dict, open("preproc_complete.pickle", "wb"))
+pickle.dump(pickle_dict, open("50k_labels_white.pkl", "wb"))
 
 print("\tBalancing 4k data set")
 train_data_4k = []
@@ -198,9 +198,9 @@ train_data_4k, train_labels_4k = alternative_shuffle(train_data_4k, train_labels
 print("\tPickling 4k data set")
 pickle_dict = {'train_data': train_data_4k, 'train_labels': train_labels_4k,
                'test_data': test_data, 'test_labels': test_labels}
-pickle.dump(pickle_dict, open("preproc_4k.pickle", "wb"))
+pickle.dump(pickle_dict, open("4k_labels_white.pickle", "wb"))
 
 print("\tPickling unpreprocessed data set")
 pickle_dict = {'train_data': train_data_unpre, 'train_labels': train_labels_unpre,
                'test_data': test_data_unpre, 'test_labels': test_labels_unpre}
-pickle.dump(pickle_dict, open("no_preproc.pickle", "wb"))
+pickle.dump(pickle_dict, open("50k_labels.pickle", "wb"))
