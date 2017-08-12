@@ -44,9 +44,15 @@ Thumbs.db
 # data and logs directoy contents #
 ###################################
 mnist/data/*
+!mnist/data/.gitkeep
 mnist/logs/*
+!mnist/logs/.gitkeep
 cifar10/data/*
+!cifar10/data/.gitkeep
 cifar10/logs/*
+!cifar10/logs/.gitkeep
 drow/data/*
+!drow/data/.gitkeep
 drow/logs/*
+!drow/logs/.gitkeep
 
