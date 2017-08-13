@@ -162,6 +162,14 @@ test_data_unpre, test_labels_unpre = reformat(test_data_unpre, test_labels_unpre
 Make complete training set and balanced 4k training set.
 """
 
+
+def alternative_shuffle(data, labels):
+    perm = np.random.permutation(data.shape[0])
+    shuffled_data = data[perm]
+    shuffled_labels = labels[perm]
+    return shuffled_data, shuffled_labels
+
+
 print('\nPickling data...')
 print("\tPickling complete data set")
 pickle_dict = {'train_data': train_data, 'train_labels': train_labels,
@@ -186,12 +194,32 @@ while overall_count < 4000 and i < len(train_data):
 train_data_4k = np.array(train_data_4k, dtype=np.float32)
 train_labels_4k = np.array(train_labels_4k, dtype=np.float32)
 
+train_data_4k, train_labels_4k = alternative_shuffle(train_data_4k, train_labels_4k)
 
-def alternative_shuffle(data, labels):
-    perm = np.random.permutation(data.shape[0])
-    shuffled_data = data[perm]
-    shuffled_labels = labels[perm]
-    return shuffled_data, shuffled_labels
+print("\tPickling 4k data set")
+pickle_dict = {'train_data': train_data_4k, 'train_labels': train_labels_4k,
+               'test_data': test_data, 'test_labels': test_labels}
+pickle.dump(pickle_dict, open("4k_labels_white.pickle", "wb"))
+
+
+
+print("\tBalancing 4k data set")
+train_data_4k = []
+train_labels_4k = []
+class_counts = [0] * 10
+overall_count = 0
+i = 0
+while overall_count < 4000 and i < len(train_data_unpre):
+    cur_class = int(np.argmax(train_labels_unpre[i]))
+    if class_counts[cur_class] < 400:
+        class_counts[cur_class] += 1
+        train_data_4k += [train_data_unpre[i]]
+        train_labels_4k += [train_labels_unpre[i]]
+        overall_count += 1
+    i += 1
+
+train_data_4k = np.array(train_data_4k, dtype=np.float32)
+train_labels_4k = np.array(train_labels_4k, dtype=np.float32)
 
 train_data_4k, train_labels_4k = alternative_shuffle(train_data_4k, train_labels_4k)
 
