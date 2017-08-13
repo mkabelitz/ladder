@@ -1,5 +1,5 @@
 """
-Convolutional Ladder Network for MNIST
+Convolutional Ladder Network for CIFAR-10
 Author: Marco Kabelitz (marco.kabelitz@rwth-aachen.de)
 
 Based on 'Semi-Supervised Learning with Ladder Networks' by Rasmus, Valpola, et al.
@@ -109,16 +109,19 @@ def enhance_for_decoder(dict_encoder):
 # The types of our layers, has to include 'l0': 'input'
 # - layer types: 'input', 'conv', 'max_pool', 'avg_pool', 'dense'
 layer_types = {
-    'l0': 'input',
-    'l1': 'conv',
-    'l2': 'max_pool',
-    'l3': 'conv',
-    'l4': 'conv',
-    'l5': 'max_pool',
-    'l6': 'conv',
-    'l7': 'conv',
-    'l8': 'avg_pool',
-    'l9': 'dense'
+     'l0': 'input',
+     'l1': 'conv',
+     'l2': 'conv',
+     'l3': 'conv',
+     'l4': 'max_pool',
+     'l5': 'conv',
+     'l6': 'conv',
+     'l7': 'conv',
+     'l8': 'max_pool',
+     'l9': 'conv',
+    'l10': 'conv',
+    'l11': 'conv',
+    'l12': 'avg_pool',
 }
 
 # Number of encoder layers (input does not count)
@@ -126,29 +129,37 @@ L = len(layer_types) - 1
 
 # Kernel shapes for conv and deconv layers in format (height, width, channels_in, channels_out)
 kernel_shapes = enhance_for_decoder({
-    'model/l1/z_pre': [5, 5, 1, 32],
-    'model/l3/z_pre': [3, 3, 32, 64],
-    'model/l4/z_pre': [3, 3, 64, 64],
-    'model/l6/z_pre': [3, 3, 64, 128],
-    'model/l7/z_pre': [1, 1, 128, 10],
+    'model/l1/z_pre': [3, 3, 1, 96],
+    'model/l2/z_pre': [3, 3, 96, 96],
+    'model/l3/z_pre': [3, 3, 96, 96],
+    'model/l5/z_pre': [3, 3, 96, 192],
+    'model/l6/z_pre': [3, 3, 192, 192],
+    'model/l7/z_pre': [3, 3, 192, 192],
+    'model/l9/z_pre': [3, 3, 192, 192],
+    'model/l10/z_pre': [3, 3, 192, 192],
+    'model/l11/z_pre': [3, 3, 192, 10],
 })
 
 # Paddings for conv and deconv layers
 paddings = enhance_for_decoder({
-    'model/l1/z_pre': 'VALID',
-    'model/l3/z_pre': 'SAME',
-    'model/l4/z_pre': 'SAME',
-    'model/l6/z_pre': 'SAME',
+    'model/l1/z_pre': 'SAME',
+    'model/l2/z_pre': 'VALID',
+    'model/l3/z_pre': 'VALID',
+    'model/l5/z_pre': 'SAME',
+    'model/l6/z_pre': 'VALID',
     'model/l7/z_pre': 'SAME',
+    'model/l9/z_pre': 'SAME',
+    'model/l10/z_pre': 'SAME',
+    'model/l11/z_pre': 'SAME',
 })
 
 # Output sizes of the layers (we need this for batchnorm initialization)
-S = (32, 32, 64, 64, 64, 128, 10, 10, 10)  # TODO Should be automatically calculated at some point
+S = (96, 96, 96, 96, 192, 192, 192, 192, 192, 192, 10)  # TODO Should be automatically calculated at some point
 
 # Factor by which to multiply the reconstruction cost for each layer
 # - all 0.0 for supervised-only; last 1.0 and all others 0.0 for Gamma model
 # - we have L+1 entries since entry 0 is for denoising input
-denoising_costs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+denoising_costs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 # ----------------------------------------------------------------------------------------------------------------------
 """
@@ -156,33 +167,15 @@ Load data.
 """
 
 # Downloaded MNIST from http://deeplearning.net/tutorial/gettingstarted.html
-with open('./data/mnist.pkl', 'rb') as f:
+with open('./data/50k_labels.pkl', 'rb') as f:
     unpickler = pickle._Unpickler(f)
     unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
-    train_set, valid_set, test_set = unpickler.load()
-
-# Extract image data
-data_tr = np.array(train_set[0], dtype=np.float32).reshape((-1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-data_va = np.array(valid_set[0], dtype=np.float32).reshape((-1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-data_te = np.array(test_set[0], dtype=np.float32).reshape((-1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-
-
-# Function to transform single digit class labels to one-hot
-def to_one_hot(labels, num_labels):
-    one_hot = np.zeros((len(labels), num_labels))
-    for i, l in enumerate(labels):
-        one_hot[i][l] = 1.0
-    return one_hot
-
-
-# Get target data as one-hot encoded
-labels_tr = to_one_hot(train_set[1], NUM_CLASSES)
-labels_va = to_one_hot(valid_set[1], NUM_CLASSES)
-labels_te = to_one_hot(test_set[1], NUM_CLASSES)
-
-# Add validation set to training set
-data_tr = np.concatenate((data_tr, data_va))
-labels_tr = np.concatenate((labels_tr, labels_va))
+    d = unpickler.load()
+    data_tr = d['train_data']
+    labels_tr = d['train_labels']
+    data_te = d['test_data']
+    labels_te = d['test_labels']
+    del d
 
 
 # Function for shuffling data (and possibly labels in unison)
@@ -195,7 +188,6 @@ def shuffle_data(data, labels=None):
 
 # Initial shuffle of all data
 data_tr, labels_tr = shuffle_data(data_tr, labels_tr)
-data_va, labels_va = shuffle_data(data_va, labels_va)  # Don't need this now, just in case
 data_te, labels_te = shuffle_data(data_te, labels_te)
 
 # Get all training samples as unlabeled samples and shuffle (bc y not?)
