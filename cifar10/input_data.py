@@ -174,7 +174,7 @@ print('\nPickling data...')
 print("\tPickling complete data set")
 pickle_dict = {'train_data': train_data, 'train_labels': train_labels,
                'test_data': test_data, 'test_labels': test_labels}
-pickle.dump(pickle_dict, open("50k_labels_white.pkl", "wb"))
+pickle.dump(pickle_dict, open("./data/50k_labels_white.pkl", "wb"))
 
 print("\tBalancing 4k data set")
 train_data_4k = []
@@ -199,7 +199,7 @@ train_data_4k, train_labels_4k = alternative_shuffle(train_data_4k, train_labels
 print("\tPickling 4k data set")
 pickle_dict = {'train_data': train_data_4k, 'train_labels': train_labels_4k,
                'test_data': test_data, 'test_labels': test_labels}
-pickle.dump(pickle_dict, open("4k_labels_white.pickle", "wb"))
+pickle.dump(pickle_dict, open("./data/4k_labels_white.pkl", "wb"))
 
 
 
@@ -226,9 +226,9 @@ train_data_4k, train_labels_4k = alternative_shuffle(train_data_4k, train_labels
 print("\tPickling 4k data set")
 pickle_dict = {'train_data': train_data_4k, 'train_labels': train_labels_4k,
                'test_data': test_data, 'test_labels': test_labels}
-pickle.dump(pickle_dict, open("4k_labels_white.pickle", "wb"))
+pickle.dump(pickle_dict, open("./data/4k_labels.pkl", "wb"))
 
 print("\tPickling unpreprocessed data set")
 pickle_dict = {'train_data': train_data_unpre, 'train_labels': train_labels_unpre,
                'test_data': test_data_unpre, 'test_labels': test_labels_unpre}
-pickle.dump(pickle_dict, open("50k_labels.pickle", "wb"))
+pickle.dump(pickle_dict, open("./data/50k_labels.pkl", "wb"))
