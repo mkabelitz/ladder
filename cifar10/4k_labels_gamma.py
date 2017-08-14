@@ -28,7 +28,7 @@ import pickle
 
 from tqdm import tqdm
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # ----------------------------------------------------------------------------------------------------------------------
 """
@@ -42,9 +42,9 @@ IMG_HEIGHT = 32
 IMG_CHANNELS = 3
 
 # Labeled and unlabeled examples
-NUM_LABELED = 50000  # Number of labeled examples
+NUM_LABELED = 4000  # Number of labeled examples
 BATCH_SIZE = 200  # Batch size, including labeled and unlabeled examples
-NUM_EPOCHS = 20  # Number of epochs
+NUM_EPOCHS = 70  # Number of epochs
 NUM_LABELED_IN_BATCH = 100  # Number of labeled examples per batch
 NUM_LABELED_IN_EPOCH = 50000  # Number of labeled examples per epoch
 ITERS_PER_EPOCHE = 500  # Number of training steps/weight updates per epoch
@@ -52,7 +52,7 @@ NUM_TOTAL_ITERS = int(ITERS_PER_EPOCHE * NUM_EPOCHS)  # Total number of learning
 
 # Model hyperparameters
 INITIAL_LEARNING_RATE = 0.002  # Initial learning rate
-LR_DECAY_FIRST = 0.67  # Percentage of epochs after which to start learning rate decay
+LR_DECAY_FIRST = 0.86  # Percentage of epochs after which to start learning rate decay
 NOISE_STD = 0.0  # Noise standard deviation for Gaussian noise applied to layers
 RELU_TYPE = 'prelu'  # Type of ReLU activation function to use: 'relu', 'prelu'
 WEIGHT_INITIALIZER_TYPE = 'he'  # Type of weight initializer: 'default', 'xavier', 'he'
@@ -64,7 +64,7 @@ EPOCHS_BEFORE_SAVING = NUM_EPOCHS + 1  # Number of epochs before starting to sav
 SAVING_INTERVAL_IN_EPOCHS = 100  # Interval in epochs for saving the TF model
 TRAIN_SUMMARY_INTERVAL_IN_STEPS = 1  # Interval in learning steps for writing TF train summaries
 EVAL_SUMMARY_INTERVAL_IN_STEPS = ITERS_PER_EPOCHE  # Interval in learning steps for evaluating test set and writing TF test summaries
-FILE_NAME = '50k_labels_supervised_only.py'
+FILE_NAME = '4k_labels_gamma.py'
 MODEL_NAME = 'cifar10_ladder' + \
              '_lr=' + str(INITIAL_LEARNING_RATE) + \
              '_lrdf=' + str(LR_DECAY_FIRST) + \
@@ -76,7 +76,7 @@ MODEL_NAME = 'cifar10_ladder' + \
              '_opt=' + str(OPTIMIZER) + \
              '/date=' + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')).replace(' ', '/') + '/'
 SESSION_PATH = "./logs/"
-VERSION_PATH = SESSION_PATH + '50k_labels_supervised_only/'
+VERSION_PATH = SESSION_PATH + '4k_labels_gamma/'
 SUMMARY_PATH = VERSION_PATH + MODEL_NAME + 'summaries/'
 SAVE_PATH = VERSION_PATH + MODEL_NAME + 'saves/'
 CODE_COPY_PATH = VERSION_PATH + MODEL_NAME + 'code/'
@@ -159,7 +159,7 @@ S = (96, 96, 96, 96, 192, 192, 192, 192, 192, 192, 10, 10)  # TODO Should be aut
 # Factor by which to multiply the reconstruction cost for each layer
 # - all 0.0 for supervised-only; last 1.0 and all others 0.0 for Gamma model
 # - we have L+1 entries since entry 0 is for denoising input
-denoising_costs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+denoising_costs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0]
 
 # ----------------------------------------------------------------------------------------------------------------------
 """

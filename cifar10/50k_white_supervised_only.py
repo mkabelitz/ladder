@@ -64,7 +64,7 @@ EPOCHS_BEFORE_SAVING = NUM_EPOCHS + 1  # Number of epochs before starting to sav
 SAVING_INTERVAL_IN_EPOCHS = 100  # Interval in epochs for saving the TF model
 TRAIN_SUMMARY_INTERVAL_IN_STEPS = 1  # Interval in learning steps for writing TF train summaries
 EVAL_SUMMARY_INTERVAL_IN_STEPS = ITERS_PER_EPOCHE  # Interval in learning steps for evaluating test set and writing TF test summaries
-FILE_NAME = '50k_labels_supervised_only.py'
+FILE_NAME = '50k_white_supervised_only.py'
 MODEL_NAME = 'cifar10_ladder' + \
              '_lr=' + str(INITIAL_LEARNING_RATE) + \
              '_lrdf=' + str(LR_DECAY_FIRST) + \
@@ -76,7 +76,7 @@ MODEL_NAME = 'cifar10_ladder' + \
              '_opt=' + str(OPTIMIZER) + \
              '/date=' + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')).replace(' ', '/') + '/'
 SESSION_PATH = "./logs/"
-VERSION_PATH = SESSION_PATH + '50k_labels_supervised_only/'
+VERSION_PATH = SESSION_PATH + '50k_white_supervised_only/'
 SUMMARY_PATH = VERSION_PATH + MODEL_NAME + 'summaries/'
 SAVE_PATH = VERSION_PATH + MODEL_NAME + 'saves/'
 CODE_COPY_PATH = VERSION_PATH + MODEL_NAME + 'code/'
@@ -167,7 +167,7 @@ Load data.
 """
 
 # Downloaded MNIST from http://deeplearning.net/tutorial/gettingstarted.html
-with open('./data/50k_labels.pkl', 'rb') as f:
+with open('./data/50k_labels_white.pkl', 'rb') as f:
     unpickler = pickle._Unpickler(f)
     unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
     d = unpickler.load()
