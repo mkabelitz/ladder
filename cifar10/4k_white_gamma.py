@@ -53,7 +53,7 @@ NUM_TOTAL_ITERS = int(ITERS_PER_EPOCHE * NUM_EPOCHS)  # Total number of learning
 # Model hyperparameters
 INITIAL_LEARNING_RATE = 0.002  # Initial learning rate
 LR_DECAY_FIRST = 0.86  # Percentage of epochs after which to start learning rate decay
-NOISE_STD = 0.0  # Noise standard deviation for Gaussian noise applied to layers
+NOISE_STD = 0.3  # Noise standard deviation for Gaussian noise applied to layers
 RELU_TYPE = 'prelu'  # Type of ReLU activation function to use: 'relu', 'prelu'
 WEIGHT_INITIALIZER_TYPE = 'he'  # Type of weight initializer: 'default', 'xavier', 'he'
 WEIGHT_DECAY = 0.0  # Weight decay loss multiplication factor
@@ -476,17 +476,17 @@ def encoder(data, corrupted):
             z = tf.cond(is_training_ph, training_batch_norm, eval_batch_norm)
 
             # Apply ReLU, beta, gamma depending on layer type
-            # - no ReLU for dense, since is last layer before softmax (applied outside of encoder function)
-            # - no beta for dense, because the paper says this helps with overfitting
-            if layer_type == 'conv':
-                with tf.variable_scope('h', reuse=not corrupted):
-                    h = relu(add_beta(z))
-            elif layer_type == 'dense':  # TODO this is also model specific hardcoded
-                with tf.variable_scope('h', reuse=not corrupted):
-                    h = apply_gamma(z)
+            # - no ReLU for last layer, since is last layer before softmax (applied outside of encoder function)
+            # - no beta for last layer, because the paper says this helps with overfitting
+            if l == L:
+                h = apply_gamma(z)
             else:
-                with tf.variable_scope('h', reuse=not corrupted):
-                    h = apply_gamma(add_beta(z))
+                if layer_type == 'conv' || layer_type == 'dense':
+                    with tf.variable_scope('h', reuse=not corrupted):
+                        h = relu(add_beta(z))
+                else:
+                    with tf.variable_scope('h', reuse=not corrupted):
+                        h = apply_gamma(add_beta(z))
 
             # Save some stuff
             encoder_vals.update({make_key('z', l): z, make_key('h', l): h,
