@@ -50,7 +50,7 @@ def main(_):
         logits_te = model(data_te_batch)
 
     loss_tr = u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
-    loss_te = u.get_batch_softmax_loss(logits=logits_te, labels=labels_tr_batch)
+    loss_te = u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_batch_accuracy(logits_tr, labels_tr_batch)
     acc_te = u.get_batch_accuracy(logits_te, labels_te_batch)
@@ -77,7 +77,8 @@ def main(_):
             return loss, acc
 
         # initialize the variables
-        sess.run(tf.initialize_all_variables())
+        init_op = tf.global_variables_initializer()
+        sess.run(init_op)
 
         # initialize the queue threads to start to shovel data
         coord = tf.train.Coordinator()
