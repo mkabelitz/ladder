@@ -49,6 +49,8 @@ def main(_):
         scope.reuse_variables()
         logits_te = model(data_te_batch)
 
+    reg_loss = slim.losses.get_regularization_losses
+
     loss_tr = u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
 
@@ -67,14 +69,16 @@ def main(_):
         def eval_test():
             loss = 0.0
             acc = 0.0
+            reg = 0.0
             eval_iters = int(data_te.shape[0] / FLAGS.batch_size)
             for j in range(eval_iters):
-                l, a = sess.run([loss_te, acc_te])
+                l, a, r = sess.run([loss_te, acc_te, reg_loss])
                 loss += l
                 acc += a
+                reg = r
             loss /= eval_iters
             acc /= eval_iters
-            return loss, acc
+            return loss, acc, reg
 
         # initialize the variables
         init_op = tf.global_variables_initializer()
@@ -85,12 +89,12 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
+            _, cur_loss_tr, cur_acc_tr, cur_reg_loss = sess.run([train_op, loss_tr, acc_tr, reg_loss])
 
             if i % FLAGS.eval_interval == 0:
-                print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
-                cur_loss_te, cur_acc_te = eval_test()
-                print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
+                print('train loss: %.4f train acc: %.4f reg loss: %.4f' % (cur_loss_tr, cur_acc_tr, cur_reg_loss))
+                cur_loss_te, cur_acc_te, cur_reg_loss = eval_test()
+                print(' test loss: %.4f  test acc: %.4f reg loss: %.4f' % (cur_loss_te, cur_acc_te, cur_reg_loss))
 
         # stop our queue threads and properly close the session
         coord.request_stop()

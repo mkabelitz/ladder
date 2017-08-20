@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-def _mnist_supervised(inputs, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.99):
+def _mnist_supervised(inputs, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.99):
     inputs = tf.cast(inputs, tf.float32)
 
     net = inputs
