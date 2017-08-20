@@ -51,13 +51,11 @@ def main(_):
         scope.reuse_variables()
         logits_te = model(data_te_batch)
 
-    l2_regularization_loss = u.get_l2_regularization_loss()
+    loss_tr = u.get_total_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_te = u.get_total_loss(logits=logits_te, labels=labels_te_batch)
 
-    loss_tr = l2_regularization_loss + u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
-    loss_te = l2_regularization_loss + u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
-
-    acc_tr = u.get_batch_accuracy(logits_tr, labels_tr_batch)
-    acc_te = u.get_batch_accuracy(logits_te, labels_te_batch)
+    acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
+    acc_te = u.get_accuracy(logits_te, labels_te_batch)
 
     step = tf.Variable(0, trainable=False, dtype=tf.int32)
     optimizer = u.get_optimizer(FLAGS.optimizer_type, FLAGS.learning_rate, step, FLAGS.lr_decay_steps,

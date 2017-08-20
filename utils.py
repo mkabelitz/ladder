@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+from tensorflow.python.ops import control_flow_ops
 
 
 # Function to transform single digit class labels to one-hot
@@ -62,7 +63,7 @@ def load_shuffle_batch(data, labels, batch_size, capacity, min_after_dequeue):
     return images, labels
 
 
-def get_batch_softmax_loss(logits, labels):
+def get_softmax_loss(logits, labels):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
 
 
@@ -70,7 +71,18 @@ def get_l2_regularization_loss():
     return tf.reduce_sum(tf.losses.get_regularization_losses())
 
 
-def get_batch_accuracy(logits, labels):
+def get_total_loss(logits, labels):
+    softmax_loss = get_softmax_loss(logits, labels)
+    l2_regularization_loss = get_l2_regularization_loss()
+    total_loss = softmax_loss + l2_regularization_loss
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    if update_ops:
+        updates = tf.group(*update_ops)
+        total_loss = control_flow_ops.with_dependencies([updates], total_loss)
+    return total_loss
+
+
+def get_accuracy(logits, labels):
     return tf.reduce_mean(tf.cast(tf.equal(tf.arg_max(logits, 1), tf.arg_max(labels, 1)), tf.float32))
 
 
@@ -84,7 +96,8 @@ def get_optimizer(optimizer_type, learning_rate, step, decay_steps, decay_factor
 
 
 def get_train_op(optimizer, loss, step):
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-    with tf.control_dependencies(update_ops):
-        train_op = optimizer.minimize(loss, global_step=step, name='train_op')
-    return train_op
+    # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    # with tf.control_dependencies(update_ops):
+    #     train_op = optimizer.minimize(loss, global_step=step, name='train_op')
+    # return train_op
+    return slim.learning.create_train_op(loss, optimizer, global_step=step)
