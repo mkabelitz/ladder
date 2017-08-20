@@ -67,7 +67,7 @@ def get_batch_softmax_loss(logits, labels):
 
 
 def get_l2_regularization_loss():
-    return tf.reduce_sum(slim.losses.get_regularization_losses())
+    return tf.reduce_sum(tf.losses.get_regularization_losses())
 
 
 def get_batch_accuracy(logits, labels):
