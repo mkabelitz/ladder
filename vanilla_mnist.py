@@ -92,10 +92,11 @@ def main(_):
 
         print("from the train set:")
         for i in range(10000000):
-            print(i, ':')
             _, loss_tmp, acc_tmp = sess.run([train_op, loss_tr, acc_tr])
-            print('loss:', loss_tmp, ' acc:', acc_tmp)
-            if i % 10 == 0:
+
+            if i % 100 == 0:
+                print(i, ':')
+                print('\ttrain loss: %.4f train acc: %.4f' % (loss_tmp, acc_tmp))
                 l = 0.0
                 a = 0.0
                 for j in range(100):
@@ -104,7 +105,7 @@ def main(_):
                     a += acc_tmp
                 l /= 100
                 a /= 100
-                print('test loss:', loss_tmp, ' test acc:', acc_tmp)
+                print('\ttest loss: %.4f test acc: %.4f' % (loss_tmp, acc_tmp))
 
 
         # stop our queue threads and properly close the session
