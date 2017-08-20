@@ -47,9 +47,9 @@ def main(_):
 
     with tf.variable_scope('model') as scope:
         model = models.get_model(FLAGS.model_name)
-        logits_tr = model(data_tr_batch)
+        logits_tr = model(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        logits_te = model(data_te_batch)
+        logits_te = model(data_te_batch, is_training=False)
 
     loss_tr = u.get_total_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_total_loss(logits=logits_te, labels=labels_te_batch)

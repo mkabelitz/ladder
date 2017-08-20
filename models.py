@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-def _mnist_supervised_haeusser(inputs, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.99):
+def _mnist_supervised_haeusser(inputs, is_training, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.99):
     inputs = tf.cast(inputs, tf.float32)
 
     net = inputs
@@ -25,11 +25,12 @@ def _mnist_supervised_haeusser(inputs, emb_size=10, l2_weight_decay=1e-4, batch_
     return emb
 
 
-def _mnist_supervised_rasmus(inputs, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.99):
+def _mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.99):
     inputs = tf.cast(inputs, tf.float32)
 
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected], activation_fn=tf.nn.relu):
+    with slim.arg_scope([slim.conv2d, slim.fully_connected], activation_fn=tf.nn.relu,normalizer_fn=slim.batch_norm,
+                        normalizer_params={'is_training': is_training, 'decay': 0.95}):
         net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
         net = slim.max_pool2d(net, [2, 2], scope='pool1')
 
