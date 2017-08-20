@@ -49,10 +49,10 @@ def main(_):
         scope.reuse_variables()
         logits_te = model(data_te_batch)
 
-    reg_loss = slim.losses.get_regularization_losses()
+    l2_regularization_loss = tf.reduce_sum(slim.losses.get_regularization_losses())
 
-    loss_tr = u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
-    loss_te = u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
+    loss_tr = l2_regularization_loss + u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_te = l2_regularization_loss + u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_batch_accuracy(logits_tr, labels_tr_batch)
     acc_te = u.get_batch_accuracy(logits_te, labels_te_batch)
@@ -72,7 +72,7 @@ def main(_):
             reg = 0.0
             eval_iters = int(data_te.shape[0] / FLAGS.batch_size)
             for j in range(eval_iters):
-                l, a, r = sess.run([loss_te, acc_te, reg_loss])
+                l, a, r = sess.run([loss_te, acc_te, l2_regularization_loss])
                 loss += l
                 acc += a
                 reg = r
@@ -89,7 +89,7 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, cur_loss_tr, cur_acc_tr, cur_reg_loss = sess.run([train_op, loss_tr, acc_tr, reg_loss])
+            _, cur_loss_tr, cur_acc_tr, cur_reg_loss = sess.run([train_op, loss_tr, acc_tr, l2_regularization_loss])
 
             if i % FLAGS.eval_interval == 0:
                 print('train loss: %.4f train acc: %.4f reg loss: %.4f' % (cur_loss_tr, cur_acc_tr, cur_reg_loss))
