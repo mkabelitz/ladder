@@ -26,7 +26,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 100, 'Number of steps between evaluations.')
+flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate for optimizer')
 flags.DEFINE_string('dataset_name', 'mnist', 'Name of the dataset to be used.')
 flags.DEFINE_string('model_name', 'mnist_supervised', 'Name of the model to be used.')
@@ -34,14 +34,13 @@ flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.
 
 
 def main(_):
-
     data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_data(FLAGS.dataset_name, FLAGS.num_labeled)
 
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
-                                                              labels_tr,
-                                                              batch_size=FLAGS.batch_size,
-                                                              capacity=FLAGS.batch_size * 100,
-                                                              min_after_dequeue=FLAGS.batch_size * 10)
+                                                          labels_tr,
+                                                          batch_size=FLAGS.batch_size,
+                                                          capacity=FLAGS.batch_size * 100,
+                                                          min_after_dequeue=FLAGS.batch_size * 10)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
@@ -65,6 +64,18 @@ def main(_):
 
     with tf.Session() as sess:
 
+        def eval_test():
+            loss = 0.0
+            acc = 0.0
+            eval_iters = data_te.shape[0] / FLAGS.batch_size
+            for j in range(eval_iters):
+                l, a = sess.run([loss_te, acc_te])
+                loss += l
+                acc += a
+            loss /= eval_iters
+            acc /= eval_iters
+            return loss, acc
+
         # initialize the variables
         sess.run(tf.initialize_all_variables())
 
@@ -73,25 +84,18 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, tr_batch, loss_tmp, acc_tmp = sess.run([train_op, data_tr_batch, loss_tr, acc_tr])
+            _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
 
             if i % FLAGS.eval_interval == 0:
-                print(i, ':')
-                print('\ttrain loss: %.4f train acc: %.4f' % (loss_tmp, acc_tmp))
-                l = 0.0
-                a = 0.0
-                for j in range(100):
-                    te_batch, loss_tmp, acc_tmp = sess.run([data_te_batch, loss_te, acc_te])
-                    l += loss_tmp
-                    a += acc_tmp
-                l /= 100.0
-                a /= 100.0
-                print('\ttest loss: %.4f test acc: %.4f' % (l, a))
+                print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
+                cur_loss_te, cur_acc_te = eval_test()
+                print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
 
         # stop our queue threads and properly close the session
         coord.request_stop()
         coord.join(threads)
         sess.close()
+
 
 if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
