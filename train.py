@@ -67,7 +67,7 @@ def main(_):
         def eval_test():
             loss = 0.0
             acc = 0.0
-            eval_iters = data_te.shape[0] / FLAGS.batch_size
+            eval_iters = int(data_te.shape[0] / FLAGS.batch_size)
             for j in range(eval_iters):
                 l, a = sess.run([loss_te, acc_te])
                 loss += l
