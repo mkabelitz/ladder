@@ -23,9 +23,9 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 20, 'Number of training steps.')
+flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 100, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate for optimizer')
 flags.DEFINE_string('dataset_name', 'mnist', 'Name of the dataset to be used.')
@@ -72,7 +72,7 @@ def main(_):
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
 
-        for i in range(FLAGS.num_iters):
+        for i in tqdm(range(FLAGS.num_iters)):
             _, tr_batch, loss_tmp, acc_tmp = sess.run([train_op, data_tr_batch, loss_tr, acc_tr])
 
             if i % FLAGS.eval_interval == 0:
