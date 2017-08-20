@@ -31,7 +31,7 @@ flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate for optimizer.'
 flags.DEFINE_float('lr_decay_steps', 5000, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
 flags.DEFINE_string('dataset_name', 'mnist', 'Name of the dataset to be used.')
-flags.DEFINE_string('model_name', 'mnist_supervised_rasmus', 'Name of the model to be used.')
+flags.DEFINE_string('model_name', 'mnist_supervised_haeusser', 'Name of the model to be used.')
 flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
 
 
@@ -41,8 +41,8 @@ def main(_):
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
                                                           labels_tr,
                                                           batch_size=FLAGS.batch_size,
-                                                          capacity=FLAGS.batch_size * 100,
-                                                          min_after_dequeue=FLAGS.batch_size * 10)
+                                                          capacity=FLAGS.batch_size * 1000,
+                                                          min_after_dequeue=FLAGS.batch_size * 100)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
