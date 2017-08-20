@@ -49,7 +49,7 @@ def main(_):
         scope.reuse_variables()
         logits_te = model(data_te_batch)
 
-    reg_loss = slim.losses.get_regularization_losses
+    reg_loss = slim.losses.get_regularization_losses()
 
     loss_tr = u.get_batch_softmax_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_batch_softmax_loss(logits=logits_te, labels=labels_te_batch)
