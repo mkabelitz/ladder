@@ -61,7 +61,7 @@ def main(_):
     data_tr, labels_tr, data_te, labels_te, unlabeled = load_mnist('./mnist/data/mnist.pkl', FLAGS.num_labeled)
 
     data_tr_batch, labels_tr_batch = utils.load_shuffle_batch(data_tr, labels_tr, FLAGS.batch_size, 5000, 1000)
-    data_te_batch, labels_te_batch = utils.load_batch(data_tr, labels_tr, FLAGS.batch_size)
+    data_te_batch, labels_te_batch = utils.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('bla') as scope:
         logits_tr = models.mnist_model(data_tr_batch, emb_size=10)
@@ -92,7 +92,7 @@ def main(_):
 
         print("from the train set:")
         for i in range(10000000):
-            _, loss_tmp, acc_tmp = sess.run([train_op, loss_tr, acc_tr])
+            _, tr_batch, loss_tmp, acc_tmp = sess.run([train_op, data_tr_batch, loss_tr, acc_tr])
 
             if i % 100 == 0:
                 print(i, ':')
@@ -100,12 +100,12 @@ def main(_):
                 l = 0.0
                 a = 0.0
                 for j in range(100):
-                    loss_tmp, acc_tmp = sess.run([loss_te, acc_te])
+                    te_batch, loss_tmp, acc_tmp = sess.run([data_te_batch, loss_te, acc_te])
                     l += loss_tmp
                     a += acc_tmp
-                l /= 100
-                a /= 100
-                print('\ttest loss: %.4f test acc: %.4f' % (loss_tmp, acc_tmp))
+                l /= 100.0
+                a /= 100.0
+                print('\ttest loss: %.4f test acc: %.4f' % (l, a))
 
 
         # stop our queue threads and properly close the session
