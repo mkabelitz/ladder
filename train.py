@@ -31,7 +31,7 @@ flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate for optimizer.'
 flags.DEFINE_float('lr_decay_steps', 5000, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
 flags.DEFINE_string('dataset_name', 'mnist', 'Name of the dataset to be used.')
-flags.DEFINE_string('model_name', 'mnist_supervised_haeusser', 'Name of the model to be used.')
+flags.DEFINE_string('model_name', 'mnist_supervised_rasmus', 'Name of the model to be used.')
 flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
 
 
