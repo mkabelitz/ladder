@@ -23,7 +23,7 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 24000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
@@ -41,8 +41,8 @@ def main(_):
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
                                                           labels_tr,
                                                           batch_size=FLAGS.batch_size,
-                                                          capacity=FLAGS.batch_size * 1000,
-                                                          min_after_dequeue=FLAGS.batch_size * 100)
+                                                          capacity=FLAGS.batch_size * 100,
+                                                          min_after_dequeue=FLAGS.batch_size * 20)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:

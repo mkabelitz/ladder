@@ -29,7 +29,7 @@ def _mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0
     inputs = tf.cast(inputs, tf.float32)
 
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected], activation_fn=tf.nn.relu,normalizer_fn=slim.batch_norm,
+    with slim.arg_scope([slim.conv2d, slim.fully_connected], activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm,
                         normalizer_params={'is_training': is_training, 'decay': 0.95}):
         net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
         net = slim.max_pool2d(net, [2, 2], scope='pool1')
