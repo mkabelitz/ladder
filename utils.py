@@ -60,3 +60,19 @@ def load_shuffle_batch(data, labels, batch_size, capacity, min_after_dequeue):
         min_after_dequeue=min_after_dequeue
     )
     return images, labels
+
+
+def get_batch_softmax_loss(logits, labels):
+    return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+
+
+def get_batch_accuracy(logits, labels):
+    return tf.reduce_mean(tf.cast(tf.equal(tf.arg_max(logits, 1), tf.arg_max(labels, 1)), tf.float32))
+
+
+def get_optimizer(optimizer_type, learning_rate):
+    if optimizer_type == 'adam':
+        return tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.9)
+    else:
+        print('Optimizer unknown!')
+        exit(0)

@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-def mnist_model(inputs, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.99):
+def _mnist_supervised(inputs, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.99):
     inputs = tf.cast(inputs, tf.float32)
 
     net = inputs
@@ -23,3 +23,11 @@ def mnist_model(inputs, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.99
         net = slim.flatten(net, scope='flatten')
         emb = slim.fully_connected(net, emb_size, scope='fc1')
     return emb
+
+
+def get_model(model_name):
+    if model_name == 'mnist_supervised':
+        return _mnist_supervised
+    else:
+        print('Model unknown!')
+        exit(0)
