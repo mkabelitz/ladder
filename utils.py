@@ -66,13 +66,25 @@ def get_batch_softmax_loss(logits, labels):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
 
 
+def get_l2_regularization_loss():
+    return tf.reduce_sum(slim.losses.get_regularization_losses())
+
+
 def get_batch_accuracy(logits, labels):
     return tf.reduce_mean(tf.cast(tf.equal(tf.arg_max(logits, 1), tf.arg_max(labels, 1)), tf.float32))
 
 
-def get_optimizer(optimizer_type, learning_rate):
+def get_optimizer(optimizer_type, learning_rate, step, decay_steps, decay_factor, staircase=True):
+    exp_decay = tf.train.exponential_decay(learning_rate, step, decay_steps, decay_factor, staircase=staircase)
     if optimizer_type == 'adam':
-        return tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.9)
+        return tf.train.AdamOptimizer(learning_rate=exp_decay, beta1=0.9)
     else:
         print('Optimizer unknown!')
         exit(0)
+
+
+def get_train_op(optimizer, loss, step):
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    with tf.control_dependencies(update_ops):
+        train_op = optimizer.minimize(loss, global_step=step, name='train_op')
+    return train_op
