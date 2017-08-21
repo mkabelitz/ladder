@@ -96,8 +96,4 @@ def get_optimizer(optimizer_type, learning_rate, step, decay_steps, decay_factor
 
 
 def get_train_op(optimizer, loss, step):
-    # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-    # with tf.control_dependencies(update_ops):
-    #     train_op = optimizer.minimize(loss, global_step=step, name='train_op')
-    # return train_op
     return slim.learning.create_train_op(loss, optimizer, global_step=step)
