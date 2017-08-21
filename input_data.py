@@ -51,7 +51,7 @@ def _load_mnist(pkl_file_path, num_labeled=None):
 
 def load_data(dataset_name, num_labeled):
     if dataset_name == 'cifar10':
-        return _load_cifar10('./cifar10/data/50k_labels_white.pkl')
+        return _load_cifar10('./cifar10/data/50k_labels.pkl')
     elif dataset_name == 'mnist':
         return _load_mnist('./mnist/data/mnist.pkl', num_labeled)
     else:

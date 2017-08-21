@@ -28,10 +28,10 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 1000, 'Number of steps between evaluations.')
+flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('lr_decay_steps', 12500, 'Interval of steps for learning rate decay.')
-flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
+flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
 flags.DEFINE_string('dataset_name', 'cifar10', 'Name of the dataset to be used.')
 flags.DEFINE_string('model_name', 'cifar10_supervised_rasmus', 'Name of the model to be used.')
 flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
@@ -39,6 +39,9 @@ flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.
 
 def main(_):
     data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_data(FLAGS.dataset_name, FLAGS.num_labeled)
+    print("    train shapes:", data_tr.shape, labels_tr.shape)
+    print("     test shapes:", data_te.shape, labels_te.shape)
+    print("unlabeled shapes:", unlabeled.shape)
 
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
                                                           labels_tr,
