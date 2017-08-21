@@ -25,12 +25,12 @@ FLAGS = flags.FLAGS
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 1000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 40, 'Number of steps between evaluations.')
+flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 1000, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('lr_decay_steps', 333, 'Interval of steps for learning rate decay.')
+flags.DEFINE_float('lr_decay_steps', 12500, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
 flags.DEFINE_string('dataset_name', 'cifar10', 'Name of the dataset to be used.')
 flags.DEFINE_string('model_name', 'cifar10_supervised_rasmus', 'Name of the model to be used.')
