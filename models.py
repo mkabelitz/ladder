@@ -5,7 +5,7 @@ import tensorflow.contrib.slim as slim
 def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected],
+    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d],
                         activation_fn=tf.nn.relu,
                         weights_regularizer=slim.l2_regularizer(l2_weight_decay),
                         normalizer_fn=slim.batch_norm,
