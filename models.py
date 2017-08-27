@@ -59,8 +59,10 @@ def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_
         emb = slim.flatten(net, scope='flatten')
 
         net_noisy = _noise(net, noise_std=noise_std)
-        net_noisy_bn = slim.batch_norm(net_noisy)
-        comb = _g(net_noisy, net_noisy_bn)
+        mean, var = tf.nn.moments(net_noisy, axes=[0, 1, 2])
+        net_noisy_norm = (net_noisy - mean) / tf.sqrt(var + tf.constant(1e-10))
+
+        comb = _g(net_noisy, net_noisy_norm)
 
     return emb, net, comb
 
