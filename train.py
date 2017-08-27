@@ -25,15 +25,15 @@ FLAGS = flags.FLAGS
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 200, 'Number of steps between evaluations.')
+flags.DEFINE_integer('num_iters', 60000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('lr_decay_steps', 12500, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
-flags.DEFINE_string('dataset_name', 'cifar10', 'Name of the dataset to be used.')
-flags.DEFINE_string('model_name', 'cifar10_gamma', 'Name of the model to be used.')
+flags.DEFINE_string('dataset_name', 'mnist', 'Name of the dataset to be used.')
+flags.DEFINE_string('model_name', 'mnist_supervised_haeusser', 'Name of the model to be used.')
 flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
 
 
@@ -53,15 +53,12 @@ def main(_):
 
     with tf.variable_scope('model') as scope:
         model = models.get_model(FLAGS.model_name)
-        logits_tr, _, _ = model(data_tr_batch, is_training=True)
+        logits_tr = model(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        _, crt, cln = model(data_unlabeled_batch, is_training=True)
-        logits_te, _, _ = model(data_te_batch, is_training=False)
+        logits_te = model(data_te_batch, is_training=False)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
-
-    loss_tr += u.get_gamma_loss(crt, cln, 4.0)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
     acc_te = u.get_accuracy(logits_te, labels_te_batch)
