@@ -49,7 +49,7 @@ def main(_):
                                                           capacity=FLAGS.batch_size * 100,
                                                           min_after_dequeue=FLAGS.batch_size * 20)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
-    data_unlabeled_batch, _ = u.load_batch(unlabeled, labels_tr, FLAGS.batch_size)
+    data_unlabeled_batch, _ = u.load_batch(unlabeled, np.zeros(unlabeled.shape[0]), FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
         model = models.get_model(FLAGS.model_name)
