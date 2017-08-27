@@ -25,7 +25,7 @@ FLAGS = flags.FLAGS
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
@@ -49,15 +49,22 @@ def main(_):
                                                           capacity=FLAGS.batch_size * 100,
                                                           min_after_dequeue=FLAGS.batch_size * 20)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
+    data_unlabeled_batch = u.load_unlabeled_shuffle_batch(unlabeled,
+                                                          batch_size=FLAGS.batch_size,
+                                                          capacity=FLAGS.batch_size * 100,
+                                                          min_after_dequeue=FLAGS.batch_size * 20)
 
     with tf.variable_scope('model') as scope:
         model = models.get_model(FLAGS.model_name)
-        logits_tr = model(data_tr_batch, is_training=True)
+        logits_tr, _, _ = model(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        logits_te = model(data_te_batch, is_training=False)
+        _, crt, cln = model(data_unlabeled_batch, is_training=True)
+        logits_te, _, _ = model(data_te_batch, is_training=False)
 
-    loss_tr = u.get_total_loss(logits=logits_tr, labels=labels_tr_batch)
-    loss_te = u.get_total_loss(logits=logits_te, labels=labels_te_batch)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
+
+    # loss_tr += u.get_gamma_loss(crt, cln, 4.0)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
     acc_te = u.get_accuracy(logits_te, labels_te_batch)

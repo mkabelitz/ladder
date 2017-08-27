@@ -2,10 +2,41 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
+def _g_m(u):
+    a1 = tf.get_variable('a1', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a2 = tf.get_variable('a2', shape=u.get_shape()[-1], initializer=tf.constant_initializer(1.0))
+    a3 = tf.get_variable('a3', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a4 = tf.get_variable('a4', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a5 = tf.get_variable('a5', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    return a1 * tf.sigmoid(a2 * u + a3) + a4 * u + a5
+
+
+def _g_v(u):
+    a6 = tf.get_variable('a6', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a7 = tf.get_variable('a7', shape=u.get_shape()[-1], initializer=tf.constant_initializer(1.0))
+    a8 = tf.get_variable('a8', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a9 = tf.get_variable('a9', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    a10 = tf.get_variable('a10', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    return a6 * tf.sigmoid(a7 * u + a8) + a9 * u + a10
+
+
+# The combinator function described in the paper, initial values from https://github.com/CuriousAI/ladder/
+def _g(z_crt, u):
+    m = _g_m(u)
+    return (z_crt - m) * _g_v(u) + m
+
+
+def _noise(data, noise_std):
+    new_noise = tf.random_normal(shape=tf.shape(data), mean=0.0, stddev=noise_std, dtype=tf.float32)
+    result = tf.add(data, new_noise)
+    result.set_shape(data.get_shape())
+    return result
+
+
+def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d],
+    with slim.arg_scope([slim.conv2d, slim.fully_connected],
                         activation_fn=tf.nn.relu,
                         weights_regularizer=slim.l2_regularizer(l2_weight_decay),
                         normalizer_fn=slim.batch_norm,
@@ -27,8 +58,11 @@ def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_
 
         emb = slim.flatten(net, scope='flatten')
 
+        net_noisy = _noise(net, noise_std=noise_std)
+        net_noisy_bn = slim.batch_norm(net_noisy)
+        comb = _g(net_noisy, net_noisy_bn)
 
-    return emb
+    return emb, net, comb
 
 
 def _cifar10_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):

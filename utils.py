@@ -63,6 +63,28 @@ def load_shuffle_batch(data, labels, batch_size, capacity, min_after_dequeue):
     return images, labels
 
 
+def load_unlabeled_batch(data, batch_size):
+    images, labels = tf.train.batch(
+        [data],
+        batch_size=batch_size,
+        enqueue_many=True,
+        allow_smaller_final_batch=False
+    )
+    return images
+
+
+def load_unlabeled_shuffle_batch(data, batch_size, capacity, min_after_dequeue):
+    images, labels = tf.train.shuffle_batch(
+        [data],
+        batch_size=batch_size,
+        enqueue_many=True,
+        allow_smaller_final_batch=False,
+        capacity=capacity,
+        min_after_dequeue=min_after_dequeue
+    )
+    return images
+
+
 def get_softmax_loss(logits, labels):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
 
@@ -71,7 +93,7 @@ def get_l2_regularization_loss():
     return tf.reduce_sum(tf.losses.get_regularization_losses())
 
 
-def get_total_loss(logits, labels):
+def get_supervised_loss(logits, labels):
     softmax_loss = get_softmax_loss(logits, labels)
     l2_regularization_loss = get_l2_regularization_loss()
     total_loss = softmax_loss + l2_regularization_loss
@@ -80,6 +102,10 @@ def get_total_loss(logits, labels):
         updates = tf.group(*update_ops)
         total_loss = control_flow_ops.with_dependencies([updates], total_loss)
     return total_loss
+
+
+def get_gamma_loss(crt, cln, denoising_cost):
+    return tf.reduce_mean(tf.reduce_sum(tf.square(crt - cln), 1)) / crt.get_shape()[3] * denoising_cost
 
 
 def get_accuracy(logits, labels):
