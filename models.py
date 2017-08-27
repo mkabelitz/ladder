@@ -140,7 +140,9 @@ def _mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0
 
 
 def get_model(model_name):
-    if model_name == 'cifar10_supervised_rasmus':
+    if model_name == 'cifar10_gamma':
+        return _cifar10_gamma
+    elif model_name == 'cifar10_supervised_rasmus':
         return _cifar10_supervised_rasmus
     elif model_name == 'mnist_supervised_haeusser':
         return _mnist_supervised_haeusser
