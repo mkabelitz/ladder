@@ -65,7 +65,7 @@ def load_shuffle_batch(data, labels, batch_size, capacity, min_after_dequeue):
 
 def load_unlabeled_batch(data, batch_size):
     images, labels = tf.train.batch(
-        [data],
+        [data,],
         batch_size=batch_size,
         enqueue_many=True,
         allow_smaller_final_batch=False
@@ -75,7 +75,7 @@ def load_unlabeled_batch(data, batch_size):
 
 def load_unlabeled_shuffle_batch(data, batch_size, capacity, min_after_dequeue):
     images, labels = tf.train.shuffle_batch(
-        [data],
+        [data,],
         batch_size=batch_size,
         enqueue_many=True,
         allow_smaller_final_batch=False,
