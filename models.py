@@ -67,7 +67,7 @@ def cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_n
     return emb, net, comb
 
 
-def cifar10_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
+def cifar10_supervised_rasmus(inputs, is_training, l2_weight_decay=0.0, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -117,7 +117,7 @@ def mnist_supervised_haeusser(inputs, is_training, emb_size=10, l2_weight_decay=
     return emb
 
 
-def mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
+def mnist_supervised_rasmus(inputs, is_training, l2_weight_decay=0.0, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -137,5 +137,5 @@ def mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.
         net = slim.avg_pool2d(net, [7, 7], scope='pool3')
 
         net = slim.flatten(net, scope='flatten')
-        emb = slim.fully_connected(net, emb_size, scope='fc1')
+        emb = slim.fully_connected(net, 10, scope='fc1')
     return emb

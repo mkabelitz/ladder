@@ -16,18 +16,18 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 100, 'Number of steps between evaluations.')
+flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('lr_decay_steps', 6000, 'Interval of steps for learning rate decay.')
+flags.DEFINE_float('lr_decay_steps', 12500, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
 flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
 
 
 def main(_):
-    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_mnist(num_labeled=FLAGS.num_labeled)
+    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_cifar10(num_labeled=FLAGS.num_labeled)
     print("    train shapes:", data_tr.shape, labels_tr.shape)
     print("     test shapes:", data_te.shape, labels_te.shape)
     print("unlabeled shapes:", unlabeled.shape)
@@ -40,9 +40,9 @@ def main(_):
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
-        logits_tr = models.mnist_supervised_rasmus(data_tr_batch, is_training=True)
+        logits_tr = models.cifar10_supervised_rasmus(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        logits_te = models.mnist_supervised_rasmus(data_te_batch, is_training=False)
+        logits_te = models.cifar10_supervised_rasmus(data_te_batch, is_training=False)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
