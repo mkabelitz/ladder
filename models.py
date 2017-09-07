@@ -2,6 +2,11 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
+def leaky_relu(features, name=None):
+    alpha = 0.1
+    return tf.maximum(features, alpha * features)
+
+
 def _g_m(u):
     a1 = tf.get_variable('a1', shape=u.get_shape()[-1], initializer=tf.constant_initializer(0.0))
     a2 = tf.get_variable('a2', shape=u.get_shape()[-1], initializer=tf.constant_initializer(1.0))
@@ -71,7 +76,7 @@ def cifar10_supervised_rasmus(inputs, is_training, l2_weight_decay=0.0, batch_no
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        activation_fn=tf.nn.relu,
+                        activation_fn=leaky_relu,
                         weights_regularizer=slim.l2_regularizer(l2_weight_decay),
                         normalizer_fn=slim.batch_norm,
                         normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):

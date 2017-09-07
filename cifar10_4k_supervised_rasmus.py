@@ -1,6 +1,6 @@
 """
-Best: test loss: 0.5766  test acc: 0.9038 | 13000/50000 [26:28<1:08:42,  8.98it/s]
-Target: 0.9073
+Best:
+Target: 0.7666
 """
 
 import os
@@ -17,7 +17,7 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')

@@ -1,5 +1,6 @@
 """
-Imports.
+test loss: 0.2971  test acc: 0.9967 | 12596/60000 [03:57<14:16, 55.34it/s]
+Target: 0.9964
 """
 
 import os
