@@ -22,7 +22,7 @@ def shuffle_data(data, labels=None):
 
 # Function for creating a class balanced subset of a labeled data set (expects 1-hot labels)
 def make_class_balanced_set(data, labels, num_labeled=None):
-    if num_labeled == None or num_labeled == data.shape[0]:
+    if num_labeled is None or num_labeled == data.shape[0]:
         return data, labels
 
     num_classes = labels.shape[1]
@@ -104,7 +104,7 @@ def get_supervised_loss(logits, labels):
     return total_loss
 
 
-def get_gamma_loss(crt, cln, denoising_cost):
+def get_denoising_loss(crt, cln, denoising_cost):
     return tf.reduce_mean(tf.reduce_sum(tf.square(crt - cln), 1)) / crt.get_shape().as_list()[3] * denoising_cost
 
 

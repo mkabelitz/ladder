@@ -41,7 +41,7 @@ def _load_mnist(pkl_file_path, num_labeled=None):
     labels_tr = np.concatenate((labels_tr, labels_va))
 
     # Get all training samples as unlabeled samples
-    unlabeled = np.concatenate((data_tr, data_va))
+    unlabeled = data_tr
 
     # Make class balanced training set
     data_tr, labels_tr = u.make_class_balanced_set(data_tr, labels_tr, num_labeled)

@@ -33,7 +33,7 @@ def _noise(data, noise_std):
     return result
 
 
-def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9, noise_std=0.3):
+def cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -67,7 +67,7 @@ def _cifar10_gamma(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_
     return emb, net, comb
 
 
-def _cifar10_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
+def cifar10_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -94,7 +94,7 @@ def _cifar10_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay
     return emb
 
 
-def _mnist_supervised_haeusser(inputs, is_training, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.9):
+def mnist_supervised_haeusser(inputs, is_training, emb_size=10, l2_weight_decay=1e-4, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -117,7 +117,7 @@ def _mnist_supervised_haeusser(inputs, is_training, emb_size=10, l2_weight_decay
     return emb
 
 
-def _mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
+def mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0.0, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -139,17 +139,3 @@ def _mnist_supervised_rasmus(inputs, is_training, emb_size=10, l2_weight_decay=0
         net = slim.flatten(net, scope='flatten')
         emb = slim.fully_connected(net, emb_size, scope='fc1')
     return emb
-
-
-def get_model(model_name):
-    if model_name == 'cifar10_gamma':
-        return _cifar10_gamma
-    elif model_name == 'cifar10_supervised_rasmus':
-        return _cifar10_supervised_rasmus
-    elif model_name == 'mnist_supervised_haeusser':
-        return _mnist_supervised_haeusser
-    elif model_name == 'mnist_supervised_rasmus':
-        return _mnist_supervised_rasmus
-    else:
-        print('Model unknown!')
-        exit(0)
