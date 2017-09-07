@@ -3,7 +3,7 @@ import numpy as np
 import utils as u
 
 
-def _load_cifar10(pkl_file_path, num_labeled=None):
+def load_cifar10(pkl_file_path='./cifar10/data/50k_labels.pkl', num_labeled=None):
     with open(pkl_file_path, 'rb') as f:
         unpickler = pickle._Unpickler(f)
         unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
@@ -20,7 +20,7 @@ def _load_cifar10(pkl_file_path, num_labeled=None):
     return data_tr, labels_tr, data_te, labels_te, unlabeled
 
 
-def _load_mnist(pkl_file_path, num_labeled=None):
+def load_mnist(pkl_file_path='./mnist/data/mnist.pkl', num_labeled=None):
     with open(pkl_file_path, 'rb') as f:
         unpickler = pickle._Unpickler(f)
         unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
@@ -47,13 +47,3 @@ def _load_mnist(pkl_file_path, num_labeled=None):
     data_tr, labels_tr = u.make_class_balanced_set(data_tr, labels_tr, num_labeled)
 
     return data_tr, labels_tr, data_te, labels_te, unlabeled
-
-
-def load_data(dataset_name, num_labeled):
-    if dataset_name == 'cifar10':
-        return _load_cifar10('./cifar10/data/50k_labels.pkl', num_labeled)
-    elif dataset_name == 'mnist':
-        return _load_mnist('./mnist/data/mnist.pkl', num_labeled)
-    else:
-        print('Unknown dataset!')
-        exit(0)

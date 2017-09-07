@@ -36,7 +36,7 @@ flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.
 
 
 def main(_):
-    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_data(FLAGS.dataset_name, FLAGS.num_labeled)
+    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_mnist(num_labeled=FLAGS.num_labeled)
     print("    train shapes:", data_tr.shape, labels_tr.shape)
     print("     test shapes:", data_te.shape, labels_te.shape)
     print("unlabeled shapes:", unlabeled.shape)
