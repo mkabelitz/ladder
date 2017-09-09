@@ -21,10 +21,11 @@ flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for t
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
-flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('lr_decay_steps', 6000, 'Interval of steps for learning rate decay.')
-flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
-flags.DEFINE_string('optimizer_type', 'adam', 'Type of the optimizer to be used.')
+flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
+flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
+# flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
+# flags.DEFINE_float('lr_decay_steps', 6000, 'Interval of steps for learning rate decay.')
+# flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
 
 
 def main(_):
@@ -52,8 +53,8 @@ def main(_):
     acc_te = u.get_accuracy(logits_te, labels_te_batch)
 
     step = tf.Variable(0, trainable=False, dtype=tf.int32)
-    optimizer = u.get_optimizer(FLAGS.optimizer_type, FLAGS.learning_rate, step, FLAGS.lr_decay_steps,
-                                FLAGS.lr_decay_factor)
+    optimizer = u.get_adam_rasmus(step=step, learning_rate=FLAGS.learning_rate,
+                                  num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first)
     train_op = u.get_train_op(optimizer, loss_tr, step)
 
     with tf.Session() as sess:

@@ -112,13 +112,21 @@ def get_accuracy(logits, labels):
     return tf.reduce_mean(tf.cast(tf.equal(tf.arg_max(logits, 1), tf.arg_max(labels, 1)), tf.float32))
 
 
-def get_optimizer(optimizer_type, learning_rate, step, decay_steps, decay_factor, staircase=True):
+def get_adam_haeusser(learning_rate, step, decay_steps, decay_factor, staircase=True):
     exp_decay = tf.train.exponential_decay(learning_rate, step, decay_steps, decay_factor, staircase=staircase)
-    if optimizer_type == 'adam':
-        return tf.train.AdamOptimizer(learning_rate=exp_decay, beta1=0.9)
-    else:
-        print('Optimizer unknown!')
-        exit(0)
+    return tf.train.AdamOptimizer(learning_rate=exp_decay, beta1=0.9)
+
+
+def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first):
+    lr_const = tf.constant(learning_rate, dtype=tf.float32)
+    pol_decay_rate = tf.train.polynomial_decay(learning_rate=(1.0 / (1.0 - decay_first)) * learning_rate,
+                                               global_step=step,
+                                               decay_steps=num_total_iters,
+                                               end_learning_rate=0.000,
+                                               power=1.0)
+    cond = tf.less(step, num_total_iters * decay_first)
+    adam_lr = tf.cond(cond, lambda: lr_const, lambda: pol_decay_rate)
+    return tf.train.AdamOptimizer(learning_rate=adam_lr, beta1=0.9)
 
 
 def get_train_op(optimizer, loss, step):
