@@ -52,7 +52,7 @@ def main(_):
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
     acc_te = u.get_accuracy(logits_te, labels_te_batch)
 
-    step = tf.Variable(0, trainable=False, dtype=tf.float32)
+    step = tf.Variable(0, trainable=False, dtype=tf.int32)
     optimizer = u.get_adam_rasmus(step=step, learning_rate=FLAGS.learning_rate,
                                   num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first)
     train_op = u.get_train_op(optimizer, loss_tr, step)

@@ -119,12 +119,14 @@ def get_adam_haeusser(learning_rate, step, decay_steps, decay_factor, staircase=
 
 def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first):
     lr_const = tf.constant(learning_rate, dtype=tf.float32)
-    pol_decay_rate = tf.train.polynomial_decay(learning_rate=(1.0 / (1.0 - decay_first)) * learning_rate,
+    decay_start_lr = (1.0 / (1.0 - decay_first)) * learning_rate
+    pol_decay_rate = tf.train.polynomial_decay(learning_rate=decay_start_lr,
                                                global_step=step,
                                                decay_steps=num_total_iters,
                                                end_learning_rate=0.000,
                                                power=1.0)
-    cond = tf.less(step, num_total_iters * decay_first)
+    step_thresh = int(num_total_iters * decay_first)
+    cond = tf.less(step, step_thresh)
     adam_lr = tf.cond(cond, lambda: lr_const, lambda: pol_decay_rate)
     return tf.train.AdamOptimizer(learning_rate=adam_lr, beta1=0.9)
 
