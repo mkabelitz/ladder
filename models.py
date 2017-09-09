@@ -119,7 +119,7 @@ def mnist_supervised_haeusser(inputs, emb_size=128, l2_weight_decay=1e-3):
 
         net = slim.flatten(net, scope='flatten')
         emb = slim.fully_connected(net, emb_size, scope='fc1')
-        logits = slim.fully_connected(emb, 10, scope='fc1')
+        logits = slim.fully_connected(emb, 10, scope='fc2')
     return logits
 
 
