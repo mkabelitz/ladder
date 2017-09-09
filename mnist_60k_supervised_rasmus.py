@@ -1,5 +1,5 @@
 """
-test loss: 0.2971  test acc: 0.9967 | 12596/60000 [03:57<14:16, 55.34it/s]
+test loss: 0.2963  test acc: 0.9964 | 11399/12000 [11:28<00:35, 17.10it/s]
 Target: 0.9964
 """
 
@@ -86,6 +86,10 @@ def main(_):
                 print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
+
+        print('\nOPTIMIZATION FINISHED!')
+        final_loss_te, final_acc_te = eval_test()
+        print('FINAL TEST LOSS: %.4f  FINAL TEST ACC: %.4f' % (final_loss_te, final_acc_te))
 
         # stop our queue threads and properly close the session
         coord.request_stop()

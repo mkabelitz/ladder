@@ -87,6 +87,10 @@ def main(_):
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
 
+        print('\nOPTIMIZATION FINISHED!')
+        final_loss_te, final_acc_te = eval_test()
+        print('FINAL TEST LOSS: %.4f  FINAL TEST ACC: %.4f' % (final_loss_te, final_acc_te))
+
         # stop our queue threads and properly close the session
         coord.request_stop()
         coord.join(threads)
