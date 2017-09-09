@@ -20,7 +20,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
+flags.DEFINE_integer('eval_interval', 1000, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
 
