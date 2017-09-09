@@ -40,9 +40,9 @@ def main(_):
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
-        logits_tr = models.mnist_supervised_haeusser(data_tr_batch, is_training=True)
+        logits_tr = models.mnist_supervised_haeusser(data_tr_batch)
         scope.reuse_variables()
-        logits_te = models.mnist_supervised_haeusser(data_te_batch, is_training=False)
+        logits_te = models.mnist_supervised_haeusser(data_te_batch)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
