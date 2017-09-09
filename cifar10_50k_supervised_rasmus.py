@@ -1,5 +1,5 @@
 """
-test loss: 0.5599  test acc: 0.9069 | 13000/50000 [29:46<1:17:38,  7.94it/s]
+Best: FINAL TEST LOSS: 0.5576  FINAL TEST ACC: 0.9067
 Target: 0.9073
 """
 
@@ -23,9 +23,6 @@ flags.DEFINE_integer('num_iters', 10000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
-# flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-# flags.DEFINE_float('lr_decay_steps', 12500, 'Interval of steps for learning rate decay.')
-# flags.DEFINE_float('lr_decay_factor', 0.1, 'Learning rate exponential decay factor.')
 
 
 def main(_):

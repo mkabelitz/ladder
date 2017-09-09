@@ -1,6 +1,6 @@
 """
-Best: test loss: 1.1064  test acc: 0.9181 | 11398/12000 [09:02<00:23, 25.76it/s]
-Target: 0.9357
+test loss: -.----  test acc: -.---- |
+Target: no target (Rasmus 0.9964)
 """
 
 import os
@@ -17,12 +17,13 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', None, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 600, 'Number of steps between evaluations.')
-flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
+flags.DEFINE_integer('num_iters', 20000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 1000, 'Number of steps between evaluations.')
+flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
+flags.DEFINE_float('lr_decay_steps', 5000, 'Interval of steps for learning rate decay.')
+flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
 
 
 def main(_):
@@ -39,9 +40,9 @@ def main(_):
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
 
     with tf.variable_scope('model') as scope:
-        logits_tr = models.mnist_supervised_rasmus(data_tr_batch, is_training=True)
+        logits_tr = models.mnist_supervised_haeusser(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        logits_te = models.mnist_supervised_rasmus(data_te_batch, is_training=False)
+        logits_te = models.mnist_supervised_haeusser(data_te_batch, is_training=False)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
@@ -50,8 +51,10 @@ def main(_):
     acc_te = u.get_accuracy(logits_te, labels_te_batch)
 
     step = tf.Variable(0, trainable=False, dtype=tf.int32)
-    optimizer = u.get_adam_rasmus(step=step, learning_rate=FLAGS.learning_rate,
-                                  num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first)
+    optimizer = u.get_adam_haeusser(learning_rate=FLAGS.learning_rate,
+                                    step=step,
+                                    decay_steps=FLAGS.lr_decay_steps,
+                                    decay_factor=FLAGS.lr_decay_factor)
     train_op = u.get_train_op(optimizer, loss_tr, step)
 
     with tf.Session() as sess:
