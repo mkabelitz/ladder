@@ -3,7 +3,7 @@ import numpy as np
 import utils as u
 
 
-def load_cifar10(pkl_file_path='./cifar10/data/50k_labels.pkl', num_labeled=None):
+def load_cifar10(pkl_file_path='./cifar10/data/50k_labels_white.pkl', num_labeled=None):
     with open(pkl_file_path, 'rb') as f:
         unpickler = pickle._Unpickler(f)
         unpickler.encoding = 'latin1'  # need this bc of some Python3 problem
