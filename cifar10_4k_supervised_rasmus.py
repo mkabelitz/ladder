@@ -20,7 +20,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 10000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 10001, 'Number of steps between evaluations.')
+flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
 
@@ -79,7 +79,7 @@ def main(_):
         for i in tqdm(range(FLAGS.num_iters)):
             _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
 
-            if i % FLAGS.eval_interval == 0:
+            if FLAGS.eval_interval is not None and i % FLAGS.eval_interval == 0:
                 print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))

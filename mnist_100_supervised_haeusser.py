@@ -82,7 +82,7 @@ def main(_):
         for i in tqdm(range(FLAGS.num_iters)):
             _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
 
-            if i % FLAGS.eval_interval == 0:
+            if FLAGS.eval_interval is not None and i % FLAGS.eval_interval == 0:
                 print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
