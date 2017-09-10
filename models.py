@@ -115,16 +115,11 @@ def mnist_supervised_haeusser(inputs, emb_size=128, l2_weight_decay=1e-3):
 
         net = slim.conv2d(net, 128, [3, 3], scope='conv3_1')
         net = slim.conv2d(net, 128, [3, 3], scope='conv3_2')
-        print("1", net.get_shape())
         net = slim.max_pool2d(net, [2, 2], scope='pool3')  # 3
-        print(net.get_shape())
 
         net = slim.flatten(net, scope='flatten')
-        print("2", net.get_shape())
         emb = slim.fully_connected(net, emb_size, scope='fc1')
-        print("3", emb.get_shape())
         logits = slim.fully_connected(emb, 10, scope='fc2')
-        print("4", logits.get_shape())
     return logits
 
 
