@@ -4,13 +4,13 @@ import tensorflow.contrib.slim as slim
 
 # Function for adding batch normalization beta parameter
 def _add_bias(data):
-    own_beta = tf.get_variable('own_beta', shape=data.get_shape()[-1], initializer=tf.constant_initializer(0.0))
+    own_beta = tf.get_variable('own_beta', shape=data.shape[-1], initializer=tf.constant_initializer(0.0))
     return data + own_beta
 
 
 # Function for scaling by batch normalization gamma parameter
 def _apply_scale(data):
-    own_gamma = tf.get_variable('own_gamma', shape=data.get_shape()[-1], initializer=tf.constant_initializer(1.0))
+    own_gamma = tf.get_variable('own_gamma', shape=data.shape[-1], initializer=tf.constant_initializer(1.0))
     return data * own_gamma
 
 
