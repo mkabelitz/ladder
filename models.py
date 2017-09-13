@@ -2,10 +2,6 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-ewma = tf.train.ExponentialMovingAverage(decay=0.9)
-bn_assigns = []
-
-
 # Function for adding batch normalization beta parameter
 def _add_bias(data):
     own_beta = tf.get_variable('own_beta', shape=data.get_shape()[-1], initializer=tf.constant_initializer(0.0))
@@ -18,7 +14,7 @@ def _apply_scale(data):
     return data * own_gamma
 
 
-def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
+def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, ewma, bn_assigns):
 
     running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
                                        initializer=tf.constant_initializer(0.0))
@@ -158,7 +154,7 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
     return logits
 
 
-def mnist_gamma(inputs, is_training, batch_norm_decay=0.9, noise_std=0.3):
+def mnist_gamma(inputs, is_training, ewma, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
@@ -175,13 +171,16 @@ def mnist_gamma(inputs, is_training, batch_norm_decay=0.9, noise_std=0.3):
         net = slim.conv2d(net, 128, [3, 3], scope='conv3_1')
         net = slim.conv2d(net, 10, [1, 1], scope='conv3_2')
         net = slim.avg_pool2d(net, [7, 7], scope='pool3')
+        print(net.get_shape())
 
         net = slim.flatten(net, scope='flatten')
+        print(net.get_shape())
 
     net = tf.layers.dense(net, 10, use_bias=False, name='dense')
+    print(net.get_shape())
     logits, z_crt, z_cln = _gamma_layer(net, lambda x: x, is_training=is_training, noise_std=noise_std,
-                                        batch_norm_decay=batch_norm_decay)
-
+                                        batch_norm_decay=batch_norm_decay, ewma=ewma, bn_assigns=bn_assigns)
+    print(logits.get_shape())
     return logits, z_crt, z_cln
 
 
