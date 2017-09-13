@@ -22,12 +22,9 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, ema):
                                       initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     if is_training:
-        assign_mean_enc = running_mean_enc.assign(mean_enc)
-        assign_var_enc = running_var_enc.assign(var_enc)
-        ema.apply([running_mean_enc, running_var_enc])
-        with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
-            # normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
-            normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
+        m = ema.apply([running_mean_enc, running_var_enc])
+        with tf.control_dependencies([m]):
+            normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
 
@@ -47,12 +44,9 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, ema):
                                       initializer=tf.constant_initializer(1.0))
     mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
     if is_training:
-        assign_mean_dec = running_mean_dec.assign(mean_dec)
-        assign_var_dec = running_var_dec.assign(var_dec)
-        ema.apply([running_mean_dec, running_var_dec])
-        with tf.control_dependencies([assign_mean_dec, assign_var_dec]):
-            # normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
-            normalized_dec = (h_tilde - ema.average(running_mean_dec)) / tf.sqrt(ema.average(running_var_dec) + 1e-10)
+        m = ema.apply([running_mean_dec, running_var_dec])
+        with tf.control_dependencies([m]):
+            normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     else:
         normalized_dec = (h_tilde - ema.average(running_mean_dec)) / tf.sqrt(ema.average(running_var_dec) + 1e-10)
 
