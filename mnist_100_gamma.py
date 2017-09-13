@@ -1,6 +1,6 @@
 """
-Accuracies: (0.8611, 0.8321, 0.8218, 0.8124)
-Target: no target (Rasmus 0.9357)
+Best: test loss: 1.1064  test acc: 0.9181 | 11398/12000 [09:02<00:23, 25.76it/s]
+Target: 0.9357
 """
 
 import os
@@ -19,11 +19,10 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 1000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', None, 'Number of steps between evaluations.')
-flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('lr_decay_steps', 400, 'Interval of steps for learning rate decay.')
-flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
+flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 12001, 'Number of steps between evaluations.')
+flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
+flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
 
 
 def main(_):
@@ -38,11 +37,16 @@ def main(_):
                                                           capacity=FLAGS.batch_size * 100,
                                                           min_after_dequeue=FLAGS.batch_size * 20)
     data_te_batch, labels_te_batch = u.load_batch(data_te, labels_te, FLAGS.batch_size)
+    unlabeled_batch, _ = u.load_shuffle_batch(unlabeled,
+                                              unlabeled,
+                                              batch_size=FLAGS.batch_size,
+                                              capacity=FLAGS.batch_size * 100,
+                                              min_after_dequeue=FLAGS.batch_size * 20)
 
     with tf.variable_scope('model') as scope:
-        logits_tr = models.mnist_supervised_haeusser(data_tr_batch)
+        logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True)
         scope.reuse_variables()
-        logits_te = models.mnist_supervised_haeusser(data_te_batch)
+        logits_te = models.mnist_gamma(data_te_batch, is_training=False)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
@@ -51,10 +55,8 @@ def main(_):
     acc_te = u.get_accuracy(logits_te, labels_te_batch)
 
     step = tf.Variable(0, trainable=False, dtype=tf.int32)
-    optimizer = u.get_adam_haeusser(learning_rate=FLAGS.learning_rate,
-                                    step=step,
-                                    decay_steps=FLAGS.lr_decay_steps,
-                                    decay_factor=FLAGS.lr_decay_factor)
+    optimizer = u.get_adam_rasmus(step=step, learning_rate=FLAGS.learning_rate,
+                                  num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first)
     train_op = u.get_train_op(optimizer, loss_tr, step)
 
     with tf.Session() as sess:
