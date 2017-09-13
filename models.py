@@ -2,6 +2,10 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
+ewma = tf.train.ExponentialMovingAverage(decay=0.9)
+bn_assigns = []
+
+
 # Function for adding batch normalization beta parameter
 def _add_bias(data):
     own_beta = tf.get_variable('own_beta', shape=data.get_shape()[-1], initializer=tf.constant_initializer(0.0))
@@ -15,9 +19,6 @@ def _apply_scale(data):
 
 
 def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
-
-    ewma = tf.train.ExponentialMovingAverage(decay=batch_norm_decay)
-    bn_assigns = []
 
     running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
                                        initializer=tf.constant_initializer(0.0))
