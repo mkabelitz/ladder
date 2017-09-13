@@ -53,7 +53,7 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, 
         with tf.control_dependencies([assign_mean_dec, assign_var_dec]):
             normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     else:
-        normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
+        normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
         # normalized_dec = (h_tilde - ewma.average(running_mean_dec)) / tf.sqrt(ewma.average(running_var_dec) + 1e-10)
 
     z_est = _g(z_tilde, normalized_dec)
