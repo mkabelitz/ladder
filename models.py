@@ -4,7 +4,7 @@ import tensorflow.contrib.slim as slim
 
 # Function for adding batch normalization beta parameter
 def _add_bias(data):
-    print("!!!!!!!!!!" + tf.shape(data)[-1])
+    print(tf.shape(data)[-1])
     own_beta = tf.get_variable('own_beta', shape=tf.shape(data)[-1], initializer=tf.constant_initializer(0.0))
     return data + own_beta
 
