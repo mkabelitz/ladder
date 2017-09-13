@@ -19,8 +19,10 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
     ewma = tf.train.ExponentialMovingAverage(decay=batch_norm_decay)
     bn_assigns = []
 
-    running_mean_enc = tf.Variable(tf.constant(0.0, shape=[data.get_shape()[-1]]), trainable=False)
-    running_var_enc = tf.Variable(tf.constant(1.0, shape=[data.get_shape()[-1]]), trainable=False)
+    running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                       initializer=tf.constant_initializer(0.0))
+    running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                      initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     if is_training:
         assign_mean_enc = running_mean_enc.assign(mean_enc)
@@ -41,8 +43,10 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
         bn_corrected = _apply_scale(_add_bias(z))
     h = activation_fn(bn_corrected)
 
-    running_mean_dec = tf.Variable(tf.constant(0.0, shape=[h_tilde.get_shape()[-1]]), trainable=False)
-    running_var_dec = tf.Variable(tf.constant(1.0, shape=[h_tilde.get_shape()[-1]]), trainable=False)
+    running_mean_dec = tf.get_variable('running_mean_dec', shape=[data.get_shape()[-1]], trainable=False,
+                                       initializer=tf.constant_initializer(0.0))
+    running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
+                                      initializer=tf.constant_initializer(1.0))
     mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
     if is_training:
         assign_mean_dec = running_mean_dec.assign(mean_dec)
