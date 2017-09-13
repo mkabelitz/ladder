@@ -25,9 +25,13 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
     if is_unlabeled:
         print("1.2")
         assign_mean_enc = running_mean_enc.assign(mean_enc)
+        print("333")
         assign_var_enc = running_var_enc.assign(var_enc)
+        print("444")
         bn_assigns.append(ema.apply([running_mean_enc, running_var_enc]))
+        print("555")
         with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
+            print("666")
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     elif is_training:
         print("1.3")
