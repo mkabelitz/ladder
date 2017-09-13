@@ -14,14 +14,16 @@ def _apply_scale(data):
     return data * own_gamma
 
 
-def _gamma_layer(data, activation_fn, is_unlabeled, noise_std, ema):
+def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema):
 
     running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
                                        initializer=tf.constant_initializer(0.0))
     running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
                                       initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
-    if is_unlabeled:
+    if is_training:
+        normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
+    elif is_unlabeled:
         m = ema.apply([running_mean_enc, running_var_enc])
         with tf.control_dependencies([m]):
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
@@ -43,7 +45,9 @@ def _gamma_layer(data, activation_fn, is_unlabeled, noise_std, ema):
     running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
                                       initializer=tf.constant_initializer(1.0))
     mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
-    if is_unlabeled:
+    if is_training:
+        normalized_dec = (data - mean_dec) / tf.sqrt(var_dec + 1e-10)
+    elif is_unlabeled:
         m = ema.apply([running_mean_dec, running_var_dec])
         with tf.control_dependencies([m]):
             normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
@@ -171,7 +175,8 @@ def mnist_gamma(inputs, is_training, is_unlabeled, ema, batch_norm_decay=0.9, no
         net = slim.flatten(net, scope='flatten')
 
     net = tf.layers.dense(net, 10, use_bias=False, name='dense')
-    logits, z_crt, z_cln = _gamma_layer(net, lambda x: x, is_unlabeled=is_unlabeled, noise_std=noise_std, ema=ema)
+    logits, z_crt, z_cln = _gamma_layer(net, lambda x: x, is_training=is_training, is_unlabeled=is_unlabeled,
+                                        noise_std=noise_std, ema=ema)
     return logits, z_crt, z_cln
 
 
