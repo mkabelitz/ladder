@@ -48,9 +48,10 @@ def main(_):
     with tf.variable_scope('model') as scope:
         logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, ema=ema)
         scope.reuse_variables()
+        _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=True, ema=ema)
         logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, ema=ema)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
