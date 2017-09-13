@@ -16,18 +16,17 @@ def _apply_scale(data):
 
 def _gamma_layer(data, activation_fn, is_training, noise_std, ema):
 
-    print(data)
-    print(data.get_shape())
-    print(data.get_shape().as_list())
-    print(data.get_shape().as_list()[-1])
-    running_mean_enc = tf.Variable(tf.constant(0.0, shape=[data.get_shape().as_list()[-1]]), trainable=False)
-    running_var_enc = tf.Variable(tf.constant(1.0, shape=[data.get_shape().as_list()[-1]]), trainable=False)
+    running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                       initializer=tf.constant_initializer(0.0))
+    running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                      initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     print("1")
     if is_training:
         print("2")
         assign_mean_enc = running_mean_enc.assign(mean_enc)
         assign_var_enc = running_var_enc.assign(var_enc)
+        ema.apply([running_mean_enc, running_var_enc])
         with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
