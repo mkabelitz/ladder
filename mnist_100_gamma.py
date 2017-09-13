@@ -44,9 +44,12 @@ def main(_):
                                               min_after_dequeue=FLAGS.batch_size * 20)
 
     with tf.variable_scope('model') as scope:
+        print("Before train")
         logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True)
+        print("After train")
         scope.reuse_variables()
         logits_te = models.mnist_gamma(data_te_batch, is_training=False)
+        print("After test")
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
