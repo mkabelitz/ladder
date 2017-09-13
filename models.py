@@ -4,13 +4,13 @@ import tensorflow.contrib.slim as slim
 
 # Function for adding batch normalization beta parameter
 def _add_bias(data):
-    own_beta = tf.get_variable('own_beta', shape=data.shape[-1], initializer=tf.constant_initializer(0.0))
+    own_beta = tf.get_variable('own_beta', shape=data.get_shape()[-1], initializer=tf.constant_initializer(0.0))
     return data + own_beta
 
 
 # Function for scaling by batch normalization gamma parameter
 def _apply_scale(data):
-    own_gamma = tf.get_variable('own_gamma', shape=data.shape[-1], initializer=tf.constant_initializer(1.0))
+    own_gamma = tf.get_variable('own_gamma', shape=data.get_shape()[-1], initializer=tf.constant_initializer(1.0))
     return data * own_gamma
 
 
@@ -32,6 +32,7 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
         normalized_enc = (data - ewma.average(running_mean_enc)) / tf.sqrt(ewma.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
+    print(z_tilde)
     bn_corrected_tilde = _apply_scale(_add_bias(z_tilde))
     h_tilde = activation_fn(bn_corrected_tilde)
 
