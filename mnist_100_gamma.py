@@ -44,12 +44,11 @@ def main(_):
                                               min_after_dequeue=FLAGS.batch_size * 20)
 
     ema = tf.train.ExponentialMovingAverage(decay=0.9)
-    bn_assigns = []
 
     with tf.variable_scope('model') as scope:
-        logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, ema=ema, bn_assigns=bn_assigns)
+        logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, ema=ema)
         scope.reuse_variables()
-        logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, ema=ema, bn_assigns=bn_assigns)
+        logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, ema=ema)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
