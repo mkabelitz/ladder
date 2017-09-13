@@ -30,10 +30,14 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, ema):
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
         print("3.1")
-        ema.average(running_mean_enc)
+        print(ema.average(running_mean_enc))
         print("3.2")
-        ema.average(running_var_enc)
+        print(ema.average(running_var_enc))
         print("3.3")
+        print((data - ema.average(running_mean_enc)))
+        print("3.4")
+        print(tf.sqrt(ema.average(running_var_enc) + 1e-10))
+        print("3.5")
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
