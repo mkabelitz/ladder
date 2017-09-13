@@ -33,7 +33,8 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay):
         normalized_enc = (data - ewma.average(running_mean_enc)) / tf.sqrt(ewma.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
-    print(z_tilde)
+    print(tf.shape(z_tilde))
+    print(z_tilde.get_shape())
     bn_corrected_tilde = _apply_scale(_add_bias(z_tilde))
     h_tilde = activation_fn(bn_corrected_tilde)
 
