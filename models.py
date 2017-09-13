@@ -20,8 +20,8 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, ema):
     print(data.get_shape())
     print(data.get_shape().as_list())
     print(data.get_shape().as_list()[-1])
-    running_mean_enc = tf.Variable(tf.constant(0.0, shape=data.get_shape().as_list()[-1]), trainable=False)
-    running_var_enc = tf.Variable(tf.constant(1.0, shape=data.get_shape().as_list()[-1]), trainable=False)
+    running_mean_enc = tf.Variable(tf.constant(0.0, shape=[data.get_shape().as_list()[-1]]), trainable=False)
+    running_var_enc = tf.Variable(tf.constant(1.0, shape=[data.get_shape().as_list()[-1]]), trainable=False)
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     print("1")
     if is_training:
