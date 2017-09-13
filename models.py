@@ -16,8 +16,6 @@ def _apply_scale(data):
 
 def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, ewma, bn_assigns):
 
-    is_training = True
-
     running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
                                        initializer=tf.constant_initializer(0.0))
     running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
@@ -30,7 +28,8 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, 
         with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
-        normalized_enc = (data - ewma.average(running_mean_enc)) / tf.sqrt(ewma.average(running_var_enc) + 1e-10)
+        normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
+        # normalized_enc = (data - ewma.average(running_mean_enc)) / tf.sqrt(ewma.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
     with tf.variable_scope('bn_correct'):
@@ -54,7 +53,8 @@ def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, 
         with tf.control_dependencies([assign_mean_dec, assign_var_dec]):
             normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     else:
-        normalized_dec = (h_tilde - ewma.average(running_mean_dec)) / tf.sqrt(ewma.average(running_var_dec) + 1e-10)
+        normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
+        # normalized_dec = (h_tilde - ewma.average(running_mean_dec)) / tf.sqrt(ewma.average(running_var_dec) + 1e-10)
 
     z_est = _g(z_tilde, normalized_dec)
 
