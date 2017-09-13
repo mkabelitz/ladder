@@ -46,9 +46,13 @@ def main(_):
     ema = tf.train.ExponentialMovingAverage(decay=0.9)
 
     with tf.variable_scope('model') as scope:
+        print("7")
         logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, ema=ema)
+        print("8")
         scope.reuse_variables()
+        print("9")
         logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, ema=ema)
+        print("10")
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
