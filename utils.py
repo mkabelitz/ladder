@@ -114,7 +114,7 @@ def get_accuracy(logits, labels):
 
 def get_adam_haeusser(learning_rate, step, decay_steps, decay_factor, staircase=True):
     exp_decay = tf.train.exponential_decay(learning_rate, step, decay_steps, decay_factor, staircase=staircase)
-    return tf.train.AdamOptimizer(learning_rate=exp_decay, beta1=0.9)
+    return tf.train.AdamOptimizer(learning_rate=exp_decay)
 
 
 def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first):
