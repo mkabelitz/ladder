@@ -16,6 +16,8 @@ def _apply_scale(data):
 
 def _gamma_layer(data, activation_fn, is_training, noise_std, batch_norm_decay, ewma, bn_assigns):
 
+    is_training = True
+
     running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
                                        initializer=tf.constant_initializer(0.0))
     running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
