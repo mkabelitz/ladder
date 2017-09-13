@@ -81,6 +81,8 @@ def main(_):
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
 
+        print('\nOPTIMIZATION STARTED!')
+
         for i in tqdm(range(FLAGS.num_iters)):
             _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
 
