@@ -22,7 +22,7 @@ flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 1000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', None, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('lr_decay_steps', 500, 'Interval of steps for learning rate decay.')
+flags.DEFINE_float('lr_decay_steps', 600, 'Interval of steps for learning rate decay.')
 flags.DEFINE_float('lr_decay_factor', 0.33, 'Learning rate exponential decay factor.')
 
 
