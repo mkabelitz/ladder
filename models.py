@@ -161,7 +161,7 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
     return logits
 
 
-def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.999, noise_std=0.3):
+def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with tf.variable_scope('model', reuse=not is_training):
