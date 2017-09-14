@@ -19,8 +19,8 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 50000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
+flags.DEFINE_integer('num_iters', 10000, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 100, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
 
@@ -30,12 +30,6 @@ def main(_):
     print("    train shapes:", data_tr.shape, labels_tr.shape)
     print("     test shapes:", data_te.shape, labels_te.shape)
     print("unlabeled shapes:", unlabeled.shape)
-
-    import numpy as np
-    counts = [0] * 10
-    for i in labels_te:
-        counts[np.argmax(i)] += 1
-    print(counts)
 
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
                                                           labels_tr,
