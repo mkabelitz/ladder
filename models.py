@@ -553,9 +553,9 @@ def cifar10_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                             activation_fn=tf.nn.relu,
                             normalizer_fn=custom_batch_norm,
-                            normalizer_params={'is_training': is_training,
+                            normalizer_params={'is_training': is_training or is_unlabeled,
                                                'decay': batch_norm_decay,
-                                               'noise_std': noise_std}):
+                                               'noise_std': 0.0}):
             net = slim.conv2d(net, 96, [3, 3], scope='conv1_1')
             net = slim.conv2d(net, 96, [3, 3], scope='conv1_2')
             net = slim.conv2d(net, 96, [3, 3], scope='conv1_3')
