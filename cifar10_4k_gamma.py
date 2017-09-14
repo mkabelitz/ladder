@@ -1,6 +1,6 @@
 """
-FINAL TEST LOSS: 0.1210  FINAL TEST ACC: 0.9677
-Target: 0.9911
+test loss: 1.0425  test acc: 0.7456 | 8500/50000 [19:40<1:28:31,  7.81it/s]
+Target: 0.7960
 """
 
 import os
@@ -17,16 +17,16 @@ import utils as u
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
+flags.DEFINE_integer('num_labeled', 4000, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 5000, 'Number of training steps.')
+flags.DEFINE_integer('num_iters', 10000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('decay_first', 0.67, 'Percentage after when to start learning rate decay.')
+flags.DEFINE_float('decay_first', 0.86, 'Percentage after when to start learning rate decay.')
 
 
 def main(_):
-    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_mnist(num_labeled=FLAGS.num_labeled)
+    data_tr, labels_tr, data_te, labels_te, unlabeled = input_data.load_cifar10(num_labeled=FLAGS.num_labeled)
     print("    train shapes:", data_tr.shape, labels_tr.shape)
     print("     test shapes:", data_te.shape, labels_te.shape)
     print("unlabeled shapes:", unlabeled.shape)
@@ -47,14 +47,14 @@ def main(_):
     ema = tf.train.ExponentialMovingAverage(decay=bn_decay)
     bn_assigns = []
 
-    logits_tr, _, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
-                                            ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
-    _, _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
-                                        ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
-    _, logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
-                                            ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.0)
+    logits_tr, _, _, _ = models.cifar10_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
+                                              ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
+    _, _, crt, cln = models.cifar10_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
+                                          ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
+    _, logits_te, _, _ = models.cifar10_gamma(data_te_batch, is_training=False, is_unlabeled=False,
+                                              ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.0)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 4.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)

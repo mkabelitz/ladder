@@ -546,37 +546,41 @@ def _noise(data, noise_std):
     return result
 
 
-def cifar10_gamma(inputs, is_training, batch_norm_decay=0.9, noise_std=0.3):
+def cifar10_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay, noise_std):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        activation_fn=tf.nn.relu,
-                        normalizer_fn=slim.batch_norm,
-                        normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):
-        net = slim.conv2d(net, 96, [3, 3], scope='conv1_1')
-        net = slim.conv2d(net, 96, [3, 3], scope='conv1_2')
-        net = slim.conv2d(net, 96, [3, 3], scope='conv1_3')
-        net = slim.max_pool2d(net, [2, 2], scope='pool1')
+    with tf.variable_scope('model', reuse=not is_training):
+        with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                            activation_fn=tf.nn.relu,
+                            normalizer_fn=custom_batch_norm,
+                            normalizer_params={'is_training': is_training,
+                                               'decay': batch_norm_decay,
+                                               'noise_std': noise_std}):
+            net = slim.conv2d(net, 96, [3, 3], scope='conv1_1')
+            net = slim.conv2d(net, 96, [3, 3], scope='conv1_2')
+            net = slim.conv2d(net, 96, [3, 3], scope='conv1_3')
+            net = slim.max_pool2d(net, [2, 2], scope='pool1')
 
-        net = slim.conv2d(net, 192, [3, 3], scope='conv2_1')
-        net = slim.conv2d(net, 192, [3, 3], scope='conv2_2')
-        net = slim.conv2d(net, 192, [3, 3], scope='conv2_3')
-        net = slim.max_pool2d(net, [2, 2], scope='pool2')
+            net = slim.conv2d(net, 192, [3, 3], scope='conv2_1')
+            net = slim.conv2d(net, 192, [3, 3], scope='conv2_2')
+            net = slim.conv2d(net, 192, [3, 3], scope='conv2_3')
+            net = slim.max_pool2d(net, [2, 2], scope='pool2')
 
-        net = slim.conv2d(net, 192, [3, 3], scope='conv3_1')
-        net = slim.conv2d(net, 192, [1, 1], scope='conv3_2')
-        net = slim.conv2d(net, 10, [1, 1], scope='conv3_3')
-        net = slim.avg_pool2d(net, [7, 7], scope='pool3')
+            net = slim.conv2d(net, 192, [3, 3], scope='conv3_1')
+            net = slim.conv2d(net, 192, [1, 1], scope='conv3_2')
+            net = slim.conv2d(net, 10, [1, 1], scope='conv3_3')
+            net = slim.avg_pool2d(net, [7, 7], scope='pool3')
 
-        emb = slim.flatten(net, scope='flatten')
+            net = slim.flatten(net, scope='flatten')
 
-        net_noisy = _noise(net, noise_std=noise_std)
-        mean, var = tf.nn.moments(net_noisy, axes=[0, 1, 2])
-        net_noisy_norm = (net_noisy - mean) / tf.sqrt(var + tf.constant(1e-10))
-
-        comb = _g(net_noisy, net_noisy_norm)
-
-    return emb, net, comb
+    logits_crt, logits_cln, z_crt, z_cln = _gamma_layer(net,
+                                                        lambda x: x,
+                                                        is_training=is_training,
+                                                        is_unlabeled=is_unlabeled,
+                                                        noise_std=noise_std,
+                                                        ema=ema,
+                                                        bn_assigns=bn_assigns)
+    return logits_crt, logits_cln, z_crt, z_cln
 
 
 def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
@@ -605,7 +609,7 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
     return logits
 
 
-def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
+def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay, noise_std):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with tf.variable_scope('model', reuse=not is_training):
