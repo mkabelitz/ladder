@@ -42,7 +42,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
-    with tf.variable_scope('bn_correct'):
+    with tf.variable_scope('bn_correct', reuse=not is_training):
         bn_corrected_tilde = _apply_scale(_add_bias(z_tilde))
     h_tilde = activation_fn(bn_corrected_tilde)
 
