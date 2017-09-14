@@ -33,7 +33,7 @@ def main(_):
 
     import numpy as np
     counts = [0] * 10
-    for i in labels_tr:
+    for i in labels_te:
         counts[np.argmax(i)] += 1
     print(counts)
 
