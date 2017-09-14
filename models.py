@@ -586,7 +586,7 @@ def cifar10_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm
 def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d, slim.avg_pool2d],
+    with slim.arg_scope([slim.conv2d, slim.fully_connected],
                         activation_fn=_leaky_relu,
                         normalizer_fn=slim.batch_norm,
                         normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):
