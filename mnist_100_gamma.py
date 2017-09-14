@@ -52,7 +52,7 @@ def main(_):
     _, _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
                                         ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
     _, logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
-                                            ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=None)
+                                            ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.0)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
