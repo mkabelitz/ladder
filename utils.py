@@ -117,7 +117,7 @@ def get_adam_haeusser(learning_rate, step, decay_steps, decay_factor, staircase=
     return tf.train.AdamOptimizer(learning_rate=exp_decay)
 
 
-def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first, bn_assigns=None):
+def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first):
     lr_const = tf.constant(learning_rate, dtype=tf.float32)
     decay_start_lr = (1.0 / (1.0 - decay_first)) * learning_rate
     pol_decay_rate = tf.train.polynomial_decay(learning_rate=decay_start_lr,
@@ -128,13 +128,13 @@ def get_adam_rasmus(learning_rate, step, num_total_iters, decay_first, bn_assign
     step_thresh = int(num_total_iters * decay_first)
     cond = tf.less(step, step_thresh)
     adam_lr = tf.cond(cond, lambda: lr_const, lambda: pol_decay_rate)
-    adam = tf.train.AdamOptimizer(learning_rate=adam_lr, beta1=0.9)
+    return tf.train.AdamOptimizer(learning_rate=adam_lr, beta1=0.9)
+
+
+def get_train_op(optimizer, loss, step, bn_assigns=None):
+    train_op = slim.learning.create_train_op(loss, optimizer, global_step=step)
     if bn_assigns:
         bn_updates = tf.group(*bn_assigns)
-        with tf.control_dependencies([adam]):
-            adam = tf.group(bn_updates)
-    return adam
-
-
-def get_train_op(optimizer, loss, step):
-    return slim.learning.create_train_op(loss, optimizer, global_step=step)
+        with tf.control_dependencies([train_op]):
+            train_op = tf.group(bn_updates)
+    return train_op
