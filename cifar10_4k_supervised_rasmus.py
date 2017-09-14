@@ -31,6 +31,12 @@ def main(_):
     print("     test shapes:", data_te.shape, labels_te.shape)
     print("unlabeled shapes:", unlabeled.shape)
 
+    import numpy as np
+    counts = [0] * 10
+    for i in labels_tr:
+        counts[np.argmax(i)] += 1
+    print(counts)
+
     data_tr_batch, labels_tr_batch = u.load_shuffle_batch(data_tr,
                                                           labels_tr,
                                                           batch_size=FLAGS.batch_size,
