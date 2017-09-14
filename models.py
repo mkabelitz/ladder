@@ -179,7 +179,8 @@ def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_d
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                             activation_fn=tf.nn.relu,
                             normalizer_fn=slim.batch_norm,
-                            normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):
+                            normalizer_params={'is_training': is_training or is_unlabeled,
+                                               'decay': batch_norm_decay}):
             net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
             net = slim.max_pool2d(net, [2, 2], scope='pool1')
 

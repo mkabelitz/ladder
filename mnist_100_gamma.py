@@ -48,7 +48,7 @@ def main(_):
 
     logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
                                          ema=ema, bn_assigns=bn_assigns)
-    _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=True, is_unlabeled=True,
+    _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
                                      ema=ema, bn_assigns=bn_assigns)
     logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
                                          ema=ema, bn_assigns=bn_assigns)
