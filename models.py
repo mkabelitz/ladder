@@ -166,14 +166,13 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
 
 def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
-    net = inputs
     with tf.variable_scope('model', reuse=not is_training):
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                             activation_fn=tf.nn.relu,
                             normalizer_fn=slim.batch_norm,
                             normalizer_params={'is_training': is_training or is_unlabeled,
                                                'decay': batch_norm_decay}):
-            net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
+            net = slim.conv2d(inputs, 32, [5, 5], scope='conv1_1')
             net = _noise(net, noise_std)
             net = slim.max_pool2d(net, [2, 2], scope='pool1')
             net = _noise(net, noise_std)
@@ -202,7 +201,7 @@ def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_d
                             normalizer_fn=slim.batch_norm,
                             normalizer_params={'is_training': is_training or is_unlabeled,
                                                'decay': batch_norm_decay}):
-            net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
+            net = slim.conv2d(inputs, 32, [5, 5], scope='conv1_1')
             net = slim.max_pool2d(net, [2, 2], scope='pool1')
 
             net = slim.conv2d(net, 64, [3, 3], scope='conv2_1')
