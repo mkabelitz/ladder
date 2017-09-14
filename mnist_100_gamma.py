@@ -22,7 +22,7 @@ flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
 flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
 flags.DEFINE_integer('eval_interval', 100, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
-flags.DEFINE_float('decay_first', 0.5, 'Percentage after when to start learning rate decay.')
+flags.DEFINE_float('decay_first', 0.67, 'Percentage after when to start learning rate decay.')
 
 
 def main(_):
