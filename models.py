@@ -72,7 +72,8 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         print("2.4")
         normalized_dec = (h_tilde - ema.average(running_mean_dec)) / tf.sqrt(ema.average(running_var_dec) + 1e-10)
 
-    z_est = _g(z_tilde, normalized_dec)
+    with tf.variable_scope('g', reuse=not is_training):
+        z_est = _g(z_tilde, normalized_dec)
 
     return h, z_est, z
 
