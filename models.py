@@ -22,23 +22,15 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
-    print("1.1")
     if is_unlabeled:
-        print("1.2")
         assign_mean_enc = running_mean_enc.assign(mean_enc)
-        print("333")
         assign_var_enc = running_var_enc.assign(var_enc)
-        print("444")
         bn_assigns.append(ema.apply([running_mean_enc, running_var_enc]))
-        print("555")
         with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
-            print("666")
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     elif is_training:
-        print("1.3")
         normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
-        print("1.4")
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
@@ -57,19 +49,15 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
         mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
-    print("2.1")
     if is_unlabeled:
-        print("2.2")
         assign_mean_dec = running_mean_dec.assign(mean_dec)
         assign_var_dec = running_var_dec.assign(var_dec)
         bn_assigns.append(ema.apply([running_mean_dec, running_var_dec]))
         with tf.control_dependencies([assign_mean_dec, assign_var_dec]):
             normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     elif is_training:
-        print("2.3")
         normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     else:
-        print("2.4")
         normalized_dec = (h_tilde - ema.average(running_mean_dec)) / tf.sqrt(ema.average(running_var_dec) + 1e-10)
 
     with tf.variable_scope('g', reuse=not is_training):
