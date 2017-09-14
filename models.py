@@ -579,7 +579,8 @@ def cifar10_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm
                                                         noise_std=noise_std,
                                                         ema=ema,
                                                         bn_assigns=bn_assigns)
-    return logits_crt, logits_cln, z_crt, z_cln
+    #return logits_crt, logits_cln, z_crt, z_cln
+    return net, net, net, net
 
 
 def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
