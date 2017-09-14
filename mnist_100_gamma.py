@@ -53,7 +53,7 @@ def main(_):
     _, logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
                                             ema=ema, bn_assigns=bn_assigns)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 10.0)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
