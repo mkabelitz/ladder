@@ -25,6 +25,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
                                           initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     if is_unlabeled:
+        print("HERE")
         assign_mean_enc = running_mean_enc.assign(mean_enc)
         assign_var_enc = running_var_enc.assign(var_enc)
         bn_assigns.append(ema.apply([running_mean_enc, running_var_enc]))
@@ -33,6 +34,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
     elif is_training:
         normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
+        print("THERE")
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
 
     z_tilde = _noise(normalized_enc, noise_std)
