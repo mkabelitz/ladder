@@ -572,13 +572,13 @@ def cifar10_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm
 
             net = slim.flatten(net, scope='flatten')
 
-    logits_crt, logits_cln, z_crt, z_cln = _gamma_layer(net,
-                                                        lambda x: x,
-                                                        is_training=is_training,
-                                                        is_unlabeled=is_unlabeled,
-                                                        noise_std=noise_std,
-                                                        ema=ema,
-                                                        bn_assigns=bn_assigns)
+    # logits_crt, logits_cln, z_crt, z_cln = _gamma_layer(net,
+    #                                                     lambda x: x,
+    #                                                     is_training=is_training,
+    #                                                     is_unlabeled=is_unlabeled,
+    #                                                     noise_std=noise_std,
+    #                                                     ema=ema,
+    #                                                     bn_assigns=bn_assigns)
     #return logits_crt, logits_cln, z_crt, z_cln
     return net, net, net, net
 
