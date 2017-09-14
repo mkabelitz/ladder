@@ -466,13 +466,13 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
-    if is_training:
+    if is_unlabeled:
         assign_mean_enc = running_mean_enc.assign(mean_enc)
         assign_var_enc = running_var_enc.assign(var_enc)
         bn_assigns.append(ema.apply([running_mean_enc, running_var_enc]))
         with tf.control_dependencies([assign_mean_enc, assign_var_enc]):
             normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
-    elif is_unlabeled:
+    elif is_training:
         normalized_enc = (data - mean_enc) / tf.sqrt(var_enc + 1e-10)
     else:
         normalized_enc = (data - ema.average(running_mean_enc)) / tf.sqrt(ema.average(running_var_enc) + 1e-10)
@@ -493,13 +493,13 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
         mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
-    if is_training:
+    if is_unlabeled:
         assign_mean_dec = running_mean_dec.assign(mean_dec)
         assign_var_dec = running_var_dec.assign(var_dec)
         bn_assigns.append(ema.apply([running_mean_dec, running_var_dec]))
         with tf.control_dependencies([assign_mean_dec, assign_var_dec]):
             normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
-    elif is_unlabeled:
+    elif is_training:
         normalized_dec = (h_tilde - mean_dec) / tf.sqrt(var_dec + 1e-10)
     else:
         normalized_dec = (h_tilde - ema.average(running_mean_dec)) / tf.sqrt(ema.average(running_var_dec) + 1e-10)
@@ -605,7 +605,7 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
     return logits
 
 
-def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay, noise_std):
+def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
     with tf.variable_scope('model', reuse=not is_training):
