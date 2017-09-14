@@ -41,8 +41,7 @@ def main(_):
 
     with tf.variable_scope('model') as scope:
         logits_tr = models.mnist_supervised_haeusser(data_tr_batch)
-        # scope.reuse_variables()
-    with tf.variable_scope('model', reuse=True) as scope:
+        scope.reuse_variables()
         logits_te = models.mnist_supervised_haeusser(data_te_batch)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)

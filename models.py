@@ -16,10 +16,11 @@ def _apply_scale(data):
 
 def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema, bn_assigns):
 
-    running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
-                                       initializer=tf.constant_initializer(0.0))
-    running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
-                                      initializer=tf.constant_initializer(1.0))
+    with tf.variable_scope('enc', reuse=not is_training):
+        running_mean_enc = tf.get_variable('running_mean_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                           initializer=tf.constant_initializer(0.0))
+        running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
+                                          initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
     print("1.1")
     if is_unlabeled:
@@ -50,11 +51,12 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         bn_corrected = _apply_scale(_add_bias(z))
     h = activation_fn(bn_corrected)
 
-    running_mean_dec = tf.get_variable('running_mean_dec', shape=[data.get_shape()[-1]], trainable=False,
-                                       initializer=tf.constant_initializer(0.0))
-    running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
-                                      initializer=tf.constant_initializer(1.0))
-    mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
+    with tf.variable_scope('dec', reuse=not is_training):
+        running_mean_dec = tf.get_variable('running_mean_dec', shape=[data.get_shape()[-1]], trainable=False,
+                                           initializer=tf.constant_initializer(0.0))
+        running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
+                                          initializer=tf.constant_initializer(1.0))
+        mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
     print("2.1")
     if is_unlabeled:
         print("2.2")
@@ -173,24 +175,26 @@ def cifar10_supervised_rasmus(inputs, is_training, batch_norm_decay=0.9):
 def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_decay=0.9, noise_std=0.3):
     inputs = tf.cast(inputs, tf.float32)
     net = inputs
-    with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        activation_fn=tf.nn.relu,
-                        normalizer_fn=slim.batch_norm,
-                        normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):
-        net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
-        net = slim.max_pool2d(net, [2, 2], scope='pool1')
+    with tf.variable_scope('model', reuse=not is_training):
+        with slim.arg_scope([slim.conv2d, slim.fully_connected],
+                            activation_fn=tf.nn.relu,
+                            normalizer_fn=slim.batch_norm,
+                            normalizer_params={'is_training': is_training, 'decay': batch_norm_decay}):
+            net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
+            net = slim.max_pool2d(net, [2, 2], scope='pool1')
 
-        net = slim.conv2d(net, 64, [3, 3], scope='conv2_1')
-        net = slim.conv2d(net, 64, [3, 3], scope='conv2_2')
-        net = slim.max_pool2d(net, [2, 2], scope='pool2')
+            net = slim.conv2d(net, 64, [3, 3], scope='conv2_1')
+            net = slim.conv2d(net, 64, [3, 3], scope='conv2_2')
+            net = slim.max_pool2d(net, [2, 2], scope='pool2')
 
-        net = slim.conv2d(net, 128, [3, 3], scope='conv3_1')
-        net = slim.conv2d(net, 10, [1, 1], scope='conv3_2')
-        net = slim.avg_pool2d(net, [7, 7], scope='pool3')
+            net = slim.conv2d(net, 128, [3, 3], scope='conv3_1')
+            net = slim.conv2d(net, 10, [1, 1], scope='conv3_2')
+            net = slim.avg_pool2d(net, [7, 7], scope='pool3')
 
-        net = slim.flatten(net, scope='flatten')
+            net = slim.flatten(net, scope='flatten')
 
-    net = tf.layers.dense(net, 10, use_bias=False, name='dense')
+        net = tf.layers.dense(net, 10, use_bias=False, name='dense')
+
     logits, z_crt, z_cln = _gamma_layer(net, lambda x: x, is_training=is_training, is_unlabeled=is_unlabeled,
                                         noise_std=noise_std, ema=ema, bn_assigns=bn_assigns)
     return logits, z_crt, z_cln

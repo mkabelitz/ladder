@@ -46,14 +46,12 @@ def main(_):
     ema = tf.train.ExponentialMovingAverage(decay=0.999)
     bn_assigns = []
 
-    with tf.variable_scope('model') as scope:
-        logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
-                                             ema=ema, bn_assigns=bn_assigns)
-        scope.reuse_variables()
-        _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=True, is_unlabeled=True,
+    logits_tr, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
                                          ema=ema, bn_assigns=bn_assigns)
-        logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False,  is_unlabeled=False,
-                                             ema=ema, bn_assigns=bn_assigns)
+    _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=True, is_unlabeled=True,
+                                     ema=ema, bn_assigns=bn_assigns)
+    logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
+                                         ema=ema, bn_assigns=bn_assigns)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
