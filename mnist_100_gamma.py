@@ -43,7 +43,7 @@ def main(_):
                                               capacity=FLAGS.batch_size * 100,
                                               min_after_dequeue=FLAGS.batch_size * 20)
 
-    ema = tf.train.ExponentialMovingAverage(decay=0.9)
+    ema = tf.train.ExponentialMovingAverage(decay=0.999)
     bn_assigns = []
 
     logits_tr, _, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
