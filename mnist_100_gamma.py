@@ -1,6 +1,6 @@
 """
-Best: test loss: 1.1064  test acc: 0.9181 | 11398/12000 [09:02<00:23, 25.76it/s]
-Target: 0.9357
+FINAL TEST LOSS: 0.1806  FINAL TEST ACC: 0.9535
+Target: 0.9911
 """
 
 import os
@@ -43,7 +43,7 @@ def main(_):
                                               capacity=FLAGS.batch_size * 100,
                                               min_after_dequeue=FLAGS.batch_size * 20)
 
-    ema = tf.train.ExponentialMovingAverage(decay=0.999)
+    ema = tf.train.ExponentialMovingAverage(decay=0.9)
     bn_assigns = []
 
     logits_tr, _, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
