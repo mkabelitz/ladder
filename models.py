@@ -63,7 +63,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
     with tf.variable_scope('g', reuse=not is_training):
         z_est = _g(z_tilde, normalized_dec)
 
-    return h, z_est, z
+    return h_tilde, h, z_est, z
 
 
 def _leaky_relu(features, name=None):
@@ -168,7 +168,7 @@ def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_d
         with slim.arg_scope([slim.conv2d, slim.fully_connected],
                             activation_fn=tf.nn.relu,
                             normalizer_fn=slim.batch_norm,
-                            normalizer_params={'is_training': is_unlabeled,
+                            normalizer_params={'is_training': is_training or is_unlabeled,
                                                'decay': batch_norm_decay}):
             net = slim.conv2d(net, 32, [5, 5], scope='conv1_1')
             net = slim.max_pool2d(net, [2, 2], scope='pool1')
@@ -185,9 +185,14 @@ def mnist_gamma(inputs, is_training, is_unlabeled, ema, bn_assigns, batch_norm_d
 
         net = tf.layers.dense(net, 10, use_bias=False, name='dense')
 
-    logits, z_crt, z_cln = _gamma_layer(net, lambda x: x, is_training=is_training, is_unlabeled=is_unlabeled,
-                                        noise_std=noise_std, ema=ema, bn_assigns=bn_assigns)
-    return logits, z_crt, z_cln
+    logits_crt, logits_cln, z_crt, z_cln = _gamma_layer(net,
+                                                        lambda x: x,
+                                                        is_training=is_training,
+                                                        is_unlabeled=is_unlabeled,
+                                                        noise_std=noise_std,
+                                                        ema=ema,
+                                                        bn_assigns=bn_assigns)
+    return logits_crt, logits_cln, z_crt, z_cln
 
 
 def mnist_supervised_haeusser(inputs, emb_size=128, l2_weight_decay=1e-3):
