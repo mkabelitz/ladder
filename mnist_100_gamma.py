@@ -19,8 +19,8 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_integer('num_labeled', 100, 'Number of labeled samples to use for training. (None = all labeled samples)')
 flags.DEFINE_integer('batch_size', 100, 'Number of samples used per batch.')
-flags.DEFINE_integer('num_iters', 12000, 'Number of training steps.')
-flags.DEFINE_integer('eval_interval', 500, 'Number of steps between evaluations.')
+flags.DEFINE_integer('num_iters', 150, 'Number of training steps.')
+flags.DEFINE_integer('eval_interval', 10, 'Number of steps between evaluations.')
 flags.DEFINE_float('learning_rate', 0.002, 'Initial learning rate for optimizer.')
 flags.DEFINE_float('decay_first', 0.67, 'Percentage after when to start learning rate decay.')
 
@@ -53,7 +53,7 @@ def main(_):
     _, logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
                                             ema=ema, bn_assigns=bn_assigns)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 0.0)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + u.get_denoising_loss(crt, cln, 1.0)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
