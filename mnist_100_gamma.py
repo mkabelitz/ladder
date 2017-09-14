@@ -49,8 +49,10 @@ def main(_):
 
     logits_tr, _, _, _ = models.mnist_gamma(data_tr_batch, is_training=True, is_unlabeled=False,
                                             ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
-    _, _, crt, cln = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
+    _, _, crt, _ = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
                                         ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.3)
+    _, _, _, cln = models.mnist_gamma(unlabeled_batch, is_training=False, is_unlabeled=True,
+                                      ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.0)
     _, logits_te, _, _ = models.mnist_gamma(data_te_batch, is_training=False, is_unlabeled=False,
                                             ema=ema, bn_assigns=bn_assigns, batch_norm_decay=bn_decay, noise_std=0.0)
 
