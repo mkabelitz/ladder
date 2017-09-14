@@ -105,7 +105,7 @@ def get_supervised_loss(logits, labels):
 
 
 def get_denoising_loss(crt, cln, denoising_cost):
-    return tf.reduce_mean(tf.reduce_sum(tf.square(crt - cln), 1)) / crt.get_shape().as_list()[3] * denoising_cost
+    return tf.reduce_mean(tf.reduce_sum(tf.square(crt - cln), 1)) / crt.get_shape().as_list()[-1] * denoising_cost
 
 
 def get_accuracy(logits, labels):
