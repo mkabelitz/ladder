@@ -644,6 +644,10 @@ else:  # AdaDelta as default
 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 with tf.control_dependencies(update_ops):
     train_op = optimizer.minimize(total_loss_crt, global_step=step, name='train_op')
+if bn_assigns:
+    bn_updates = tf.group(*bn_assigns)
+    with tf.control_dependencies([train_op]):
+        train_op = tf.group(bn_updates)
 
 # ----------------------------------------------------------------------------------------------------------------------
 """
