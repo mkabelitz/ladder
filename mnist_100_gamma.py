@@ -61,7 +61,8 @@ def main(_):
 
     step = tf.Variable(0, trainable=False, dtype=tf.int32)
     optimizer = u.get_adam_rasmus(step=step, learning_rate=FLAGS.learning_rate,
-                                  num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first)
+                                  num_total_iters=FLAGS.num_iters, decay_first=FLAGS.decay_first,
+                                  bn_assigns=bn_assigns)
     train_op = u.get_train_op(optimizer, loss_tr, step)
 
     with tf.Session() as sess:
