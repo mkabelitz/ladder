@@ -22,7 +22,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_enc = tf.get_variable('running_var_enc', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
     mean_enc, var_enc = tf.nn.moments(data, axes=[0])
-    if is_training or is_unlabeled:
+    if is_unlabeled:
         assign_mean_enc = running_mean_enc.assign(mean_enc)
         assign_var_enc = running_var_enc.assign(var_enc)
         bn_assigns.append(ema.apply([running_mean_enc, running_var_enc]))
@@ -49,7 +49,7 @@ def _gamma_layer(data, activation_fn, is_training, is_unlabeled, noise_std, ema,
         running_var_dec = tf.get_variable('running_var_dec', shape=[data.get_shape()[-1]], trainable=False,
                                           initializer=tf.constant_initializer(1.0))
         mean_dec, var_dec = tf.nn.moments(h_tilde, axes=[0])
-    if is_unlabeled or is_training:
+    if is_unlabeled:
         assign_mean_dec = running_mean_dec.assign(mean_dec)
         assign_var_dec = running_var_dec.assign(var_dec)
         bn_assigns.append(ema.apply([running_mean_dec, running_var_dec]))
