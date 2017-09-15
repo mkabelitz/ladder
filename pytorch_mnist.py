@@ -74,6 +74,11 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 
 
 class Net(nn.Module):
+    def gaussian(self, ins, stddev=0.3):
+        if self.training:
+            return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
+        return ins
+
     def __init__(self):
         super(Net, self).__init__()
 
@@ -100,6 +105,9 @@ class Net(nn.Module):
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True, momentum=0.9)
 
     def forward(self, x):
+
+        x = self.gaussian(x)
+
         x = F.relu(self.conv1_bn(self.conv1(x)))
 
         x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
