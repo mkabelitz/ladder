@@ -106,7 +106,7 @@ class Net(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 limit = np.sqrt(6 / m.in_channels)
-                m.weight.data.uniform(-limit, limit)
+                m.weight.data.uniform_(-limit, limit)
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
