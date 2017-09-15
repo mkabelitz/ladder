@@ -62,6 +62,7 @@ if args.labeled_samples:
                                                **kwargs)
 
     print(balanced_index_set)
+    print(len(train_loader))
 else:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
@@ -117,7 +118,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        print(target)
+        print("sum", torch.sum(target))
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
