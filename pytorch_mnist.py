@@ -74,6 +74,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=True)
         self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True)
@@ -89,7 +90,7 @@ class Net(nn.Module):
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
+        x = self.conv1_bn(F.relu(self.conv1(x)))
         x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
         x = F.relu(self.conv2_bn(self.conv2(x)))
         x = F.relu(self.conv3_bn(self.conv3(x)))
