@@ -167,9 +167,11 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def train(epoch):
     model.train()
+    unlabeled_iter = unlabeled_loader.__iter__()
+    train_iter = train_loader.__iter__()
     for batch_idx in range(len((unlabeled_loader))):
-        unlabeled = unlabeled_loader.__iter__().__next__()[0]
-        data, target = train_loader.__iter__().__next__()
+        unlabeled = unlabeled_iter.__next__()[0]
+        data, target = train_iter.__next__()
         if args.cuda:
             unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
@@ -216,9 +218,8 @@ def linear_lr_decay(epoch):
 for epoch in tqdm(range(1, args.epochs + 1)):
     linear_lr_decay(epoch)
     train(epoch)
-    if epoch % 500 == 0:
-        print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
-        test()
+    print("\nCurrent learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
+    test()
 
 print("\nOPTIMIZATION FINISHED!")
 test()
