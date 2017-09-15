@@ -107,9 +107,9 @@ class Net(nn.Module):
             if isinstance(m, nn.Conv2d):
                 limit = np.sqrt(6 / m.in_channels)
                 m.weight.data.uniform_(-limit, limit)
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
+            # elif isinstance(m, nn.BatchNorm2d):
+            #     m.weight.data.fill_(1)
+            #     m.bias.data.zero_()
 
     def forward(self, x):
 
