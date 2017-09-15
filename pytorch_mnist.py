@@ -105,8 +105,8 @@ class Net(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, np.sqrt(2. / n))
+                limit = np.sqrt(6 / m.in_channels)
+                m.weight.data.uniform(-limit, limit)
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
