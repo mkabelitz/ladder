@@ -16,11 +16,11 @@ parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
 parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
-parser.add_argument('--epochs', type=int, default=20, metavar='N',
+parser.add_argument('--epochs', type=int, default=150, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
-parser.add_argument('--lr-decay-first', type=float, default=0.5, metavar='M',
+parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
                     help='learning rate decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
                     help='momentum for batch normalization (default: 0.1)')
