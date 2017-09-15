@@ -108,7 +108,8 @@ class Net(nn.Module):
 
         x = self.gaussian(x)
 
-        x = F.relu(self.conv1_bn(self.conv1(x)))
+        # x = F.relu(self.conv1_b(self.conv1(x)))
+        x = F.relu(self.conv1(x))
 
         x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
         # x = F.max_pool2d(x, 2, stride=2)
@@ -126,7 +127,7 @@ class Net(nn.Module):
         # x = F.avg_pool2d(x, kernel_size=x.size()[2:])
 
         x = x.view(-1, 10)
-        x = F.relu(self.fc1_bn(self.fc1(x)))
+        x = self.fc1_bn(self.fc1(x
 
         return F.log_softmax(x)
 
