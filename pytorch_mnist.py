@@ -159,6 +159,7 @@ for epoch in tqdm(range(1, args.epochs + 1)):
     linear_lr_decay(epoch)
     train(epoch)
     if epoch % 1000 == 0:
+        print(optimizer.param_groups['lr'])
         test()
 
 print("\nOPTIMIZATION FINISHED!")
