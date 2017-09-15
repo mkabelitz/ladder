@@ -73,9 +73,9 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 
 
 class Net(nn.Module):
-    def gaussian(self, ins, stddev=0.3):
+    def gaussian(self, ins, stddev=0.45):
         if self.training:
-            return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
+            return ins + torch.Tensor(torch.randn(ins.size()).cuda() * stddev)
         return ins
 
     def __init__(self):
@@ -188,7 +188,7 @@ def linear_lr_decay(epoch):
 for epoch in tqdm(range(1, args.epochs + 1)):
     linear_lr_decay(epoch)
     train(epoch)
-    if epoch % 1000 == 0:
+    if epoch % 500 == 0:
         print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
         test()
 
