@@ -127,8 +127,11 @@ def test():
 for epoch in tqdm(range(1, args.epochs + 1)):
 
     decay_epochs = int(args.epochs * (1.0 - args.lr_decay_first))
+    print("decay_epochs:", decay_epochs)
     if epoch > args.epochs - decay_epochs:
+        print("epoch:", epoch)
         decay_epoch = epoch - decay_epochs
+        print("decay_epoch:", decay_epoch)
         lr = args.lr * ((decay_epochs - decay_epoch) / decay_epochs)
         print("LR =", lr)
         for param_group in optimizer.param_groups:
