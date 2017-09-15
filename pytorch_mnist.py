@@ -169,7 +169,7 @@ def train(epoch):
     model.train()
     for batch_idx in range(len((unlabeled_loader))):
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
-        data, target = train_loader.__getitem__(batch_idx % len(train_loader))
+        data, target = train_loader.__iter__().__next__()
         if args.cuda:
             unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
