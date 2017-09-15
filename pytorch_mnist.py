@@ -72,9 +72,9 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 
 
 class Net(nn.Module):
-    def gaussian(self, ins, stddev=0.45):
+    def gaussian(self, ins, stddev=0.3):
         if self.training:
-            return ins + Variable(torch.randn(ins.size()[2]).cuda() * stddev)
+            return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
         return ins
 
     def __init__(self):
