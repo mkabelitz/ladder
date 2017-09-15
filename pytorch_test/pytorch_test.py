@@ -107,7 +107,7 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 def train(epoch):
     model.train()
-    for batch_idx, (data, target) in tqdm(enumerate(train_loader)):
+    for batch_idx, (data, target) in enumerate(tqdm(train_loader)):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
