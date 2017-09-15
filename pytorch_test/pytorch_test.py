@@ -126,7 +126,7 @@ def test():
 
 for epoch in tqdm(range(1, args.epochs + 1)):
 
-    decay_epochs = int(args.epochs * args.lr_decay_first)
+    decay_epochs = int(args.epochs * (1.0 - args.lr_decay_first))
     if epoch > args.epochs - decay_epochs:
         decay_epoch = epoch - decay_epochs
         lr = args.lr * ((1.0/decay_epochs) * (decay_epochs - decay_epoch))
