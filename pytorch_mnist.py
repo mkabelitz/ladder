@@ -121,7 +121,10 @@ class Net(nn.Module):
 
         x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
 
-        x = self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2))
+        print(self.pool1_bn(F.max_pool2d(x, 2, stride=2)).size())
+        print(self.pool1_bias.size())
+
+        x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
         # x = F.max_pool2d(x, 2, stride=2)
 
         x = F.relu(self.conv2_bias + self.conv2_bn(self.conv2(x)))
