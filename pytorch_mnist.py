@@ -51,6 +51,8 @@ if args.labeled_samples:
     for i in range(mnist_tr_dataset.__len__()):
         if overall_count == args.labeled_samples:
             break
+        if i == 1:
+            print(mnist_tr_dataset.__getitem__(1)[0])
         cur_class = mnist_tr_dataset.__getitem__(i)[1]
         if class_counts[cur_class] < args.labeled_samples / 10:
             balanced_index_set.append(i)
