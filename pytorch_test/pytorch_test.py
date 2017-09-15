@@ -132,7 +132,7 @@ for epoch in tqdm(range(1, args.epochs + 1)):
         print("epoch:", epoch)
         decay_epoch = epoch - (args.epochs - decay_epochs)
         print("decay_epoch:", decay_epoch)
-        factor = ((decay_epochs - decay_epoch-1) / decay_epochs)
+        factor = ((decay_epochs - (decay_epoch - 1)) / decay_epochs)
         print("factor:", factor)
         lr = args.lr * factor
         print("LR =", lr)
