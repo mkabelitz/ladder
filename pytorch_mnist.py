@@ -39,7 +39,7 @@ transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.1307,), (0.3081,))])
 
-kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+kwargs = {'num_workers': 5, 'pin_memory': True} if args.cuda else {}
 
 mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
@@ -68,10 +68,6 @@ else:
 
 test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
                                           batch_size=args.test_batch_size, shuffle=True, **kwargs)
-
-print("kwargs:", kwargs)
-print(len(train_loader.dataset))
-print(len(test_loader.dataset))
 
 
 class Net(nn.Module):
