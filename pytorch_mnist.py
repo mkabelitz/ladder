@@ -169,7 +169,7 @@ class Net(nn.Module):
         else:
             z_est = None
 
-        return F.log_softmax(h)
+        return F.log_softmax(h), z, z_est
 
 
 model = Net()
@@ -204,12 +204,12 @@ def train(epoch):
             unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
-        output = model(data, args.noise_std)
-        loss = F.nll_loss(output, target)
+        softmax, _, _ = model(data, args.noise_std)
+        _, z, _ = model(unlabeled, 0.0)
+        _, _, z_est = model(unlabeled, args.noise_std)
+        loss = F.nll_loss(softmax, target) + F.mse_loss(z, z_est)
         loss.backward()
         optimizer.step()
-        model.eval()
-        crt = model(unlabeled, 0.0)
         if args.log_interval and batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -248,7 +248,7 @@ def linear_lr_decay(epoch):
 for epoch in range(1, args.epochs + 1):
     linear_lr_decay(epoch)
     train(epoch)
-    print("After epoch {}/{}".format(epoch, args.epochs))
+    print("After epoch {}/{}:".format(epoch, args.epochs))
     print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
     test()
 
