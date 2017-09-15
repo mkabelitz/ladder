@@ -81,35 +81,29 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=0.9)
+        momentum = 0.1
 
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=0.9)
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=momentum)
+
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=momentum)
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=momentum)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=momentum)
 
-        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=momentum)
 
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=True, momentum=0.9)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=True, momentum=momentum)
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=0.9)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=momentum)
 
-        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=0.9)
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=momentum)
 
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True, momentum=0.9)
-
-        for m in self.modules():
-            # if isinstance(m, nn.Conv2d):
-            #     limit = np.sqrt(6 / m.in_channels)
-            #     m.weight.data.uniform_(-limit, limit)
-            if isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True, momentum=momentum)
 
     def forward(self, x):
 
