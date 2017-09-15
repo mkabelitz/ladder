@@ -87,20 +87,30 @@ class Net(nn.Module):
         self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1)))
 
         self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
+        self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1)))
+        self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1)))
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.conv2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.conv3_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
 
         self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.pool2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
+        self.pool2_scale = nn.Parameter(torch.ones((1, 64, 1, 1)))
 
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.bn_momentum)
+        self.conv4_bias = nn.Parameter(torch.zeros((1, 128, 1, 1)))
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
         self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
 
         self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.pool1_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
+        self.pool1_scale = nn.Parameter(torch.ones((1, 10, 1, 1)))
 
         self.fc1 = nn.Linear(10, 10)
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
@@ -111,19 +121,19 @@ class Net(nn.Module):
 
         x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
 
-        x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
+        x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = F.relu(self.conv2_bn(self.conv2(x)))
-        x = F.relu(self.conv3_bn(self.conv3(x)))
+        x = F.relu(self.conv2_bias + self.conv2_bn(self.conv2(x)))
+        x = F.relu(self.conv3_bias + self.conv3_bn(self.conv3(x)))
 
-        x = self.pool2_bn(F.max_pool2d(x, 2, stride=2))
+        x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = F.relu(self.conv4_bn(self.conv4(x)))
-        x = F.relu(self.conv5_bn(self.conv5(x)))
+        x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
+        x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
 
-        x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
+        x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
         # x = F.avg_pool2d(x, kernel_size=x.size()[2:])
 
         x = x.view(-1, 10)
