@@ -116,25 +116,22 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
-for epoch in tqdm(range(1, args.epochs + 1)):
-
+def linear_lr_decay(epoch):
     decay_epochs = int(args.epochs * (1.0 - args.lr_decay_first))
-    print("decay_epochs:", decay_epochs)
     if epoch > args.epochs - decay_epochs:
-        print("epoch:", epoch)
         decay_epoch = epoch - (args.epochs - decay_epochs)
-        print("decay_epoch:", decay_epoch)
         factor = ((decay_epochs - (decay_epoch - 1)) / decay_epochs)
-        print("factor:", factor)
         lr = args.lr * factor
-        print("LR =", lr)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
+
+for epoch in tqdm(range(1, args.epochs + 1)):
+    linear_lr_decay(epoch)
     train(epoch)
     test()
