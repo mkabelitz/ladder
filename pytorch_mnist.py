@@ -114,6 +114,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        print(epoch)
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
