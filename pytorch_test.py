@@ -56,13 +56,16 @@ if args.labeled_samples:
             balanced_index_set.append(i)
             class_counts[cur_class] += 1
             overall_count += 1
-    print(overall_count)
-    print(class_counts)
-    print(balanced_index_set)
+    train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
+                                               batch_size=args.batch_size,
+                                               sampler=torch.utils.data.sampler.SubsetRandomSampler(balanced_index_set),
+                                               drop_last=True)
+else:
+    train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
+                                               batch_size=args.batch_size,
+                                               shuffle=True,
+                                               drop_last=True)
 
-
-train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
-                                           batch_size=args.batch_size, shuffle=True, drop_last=True)
 test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
                                           batch_size=args.test_batch_size, shuffle=True, drop_last=True)
 
