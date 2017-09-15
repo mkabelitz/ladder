@@ -41,8 +41,8 @@ transform = transforms.Compose(
 
 kwargs = {'num_workers': 0, 'pin_memory': True} if args.cuda else {}
 
-mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
-mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
+mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=[transforms.ToTensor()])
+mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=[transforms.ToTensor()])
 
 if args.labeled_samples:
     balanced_index_set = []
