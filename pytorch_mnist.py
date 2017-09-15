@@ -98,7 +98,7 @@ class Net(nn.Module):
         x = F.relu(self.conv5_bn(self.conv5(x)))
         x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
         x = x.view(-1, 10)
-        x = self.fc1_bn(self.fc1(x))
+        x = self.fc1(x)
         return F.log_softmax(x)
 
 
