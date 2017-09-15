@@ -39,10 +39,10 @@ transform = transforms.Compose(
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
-    datasets.CIFAR10('/data', train=True, download=True, transform=transform),
+    datasets.CIFAR10('./data', train=True, download=True, transform=transform),
     batch_size=args.batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(
-    datasets.CIFAR10('/data', train=False, transform=transform),
+    datasets.CIFAR10('./data', train=False, transform=transform),
     batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
 
