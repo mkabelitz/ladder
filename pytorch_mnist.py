@@ -212,13 +212,14 @@ def train(epoch):
         softmax, _, _ = model(data, args.noise_std)
         _, z, _ = model(unlabeled, 0.0)
         _, _, z_est = model(unlabeled, args.noise_std)
-        loss = F.nll_loss(softmax, target) + F.mse_loss(z, z_est)
+        ce_loss = F.nll_loss(softmax, target)
+        mse_loss = F.mse_loss(z, z_est)
+        loss = ce_loss + mse_loss
         loss.backward()
         optimizer.step()
         if args.log_interval and batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0]))
+            print('\tTrain Epoch {:.1f}%\tLoss: {:.6f}\tCE: {:.6f}\tMSE: {:.6f}'.format(
+                100. * batch_idx / len(unlabeled_loader), loss.data[0], ce_loss.data[0], mse_loss.data[0]))
 
 
 def test():
