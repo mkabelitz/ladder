@@ -14,6 +14,8 @@ parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
+parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
+                    help='number of labeled samples for training (default: 100)')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
@@ -42,9 +44,22 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
 
-for i in range(10):
-    print(mnist_tr_dataset.__getitem__(i)[1])
-    print(mnist_te_dataset.__getitem__(i)[1])
+if args.labeled_samples:
+    balanced_index_set = []
+    class_counts = [0] * 10
+    overall_count = 0
+    for i in range(mnist_tr_dataset.__len__()):
+        if overall_count == args.labeled_samples:
+            break
+        cur_class = mnist_tr_dataset.__getitem__(i)[1]
+        if class_counts[cur_class] <= args.labeled_samples / 10:
+            balanced_index_set.append(i)
+            class_counts[cur_class] += 1
+            overall_count += 1
+    print(overall_count)
+    print(class_counts)
+    print(balanced_index_set)
+
 
 train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                            batch_size=args.batch_size, shuffle=True, drop_last=True)
