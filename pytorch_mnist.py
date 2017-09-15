@@ -81,7 +81,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        momentum = 0.1
+        momentum = 0.9
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
         self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=momentum)
