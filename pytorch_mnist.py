@@ -83,27 +83,27 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.momentum)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
         self.conv1_bias = Variable(torch.rand(0.0), requires_grad=True)
 
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.momentum)
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
 
-        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
 
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.momentum)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.bn_momentum)
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.momentum)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.momentum)
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
 
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.momentum)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
     def forward(self, x):
 
