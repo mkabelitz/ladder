@@ -207,7 +207,7 @@ def train(epoch):
         softmax, _, _ = model(data, args.noise_std)
         _, z, _ = model(unlabeled, 0.0)
         _, _, z_est = model(unlabeled, args.noise_std)
-        loss = F.nll_loss(softmax, target) + F.mse_loss(z, z_est)*10
+        loss = F.nll_loss(softmax, target) + F.mse_loss(z, z_est)
         loss.backward()
         optimizer.step()
         if args.log_interval and batch_idx % args.log_interval == 0:
