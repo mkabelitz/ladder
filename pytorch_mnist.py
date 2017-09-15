@@ -161,6 +161,7 @@ class Net(nn.Module):
         h_tilde = self.fc1_scale * (self.fc1_bias + z_tilde)
 
         u = self.gamma_bn(h_tilde)
+        print(torch.nn.Sigmoid(u).size())
         g_m = self.a1 * torch.nn.Sigmoid((self.a2 * u + self.a3)) + self.a4 * u + self.a5
         g_v = self.a6 * torch.nn.Sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
         z_est = (z_tilde - g_m) * g_v + g_m
