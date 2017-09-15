@@ -76,6 +76,7 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test
 
 
 class Net(nn.Module):
+
     def gaussian(self, ins, std):
         if std > 0.0:
             return ins + Variable(torch.randn(ins.size()).cuda() * std)
@@ -116,6 +117,21 @@ class Net(nn.Module):
 
         self.fc1 = nn.Linear(10, 10)
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.fc1_bias = nn.Parameter(torch.zeros((1, 10)))
+        self.fc1_scale = nn.Parameter(torch.ones((1, 10)))
+
+        self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
+
+        self.a1 = nn.Parameter(torch.zeros((1, 10)))
+        self.a2 = nn.Parameter(torch.ones((1, 10)))
+        self.a3 = nn.Parameter(torch.zeros((1, 10)))
+        self.a4 = nn.Parameter(torch.zeros((1, 10)))
+        self.a5 = nn.Parameter(torch.zeros((1, 10)))
+        self.a6 = nn.Parameter(torch.zeros((1, 10)))
+        self.a7 = nn.Parameter(torch.ones((1, 10)))
+        self.a8 = nn.Parameter(torch.zeros((1, 10)))
+        self.a9 = nn.Parameter(torch.zeros((1, 10)))
+        self.a10 = nn.Parameter(torch.zeros((1, 10)))
 
     def forward(self, x, std):
 
@@ -140,6 +156,14 @@ class Net(nn.Module):
 
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
+
+        z_tilde = self.gaussian(x, std=std)
+        h_tilde = self.fc1_scale * (self.fc1_bias + z_tilde)
+
+        u = self.gamma_bn(h_tilde)
+        g_m = self.a1 * torch.nn.Sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+        g_v = self.a6 * torch.nn.Sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+        z_est = (z_tilde - g_m) * g_v + g_m
 
         return F.log_softmax(x)
 
@@ -181,7 +205,7 @@ def train(epoch):
         loss.backward()
         optimizer.step()
         model.eval()
-        output = model(unlabeled, 0.0)
+        crt = model(unlabeled, 0.0)
         if args.log_interval and batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
