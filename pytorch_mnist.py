@@ -248,7 +248,8 @@ def linear_lr_decay(epoch):
 for epoch in range(1, args.epochs + 1):
     linear_lr_decay(epoch)
     train(epoch)
-    print("\nCurrent learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
+    print("After epoch {}/{}".format(epoch, args.epochs))
+    print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
     test()
 
 print("\nOPTIMIZATION FINISHED!")
