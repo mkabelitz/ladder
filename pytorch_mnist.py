@@ -84,7 +84,7 @@ class Net(nn.Module):
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
         self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-        self.conv1_bias = nn.Parameter(torch.ones(1))
+        self.conv1_bias = nn.Parameter(torch.ones(self.conv1.out_channels))
 
         self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
 
