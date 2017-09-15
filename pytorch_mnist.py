@@ -14,9 +14,9 @@ parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
-parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
+parser.add_argument('--labeled-samples', type=int, default=None, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
-parser.add_argument('--epochs', type=int, default=12000, metavar='N',
+parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
@@ -163,9 +163,9 @@ def linear_lr_decay(epoch):
 for epoch in tqdm(range(1, args.epochs + 1)):
     linear_lr_decay(epoch)
     train(epoch)
-    if epoch % 1000 == 0:
-        print(optimizer.param_groups[0]['lr'])
-        test()
+    # if epoch % 1000 == 0:
+    print(optimizer.param_groups[0]['lr'])
+    test()
 
 print("\nOPTIMIZATION FINISHED!")
 test()
