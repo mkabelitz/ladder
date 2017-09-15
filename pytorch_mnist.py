@@ -129,23 +129,23 @@ def train(epoch):
                 100. * batch_idx / len(train_loader), loss.data[0]))
 
 
-def eval_dataset(dataset_loader, name):
+def test():
     model.eval()
-    eval_loss = 0
+    test_loss = 0
     correct = 0
-    for data, target in dataset_loader:
+    for data, target in test_loader:
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        eval_loss += F.nll_loss(output, target, size_average=False).data[0]  # sum up batch loss
+        test_loss += F.nll_loss(output, target, size_average=False).data[0]  # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
-    eval_loss /= len(dataset_loader.dataset)
-    print(name + ' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
-        eval_loss, correct, len(dataset_loader.dataset),
-        100. * correct / len(dataset_loader.dataset)))
+    test_loss /= len(test_loader.dataset)
+    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+        test_loss, correct, len(test_loader.dataset),
+        100. * correct / len(test_loader.dataset)))
 
 
 def linear_lr_decay(epoch):
@@ -163,9 +163,7 @@ for epoch in tqdm(range(1, args.epochs + 1)):
     train(epoch)
     if epoch % 1000 == 0:
         print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
-        eval_dataset(train_loader, "Train")
-        eval_dataset(test_loader, "Test")
+        test()
 
 print("\nOPTIMIZATION FINISHED!")
-eval_dataset(train_loader, "Train")
-eval_dataset(test_loader, "Test")
+test()
