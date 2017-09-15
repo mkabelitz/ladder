@@ -18,8 +18,8 @@ parser.add_argument('--epochs', type=int, default=20, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
-parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
-                    help='SGD momentum (default: 0.5)')
+parser.add_argument('--lr-decay-first', type=float, default=0.5, metavar='M',
+                    help='LR decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
@@ -126,9 +126,10 @@ def test():
 
 for epoch in tqdm(range(1, args.epochs + 1)):
 
-    if epoch > 10:
-        decay_epoch = epoch - 10
-        lr = args.lr * (0.1 * (10 - decay_epoch))
+    decay_epochs = int(args.epochs * args.lr_decay_first)
+    if epoch > args.epochs - decay_epochs:
+        decay_epoch = epoch - decay_epochs
+        lr = args.lr * ((1.0/decay_epochs) * (decay_epochs - decay_epoch))
         print("LR =", lr)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
