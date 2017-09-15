@@ -90,7 +90,7 @@ class Net(nn.Module):
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False)
 
     def forward(self, x):
-        x = self.conv1_bn(F.relu(self.conv1(x)))
+        x = F.relu(self.conv1_bn(self.conv1(x)))
         x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
         x = F.relu(self.conv2_bn(self.conv2(x)))
         x = F.relu(self.conv3_bn(self.conv3(x)))
