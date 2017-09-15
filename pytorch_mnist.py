@@ -158,15 +158,18 @@ class Net(nn.Module):
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
 
-        z_tilde = self.gaussian(x, std=std)
-        h_tilde = self.fc1_scale * (self.fc1_bias + z_tilde)
+        z = self.gaussian(x, std=std)
+        h = self.fc1_scale * (self.fc1_bias + z)
 
-        u = self.gamma_bn(h_tilde)
-        g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-        g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-        z_est = (z_tilde - g_m) * g_v + g_m
+        if std > 0.0:
+            u = self.gamma_bn(h)
+            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            z_est = (z - g_m) * g_v + g_m
+        else:
+            z_est = None
 
-        return F.log_softmax(x)
+        return F.log_softmax(h),
 
 
 model = Net()
