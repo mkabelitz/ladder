@@ -109,7 +109,7 @@ class Net(nn.Module):
 
         x = self.gaussian(x)
 
-        x = F.relu(self.conv1_bn(self.conv1(x)))
+        x = F.relu(self.conv1_bias(self.conv1_bn(self.conv1(x))))
 
         x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
         # x = F.max_pool2d(x, 2, stride=2)
