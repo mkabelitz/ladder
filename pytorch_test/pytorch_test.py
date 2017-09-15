@@ -20,7 +20,7 @@ parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
-parser.add_argument('--no-cuda', action='store_true', default=True,
+parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
@@ -125,5 +125,13 @@ def test():
 
 
 for epoch in tqdm(range(1, args.epochs + 1)):
+
+    if epoch > 10:
+        decay_epoch = epoch - 10
+        lr = args.lr * (0.1 * decay_epoch)
+        print(lr)
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
     train(epoch)
     test()
