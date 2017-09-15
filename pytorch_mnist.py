@@ -19,9 +19,9 @@ parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=12000, metavar='N',
                     help='number of epochs to train (default: 20)')
-parser.add_argument('--lr', type=float, default=0.02, metavar='LR',
+parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
-parser.add_argument('--lr-decay-first', type=float, default=0.1, metavar='M',
+parser.add_argument('--lr-decay-first', type=float, default=0.5, metavar='M',
                     help='LR decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
@@ -73,7 +73,7 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 
 
 class Net(nn.Module):
-    def gaussian(self, ins, stddev=0.3):
+    def gaussian(self, ins, stddev=0.45):
         if self.training:
             return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
         return ins
