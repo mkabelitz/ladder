@@ -94,7 +94,7 @@ class Net(nn.Module):
         self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True)
 
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True)
 
     def forward(self, x):
         x = F.relu(self.conv1_bn(self.conv1(x)))
@@ -115,7 +115,7 @@ class Net(nn.Module):
         x = F.avg_pool2d(x, kernel_size=x.size()[2:])
 
         x = x.view(-1, 10)
-        x = self.fc1_bn(self.fc1(x))
+        x = F.relu(self.fc1_bn(self.fc1(x)))
 
         return F.log_softmax(x)
 
