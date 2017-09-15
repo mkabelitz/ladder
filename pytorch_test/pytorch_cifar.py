@@ -35,25 +35,25 @@ if args.cuda:
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
-     transforms.Normalize((0.1307,), (0.3081,))])
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('/data', train=True, download=True, transform=transform),
+    datasets.CIFAR10('/data', train=True, download=True, transform=transform),
     batch_size=args.batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('/data', train=False, transform=transform),
+    datasets.CIFAR10('/data', train=False, transform=transform),
     batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
 
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True)
-        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(3, 96, kernel_size=3, padding=1)
+        self.con1_bn = nn.BatchNorm2d(num_features=96, affine=True)
+        self.conv2 = nn.Conv2d(96, 96, kernel_size=3, padding=1)
+        self.conv2_bn = nn.BatchNorm2d(num_features=96, affine=True)
+        self.conv3 = nn.Conv2d(96, 96, kernel_size=3, padding=1)
         self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True)
         self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True)
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
@@ -62,7 +62,7 @@ class Net(nn.Module):
         self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True)
         self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True)
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
