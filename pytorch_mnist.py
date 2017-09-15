@@ -75,14 +75,13 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 class Net(nn.Module):
     def gaussian(self, ins, stddev=0.45):
         if self.training:
-            return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
+            return ins + torch.randn(ins.size()).cuda() * stddev
         return ins
 
     def __init__(self):
         super(Net, self).__init__()
 
         momentum = 0.9
-        print(torch.randn(2))
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
         self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=momentum)
