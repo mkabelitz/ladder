@@ -169,7 +169,7 @@ class Net(nn.Module):
         else:
             z_est = None
 
-        return F.log_softmax(h),
+        return F.log_softmax(h)
 
 
 model = Net()
