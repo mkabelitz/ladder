@@ -167,9 +167,9 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def train(epoch):
     model.train()
-    unlabeled_iter = unlabeled_loader.__iter__()
-    train_iter = train_loader.__iter__()
     for batch_idx in range(len((unlabeled_loader))):
+        unlabeled_iter = unlabeled_loader.__iter__()
+        train_iter = train_loader.__iter__()
         unlabeled = unlabeled_iter.__next__()[0]
         data, target = train_iter.__next__()
         if args.cuda:
