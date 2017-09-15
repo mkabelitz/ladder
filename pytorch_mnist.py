@@ -60,6 +60,8 @@ if args.labeled_samples:
                                                batch_size=args.batch_size,
                                                sampler=torch.utils.data.sampler.SubsetRandomSampler(balanced_index_set),
                                                **kwargs)
+
+    print(balanced_index_set)
 else:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
@@ -90,13 +92,16 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
-        x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
+        # x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
+        x = F.max_pool2d(x, 2, stride=2)
         x = F.relu(self.conv2_bn(self.conv2(x)))
         x = F.relu(self.conv3_bn(self.conv3(x)))
-        x = self.pool2_bn(F.max_pool2d(x, 2, stride=2))
+        # x = self.pool2_bn(F.max_pool2d(x, 2, stride=2))
+        x = F.max_pool2d(x, 2, stride=2)
         x = F.relu(self.conv4_bn(self.conv4(x)))
         x = F.relu(self.conv5_bn(self.conv5(x)))
-        x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
+        # x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
+        x = F.avg_pool2d(x, kernel_size=x.size()[2:])
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
         return F.log_softmax(x)
