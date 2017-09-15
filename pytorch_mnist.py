@@ -14,7 +14,7 @@ parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
-parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
+parser.add_argument('--labeled-samples', type=int, default=None, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=12000, metavar='N',
                     help='number of epochs to train (default: 20)')
@@ -115,6 +115,8 @@ def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         print(epoch)
+        if batch_idx > 1:
+            break
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
