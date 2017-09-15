@@ -60,9 +60,6 @@ if args.labeled_samples:
                                                batch_size=args.batch_size,
                                                sampler=torch.utils.data.sampler.SubsetRandomSampler(balanced_index_set),
                                                **kwargs)
-
-    print(balanced_index_set)
-    print(len(train_loader))
 else:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
@@ -118,7 +115,6 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        print("sum", torch.sum(target))
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
@@ -147,7 +143,7 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
