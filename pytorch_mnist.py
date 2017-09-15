@@ -138,21 +138,21 @@ class Net(nn.Module):
 
         x = self.gaussian(x, std=std)
 
-        x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
+        x = F.relu(self.conv1_bias + self.gaussian(self.conv1_bn(self.conv1(x))))
 
-        x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
+        x = self.pool1_scale * (self.pool1_bias + self.gaussian(self.pool1_bn(F.max_pool2d(x, 2, stride=2))))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = F.relu(self.conv2_bias + self.conv2_bn(self.conv2(x)))
-        x = F.relu(self.conv3_bias + self.conv3_bn(self.conv3(x)))
+        x = F.relu(self.conv2_bias + self.gaussian(self.conv2_bn(self.conv2(x))))
+        x = F.relu(self.conv3_bias + self.gaussian(self.conv3_bn(self.conv3(x))))
 
-        x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
+        x = self.pool2_scale * (self.pool2_bias + self.gaussian(self.pool2_bn(F.max_pool2d(x, 2, stride=2))))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
-        x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
+        x = F.relu(self.conv4_bias + self.gaussian(self.conv4_bn(self.conv4(x))))
+        x = F.relu(self.conv5_bias + self.gaussian(self.conv5_bn(self.conv5(x))))
 
-        x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
+        x = self.pool3_scale * (self.pool3_bias + self.gaussian(self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))))
         # x = F.avg_pool2d(x, kernel_size=x.size()[2:])
 
         x = x.view(-1, 10)
