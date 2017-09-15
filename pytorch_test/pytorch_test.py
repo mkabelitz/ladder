@@ -132,7 +132,9 @@ for epoch in tqdm(range(1, args.epochs + 1)):
         print("epoch:", epoch)
         decay_epoch = epoch - (args.epochs - decay_epochs)
         print("decay_epoch:", decay_epoch)
-        lr = args.lr * ((decay_epochs - decay_epoch-1) / decay_epochs)
+        factor = ((decay_epochs - decay_epoch-1) / decay_epochs)
+        print("factor:", (decay_epochs - decay_epoch-1) / decay_epochs)
+        lr = args.lr * factor
         print("LR =", lr)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
