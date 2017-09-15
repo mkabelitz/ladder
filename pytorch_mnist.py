@@ -30,7 +30,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--log-interval', type=int, default=100, metavar='N',
+parser.add_argument('--log-interval', type=int, default=None, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -193,7 +193,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 #                 100. * batch_idx / len(train_loader), loss.data[0]))
 
 def train(epoch):
-    for batch_idx in range(len((unlabeled_loader))):
+    for batch_idx in tqdm(range(len((unlabeled_loader)))):
         model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
@@ -242,7 +242,7 @@ def linear_lr_decay(epoch):
             param_group['lr'] = lr
 
 
-for epoch in tqdm(range(1, args.epochs + 1)):
+for epoch in range(1, args.epochs + 1):
     linear_lr_decay(epoch)
     train(epoch)
     print("\nCurrent learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
