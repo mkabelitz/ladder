@@ -52,7 +52,7 @@ if args.labeled_samples:
         if overall_count == args.labeled_samples:
             break
         cur_class = mnist_tr_dataset.__getitem__(i)[1]
-        if class_counts[cur_class] <= args.labeled_samples / 10:
+        if class_counts[cur_class] < args.labeled_samples / 10:
             balanced_index_set.append(i)
             class_counts[cur_class] += 1
             overall_count += 1
