@@ -43,8 +43,8 @@ mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=Tru
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
 
 for i in range(10):
-    print(mnist_tr_dataset.__getitem__(i)[0])
-    print(mnist_te_dataset.__getitem__(i)[0])
+    print(mnist_tr_dataset.__getitem__(i)[1])
+    print(mnist_te_dataset.__getitem__(i)[1])
 
 train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                            batch_size=args.batch_size, shuffle=True, drop_last=True)
