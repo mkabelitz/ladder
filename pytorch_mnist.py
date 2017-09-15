@@ -109,8 +109,8 @@ class Net(nn.Module):
         self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
 
         self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-        self.pool1_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
-        self.pool1_scale = nn.Parameter(torch.ones((1, 10, 1, 1)))
+        self.pool3_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
+        self.pool3_scale = nn.Parameter(torch.ones((1, 10, 1, 1)))
 
         self.fc1 = nn.Linear(10, 10)
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
@@ -120,9 +120,6 @@ class Net(nn.Module):
         x = self.gaussian(x)
 
         x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
-
-        print(self.pool1_bn(F.max_pool2d(x, 2, stride=2)).size())
-        print(self.pool1_bias.size())
 
         x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
         # x = F.max_pool2d(x, 2, stride=2)
