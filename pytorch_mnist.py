@@ -7,7 +7,6 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 from tqdm import tqdm
-import numpy as np
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -22,7 +21,9 @@ parser.add_argument('--epochs', type=int, default=12000, metavar='N',
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
 parser.add_argument('--lr-decay-first', type=float, default=0.5, metavar='M',
-                    help='LR decay start in (0,1) interval (default: 0.5)')
+                    help='learning rate decay start in (0,1) interval (default: 0.5)')
+parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
+                    help='momentum for batch normalization (default: 0.1)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
@@ -81,29 +82,27 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        momentum = 0.9
-
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=momentum)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.momentum)
 
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=momentum)
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.momentum)
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=momentum)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=momentum)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
 
-        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=momentum)
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.momentum)
 
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=momentum)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.momentum)
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=momentum)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.momentum)
 
-        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=momentum)
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.momentum)
 
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=momentum)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.momentum)
 
     def forward(self, x):
 
