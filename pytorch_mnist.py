@@ -201,7 +201,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 #                 100. * batch_idx / len(train_loader), loss.data[0]))
 
 def train(epoch):
-    for batch_idx in tqdm(range(len((unlabeled_loader)))):
+    for batch_idx in range(len((unlabeled_loader))):
         model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
