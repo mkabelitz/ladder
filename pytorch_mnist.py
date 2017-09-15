@@ -59,17 +59,19 @@ if args.labeled_samples:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
                                                sampler=torch.utils.data.sampler.SubsetRandomSampler(balanced_index_set),
-                                               drop_last=True,
                                                **kwargs)
 else:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
                                                shuffle=True,
-                                               drop_last=True,
                                                **kwargs)
 
 test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
-                                          batch_size=args.test_batch_size, shuffle=True, drop_last=True, **kwargs)
+                                          batch_size=args.test_batch_size, shuffle=True, **kwargs)
+
+print("kwargs:", kwargs)
+print(len(train_loader.dataset))
+print(len(test_loader.dataset))
 
 
 class Net(nn.Module):
