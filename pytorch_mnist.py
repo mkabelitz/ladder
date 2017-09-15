@@ -75,26 +75,26 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=True)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=0.9)
 
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True)
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True, momentum=0.9)
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
 
-        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True)
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True, momentum=0.9)
 
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=True)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=True, momentum=0.9)
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=0.9)
 
-        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True)
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True, momentum=0.9)
 
         self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True, momentum=0.9)
 
     def forward(self, x):
         x = F.relu(self.conv1_bn(self.conv1(x)))
