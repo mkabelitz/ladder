@@ -15,7 +15,7 @@ parser.add_argument('--batch-size', type=int, default=100, metavar='N',
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
 parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
-                    help='number of labeled samples for training (default: 100)')
+                    help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=20000, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
@@ -125,7 +125,7 @@ def train(epoch):
         if args.log_interval and batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                       100. * batch_idx / len(train_loader), loss.data[0]))
+                100. * batch_idx / len(train_loader), loss.data[0]))
 
 
 def test():
@@ -162,3 +162,6 @@ for epoch in tqdm(range(1, args.epochs + 1)):
     train(epoch)
     if epoch % 100 == 0:
         test()
+
+print("\nOPTIMIZATION FINISHED!")
+test()
