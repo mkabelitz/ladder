@@ -9,14 +9,14 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-parser.add_argument('--batch-size', type=int, default=64, metavar='N',
-                    help='input batch size for training (default: 64)')
+parser.add_argument('--batch-size', type=int, default=100, metavar='N',
+                    help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
 parser.add_argument('--epochs', type=int, default=10, metavar='N',
                     help='number of epochs to train (default: 10)')
-parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
-                    help='learning rate (default: 0.01)')
+parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
+                    help='learning rate (default: 0.002)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -71,34 +71,31 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=True)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=True)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=True)
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=True)
         self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=True)
         self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=True)
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=True)
         self.fc1 = nn.Linear(10, 10)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=True)
 
     def forward(self, x):
-        print("0:", x.size())
         x = F.relu(self.conv1(x))
-        print("1:", x.size())
-        x = F.max_pool2d(x, 2, stride=2)
-        print("2:", x.size())
-        x = F.relu(self.conv2(x))
-        print("3:", x.size())
-        x = F.relu(self.conv3(x))
-        print("4:", x.size())
-        x = F.max_pool2d(x, 2, stride=2)
-        print("5:", x.size())
-        x = F.relu(self.conv4(x))
-        print("6:", x.size())
-        x = F.relu(self.conv5(x))
-        print("7:", x.size())
-        x = F.avg_pool2d(x, kernel_size=x.size()[2:])
-        print("8:", x.size())
+        x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
+        x = F.relu(self.conv2_bn(self.conv2(x)))
+        x = F.relu(self.conv3_bn(self.conv3(x)))
+        x = self.pool2_bn(F.max_pool2d(x, 2, stride=2))
+        x = F.relu(self.conv4_bn(self.conv4(x)))
+        x = F.relu(self.conv5_bn(self.conv5(x)))
+        x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
         x = x.view(-1, 10)
-        print("9:", x.size())
-        x = F.relu(self.fc1(x))
-        print("10:", x.size())
+        x = self.fc1_bn(self.fc1(x))
         return F.log_softmax(x)
 
 model = Net()
