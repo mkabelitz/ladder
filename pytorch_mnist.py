@@ -171,6 +171,7 @@ def train(epoch):
         unlabeled_iter = unlabeled_loader.__iter__()
         train_iter = train_loader.__iter__()
         unlabeled = unlabeled_iter.__next__()[0]
+        print(torch.sum(unlabeled))
         data, target = train_iter.__next__()
         if args.cuda:
             unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
