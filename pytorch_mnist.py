@@ -74,7 +74,7 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset,
 class Net(nn.Module):
     def gaussian(self, ins, stddev=0.45):
         if self.training:
-            return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
+            return ins + Variable(torch.randn(ins.size()[2]).cuda() * stddev)
         return ins
 
     def __init__(self):
@@ -108,19 +108,19 @@ class Net(nn.Module):
 
         x = F.relu(self.conv1_bn(self.conv1(x)))
 
-        x = self.gaussian(self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
+        x = self.pool1_bn(F.max_pool2d(x, 2, stride=2))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = self.gaussian(F.relu(self.conv2_bn(self.conv2(x))))
+        x = F.relu(self.conv2_bn(self.conv2(x)))
         x = F.relu(self.conv3_bn(self.conv3(x)))
 
-        x = self.gaussian(self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
+        x = self.pool2_bn(F.max_pool2d(x, 2, stride=2))
         # x = F.max_pool2d(x, 2, stride=2)
 
-        x = self.gaussian(F.relu(self.conv4_bn(self.conv4(x))))
+        x = F.relu(self.conv4_bn(self.conv4(x)))
         x = F.relu(self.conv5_bn(self.conv5(x)))
 
-        x = self.gaussian(self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
+        x = self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:]))
         # x = F.avg_pool2d(x, kernel_size=x.size()[2:])
 
         x = x.view(-1, 10)
