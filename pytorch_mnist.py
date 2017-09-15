@@ -115,6 +115,7 @@ def train(epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         print(epoch)
+        print(batch_idx)
         if batch_idx > 1:
             break
         if args.cuda:
