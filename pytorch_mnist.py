@@ -24,6 +24,8 @@ parser.add_argument('--lr-decay-first', type=float, default=0.5, metavar='M',
                     help='learning rate decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
                     help='momentum for batch normalization (default: 0.1)')
+parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
+                    help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
@@ -74,8 +76,8 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test
 
 
 class Net(nn.Module):
-    def gaussian(self, ins, stddev=0.45):
-        if self.training:
+    def gaussian(self, ins, std):
+        if std > 0.0:
             return ins + Variable(torch.randn(ins.size()).cuda() * stddev)
         return ins
 
@@ -115,9 +117,9 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(10, 10)
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-    def forward(self, x):
+    def forward(self, x, std):
 
-        x = self.gaussian(x)
+        x = self.gaussian(x, std=std)
 
         x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
 
@@ -166,21 +168,20 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 #                 100. * batch_idx / len(train_loader), loss.data[0]))
 
 def train(epoch):
-    model.train()
     for batch_idx in range(len((unlabeled_loader))):
-        unlabeled_iter = unlabeled_loader.__iter__()
-        train_iter = train_loader.__iter__()
-        unlabeled = unlabeled_iter.__next__()[0]
-        print(torch.sum(unlabeled))
-        data, target = train_iter.__next__()
+        model.train()
+        unlabeled = unlabeled_loader.__iter__().__next__()[0]
+        data, target = train_loader.__iter__().__next__()
         if args.cuda:
             unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
-        output = model(data)
+        output = model(data, args.noise_std)
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
+        model.eval()
+        output = model(unlabeled, 0.0)
         if args.log_interval and batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -195,7 +196,7 @@ def test():
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        output = model(data)
+        output = model(data, 0.0)
         test_loss += F.nll_loss(output, target, size_average=False).data[0]  # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
