@@ -103,11 +103,11 @@ model = Net()
 if args.cuda:
     model.cuda()
 
-optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def train(epoch):
     model.train()
-    for batch_idx, (data, target) in enumerate(tqdm(train_loader)):
+    for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
@@ -140,6 +140,6 @@ def test():
         100. * correct / len(test_loader.dataset)))
 
 
-for epoch in range(1, args.epochs + 1):
+for epoch in tqdm(range(1, args.epochs + 1)):
     train(epoch)
     test()
