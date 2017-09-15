@@ -160,5 +160,5 @@ def linear_lr_decay(epoch):
 for epoch in tqdm(range(1, args.epochs + 1)):
     linear_lr_decay(epoch)
     train(epoch)
-    if epoch % 1000 == 0:
+    if epoch % 100 == 0:
         test()
