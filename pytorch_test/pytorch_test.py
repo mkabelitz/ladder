@@ -78,7 +78,9 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(10, 10)
 
     def forward(self, x):
+        print("    !!!!!!!!!!!    HERE:", x.size())
         x = F.relu(self.conv1(x))
+        print("    !!!!!!!!!!!    HERE:", x.size())
         x = F.max_pool2d(x, 2, stride=2)
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
