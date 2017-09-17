@@ -294,7 +294,7 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+    print('\tTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
@@ -312,8 +312,8 @@ def linear_lr_decay(epoch):
 for epoch in range(1, args.epochs + 1):
     linear_lr_decay(epoch)
     train(epoch)
-    print("After epoch {}/{}:".format(epoch, args.epochs))
-    print("Current learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
+    print("Epoch {}/{}:".format(epoch, args.epochs))
+    print("\tCurrent learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
     test()
 
 print("\nOPTIMIZATION FINISHED!")
