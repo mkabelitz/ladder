@@ -238,9 +238,9 @@ def train(epoch):
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
         softmax, _, _ = model(data)
-        _, z, _ = model(unlabeled)
-        model.eval()
         _, _, z_est = model(unlabeled)
+        model.eval()
+        _, z, _ = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         # loss = ce_loss + mse_loss
