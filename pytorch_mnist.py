@@ -82,7 +82,7 @@ class Noise(nn.Module):
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
-            print(x.size(), self.noise.size())
+            # print(x.size(), self.noise.size())
             return x + self.noise
 
 
