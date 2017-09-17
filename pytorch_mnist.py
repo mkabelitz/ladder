@@ -128,6 +128,7 @@ class Net(nn.Module):
         self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
         self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
         self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x, std):
 
