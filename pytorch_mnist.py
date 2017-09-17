@@ -216,8 +216,8 @@ def train(epoch):
         _, _, z_est = model(unlabeled, args.noise_std)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        # loss = ce_loss + mse_loss
-        loss = ce_loss
+        loss = ce_loss + mse_loss
+        # loss = ce_loss
         loss.backward()
         optimizer.step()
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
