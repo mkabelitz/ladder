@@ -144,7 +144,7 @@ class Net(nn.Module):
 
     def forward(self, x, std):
 
-        x = x + self.noise_input
+        x = self.noise_input(x)
 
         x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
 
