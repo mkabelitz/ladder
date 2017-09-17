@@ -191,8 +191,6 @@ class Net(nn.Module):
 
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
-
-        # z = self.gaussian(x, std=std)
         z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
@@ -243,8 +241,8 @@ def train(epoch):
         _, z, _ = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        # loss = ce_loss + mse_loss
-        loss = ce_loss
+        loss = ce_loss + mse_loss
+        # loss = ce_loss
         loss.backward()
         optimizer.step()
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
