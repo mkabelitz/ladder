@@ -76,6 +76,7 @@ class Net(nn.Module):
 
     def gaussian(self, ins, std):
         if std > 0.0:
+            print("HERE")
             noise = np.random.normal(loc=0.0, scale=std, size=ins.size())
             return ins + Variable(torch.cuda.FloatTensor(noise))
         return ins
