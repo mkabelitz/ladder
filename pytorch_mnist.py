@@ -91,17 +91,21 @@ class RasmusBlock(nn.Module):
         self.act_fn = act_fn
         self.bn = nn.BatchNorm2d(num_features=channels_out, affine=False, momentum=args.bn_momentum)
         self.noise = Noise((args.batch_size, channels_out, height, width)) if noise else None
-        self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1))).cuda() if bias else None
-        self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1))).cuda() if scale else None
+        self.bias_flag = bias
+        if bias:
+            self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1))).cuda()
+        self.scale_flag = scale
+        if scale:
+            self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1))).cuda() if scale else None
 
     def forward(self, x):
         # x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
         x = self.bn(x)
         x = self.noise(x) if self.noise else x
-        if self.bias:
+        if self.bias_flag:
             x += self.bias
-        # x = x + self.bias if self.bias else x
-        x = x * self.scale if self.scale else x
+        if self.scale_flag:
+            x = x * self.scale
         return self.act_fn(x)
 
 
