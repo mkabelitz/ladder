@@ -7,7 +7,6 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 from tqdm import tqdm
-import numpy as np
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -72,17 +71,27 @@ unlabeled_loader = torch.utils.data.DataLoader(mnist_tr_dataset, batch_size=args
 test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
 
-class Net(nn.Module):
+class Noise(nn.Module):
+    def __init__(self, shape, noise_std=args.noise_std):
+        super().__init__()
+        self.module_noise = Variable(torch.zeros(shape).cuda())
+        self.module_std = noise_std
 
-    def gaussian(self, ins, std):
-        if std > 0.0:
-            print("HERE")
-            noise = np.random.normal(loc=0.0, scale=std, size=ins.size())
-            return ins + Variable(torch.cuda.FloatTensor(noise))
-        return ins
+    def forward(self, x):
+        if not self.training:
+            return x
+        else:
+            self.noise.data.normal_(0, std=self.module_std)
+            print(x.size(), self.noise.size())
+            return x + self.noise
+
+
+class Net(nn.Module):
 
     def __init__(self):
         super(Net, self).__init__()
+
+        self.noise_input = Noise((args.batch_size, 1, 28, 28))
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
         self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
@@ -135,26 +144,27 @@ class Net(nn.Module):
 
     def forward(self, x, std):
 
-        x = self.gaussian(x, std=std)
+        x = x + self.noise_input
 
-        x = F.relu(self.conv1_bias + self.gaussian(self.conv1_bn(self.conv1(x)), std=std))
+        x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
 
-        x = self.pool1_scale * (self.pool1_bias + self.gaussian(self.pool1_bn(F.max_pool2d(x, 2, stride=2)), std=std))
+        x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
 
-        x = F.relu(self.conv2_bias + self.gaussian(self.conv2_bn(self.conv2(x)), std=std))
-        x = F.relu(self.conv3_bias + self.gaussian(self.conv3_bn(self.conv3(x)), std=std))
+        x = F.relu(self.conv2_bias + self.conv2_bn(self.conv2(x)))
+        x = F.relu(self.conv3_bias + self.conv3_bn(self.conv3(x)))
 
-        x = self.pool2_scale * (self.pool2_bias + self.gaussian(self.pool2_bn(F.max_pool2d(x, 2, stride=2)), std=std))
+        x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
 
-        x = F.relu(self.conv4_bias + self.gaussian(self.conv4_bn(self.conv4(x)), std=std))
-        x = F.relu(self.conv5_bias + self.gaussian(self.conv5_bn(self.conv5(x)), std=std))
+        x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
+        x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
 
-        x = self.pool3_scale * (self.pool3_bias + self.gaussian(self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])), std=std))
+        x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
 
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
 
-        z = self.gaussian(x, std=std)
+        # z = self.gaussian(x, std=std)
+        z = x
         h = self.fc1_scale * (self.fc1_bias + z)
 
         if std > 0.0:
