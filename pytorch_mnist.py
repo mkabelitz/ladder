@@ -24,7 +24,7 @@ parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
                     help='learning rate decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
                     help='momentum for batch normalization (default: 0.1)')
-parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
+parser.add_argument('--noise-std', type=float, default=, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
@@ -134,7 +134,7 @@ class MaxPool2DBlock(RasmusBlock):
 
 
 class GlobalAvgPool2DBlock(RasmusBlock):
-    def __init__(self, height_out, width_out, channels_out, act_fn=lambda x: x, noise=True, bias=False, scale=False):
+    def __init__(self, height_out, width_out, channels_out, act_fn=lambda x: x, noise=True, bias=True, scale=True):
         super().__init__(height_out, width_out, channels_out, act_fn, noise, bias, scale)
 
     def forward(self, x):
@@ -155,11 +155,6 @@ class Net(nn.Module):
         self.pool2 = MaxPool2DBlock(7, 7, 64)
         self.conv4 = Conv2DBlock(7, 7, 64, 128, F.relu, 3, 1)
         self.conv5 = Conv2DBlock(7, 7, 128, 10, F.relu, 1, 0)
-
-        # self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-        # self.pool3_noise = Noise((args.batch_size, 10, 1, 1))
-        # self.pool3_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
-        # self.pool3_scale = nn.Parameter(torch.ones((1, 10, 1, 1))).cuda()
         self.pool3 = GlobalAvgPool2DBlock(1, 1, 10)
 
         self.fc1 = nn.Linear(10, 10)
@@ -182,7 +177,7 @@ class Net(nn.Module):
         self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, std):
+    def forward(self, x):
 
         x = self.input_noise(x)
         x = self.conv1(x)
@@ -192,18 +187,16 @@ class Net(nn.Module):
         x = self.pool2(x)
         x = self.conv4(x)
         x = self.conv5(x)
-
-        # x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
         x = self.pool3(x)
 
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
 
         # z = self.gaussian(x, std=std)
-        z = x
+        z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        if std > 0.0:
+        if self.training:
             u = self.gamma_bn(h)
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
@@ -244,10 +237,10 @@ def train(epoch):
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
-        softmax, _, _ = model(data, args.noise_std)
-        # model.eval()
-        _, z, _ = model(unlabeled, 0.0)
-        _, _, z_est = model(unlabeled, args.noise_std)
+        softmax, _, _ = model(data)
+        _, z, _ = model(unlabeled)
+        model.eval()
+        _, _, z_est = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         # loss = ce_loss + mse_loss
