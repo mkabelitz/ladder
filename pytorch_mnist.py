@@ -120,10 +120,12 @@ class Net(nn.Module):
 
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
 
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-        self.conv1_noise = Noise((args.batch_size, 32, 28, 28))
-        self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
+        # self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        # self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
+        # self.conv1_noise = Noise((args.batch_size, 32, 28, 28))
+        # self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
+
+        self.conv1 = ConvBlock(28, 28, 1, 32, F.relu, 5, 2)
 
         self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
         self.pool1_noise = Noise((args.batch_size, 32, 14, 14))
@@ -182,7 +184,8 @@ class Net(nn.Module):
 
         x = self.input_noise(x)
 
-        x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
+        # x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
+        x = self.conv1(x)
 
         x = self.pool1_scale * (self.pool1_bias + self.pool1_noise(self.pool1_bn(F.max_pool2d(x, 2, stride=2))))
 
