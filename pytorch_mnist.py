@@ -26,25 +26,21 @@ parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
                     help='momentum for batch normalization (default: 0.1)')
 parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
-parser.add_argument('--no-cuda', action='store_true', default=False,
-                    help='disables CUDA training')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=300, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
-args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
-if args.cuda:
-    torch.cuda.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.1307,), (0.3081,))])
     # [transforms.ToTensor()])
 
-kwargs = {'num_workers': 0, 'pin_memory': True} if args.cuda else {}
+kwargs = {'num_workers': 0, 'pin_memory': True}
 
 mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
@@ -79,114 +75,62 @@ class Net(nn.Module):
 
     def gaussian(self, ins, std):
         if std > 0.0:
-            if args.cuda:
-                return ins + Variable(torch.randn(ins.size()).cuda() * std)
-            else:
-                return ins + Variable(torch.randn(ins.size()) * std)
+            return ins + Variable(torch.randn(ins.size()).cuda() * std)
         return ins
 
     def __init__(self):
         super(Net, self).__init__()
 
-        if args.cuda:
-            self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-            self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-            self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
+        self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
+        self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
 
-            self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-            self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
-            self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1))).cuda()
+        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
+        self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
+        self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1))).cuda()
 
-            self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-            self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.conv2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
-            self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-            self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.conv3_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.conv2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.conv3_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
 
-            self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.pool2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
-            self.pool2_scale = nn.Parameter(torch.ones((1, 64, 1, 1))).cuda()
+        self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
+        self.pool2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1))).cuda()
+        self.pool2_scale = nn.Parameter(torch.ones((1, 64, 1, 1))).cuda()
 
-            self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-            self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.bn_momentum)
-            self.conv4_bias = nn.Parameter(torch.zeros((1, 128, 1, 1))).cuda()
-            self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-            self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
+        self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.bn_momentum)
+        self.conv4_bias = nn.Parameter(torch.zeros((1, 128, 1, 1))).cuda()
+        self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
+        self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
 
-            self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.pool3_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
-            self.pool3_scale = nn.Parameter(torch.ones((1, 10, 1, 1))).cuda()
+        self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.pool3_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
+        self.pool3_scale = nn.Parameter(torch.ones((1, 10, 1, 1))).cuda()
 
-            self.fc1 = nn.Linear(10, 10)
-            self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.fc1_bias = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.fc1_scale = nn.Parameter(torch.ones((1, 10))).cuda()
+        self.fc1 = nn.Linear(10, 10)
+        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.fc1_bias = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.fc1_scale = nn.Parameter(torch.ones((1, 10))).cuda()
 
-            self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
+        self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-            self.a1 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a2 = nn.Parameter(torch.ones((1, 10))).cuda()
-            self.a3 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a4 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a5 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a6 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a7 = nn.Parameter(torch.ones((1, 10))).cuda()
-            self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
-            self.sigmoid = nn.Sigmoid()
+        # self.a1 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a2 = nn.Parameter(torch.ones((1, 10))).cuda()
+        # self.a3 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a4 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a5 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a6 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a7 = nn.Parameter(torch.ones((1, 10))).cuda()
+        # self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        # self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
 
-        else:
-            self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-            self.conv1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-            self.conv1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1)))
-
-            self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-            self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1)))
-            self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1)))
-
-            self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-            self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.conv2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
-            self.conv3 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
-            self.conv3_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.conv3_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
-
-            self.pool2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
-            self.pool2_bias = nn.Parameter(torch.zeros((1, 64, 1, 1)))
-            self.pool2_scale = nn.Parameter(torch.ones((1, 64, 1, 1)))
-
-            self.conv4 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-            self.conv4_bn = nn.BatchNorm2d(num_features=128, affine=False, momentum=args.bn_momentum)
-            self.conv4_bias = nn.Parameter(torch.zeros((1, 128, 1, 1)))
-            self.conv5 = nn.Conv2d(128, 10, kernel_size=1, padding=0)
-            self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
-
-            self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.pool3_bias = nn.Parameter(torch.zeros((1, 10, 1, 1)))
-            self.pool3_scale = nn.Parameter(torch.ones((1, 10, 1, 1)))
-
-            self.fc1 = nn.Linear(10, 10)
-            self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
-            self.fc1_bias = nn.Parameter(torch.zeros((1, 10)))
-            self.fc1_scale = nn.Parameter(torch.ones((1, 10)))
-
-            self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
-
-            self.a1 = nn.Parameter(torch.zeros((1, 10)))
-            self.a2 = nn.Parameter(torch.ones((1, 10)))
-            self.a3 = nn.Parameter(torch.zeros((1, 10)))
-            self.a4 = nn.Parameter(torch.zeros((1, 10)))
-            self.a5 = nn.Parameter(torch.zeros((1, 10)))
-            self.a6 = nn.Parameter(torch.zeros((1, 10)))
-            self.a7 = nn.Parameter(torch.ones((1, 10)))
-            self.a8 = nn.Parameter(torch.zeros((1, 10)))
-            self.a9 = nn.Parameter(torch.zeros((1, 10)))
-            self.a10 = nn.Parameter(torch.zeros((1, 10)))
-            self.sigmoid = nn.Sigmoid()
+        self.b = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.w = nn.Parameter(torch.ones((1, 10))).cuda()
 
     def forward(self, x, std):
 
@@ -220,11 +164,16 @@ class Net(nn.Module):
         z = self.gaussian(x, std=std)
         h = self.fc1_scale * (self.fc1_bias + z)
 
+        # if std > 0.0:
+        #     u = self.gamma_bn(h)
+        #     g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+        #     g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+        #     z_est = (z - g_m) * g_v + g_m
+        # else:
+        #     z_est = None
+
         if std > 0.0:
-            u = self.gamma_bn(h)
-            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-            z_est = (z - g_m) * g_v + g_m
+            z_est = self.w * z + self.b
         else:
             z_est = None
 
@@ -232,8 +181,7 @@ class Net(nn.Module):
 
 
 model = Net()
-if args.cuda:
-    model.cuda()
+model.cuda()
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
@@ -259,8 +207,7 @@ def train(epoch):
         model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
-        if args.cuda:
-            unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
+        unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
         softmax, _, _ = model(data, args.noise_std)
@@ -286,8 +233,7 @@ def test():
     test_loss = 0
     correct = 0
     for data, target in test_loader:
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         softmax, _, _ = model(data, 0.0)
         test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
