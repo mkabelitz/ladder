@@ -154,7 +154,7 @@ class Net(nn.Module):
 
         x = self.input_noise(x)
 
-        x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
+        x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
 
         x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
 
