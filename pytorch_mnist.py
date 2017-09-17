@@ -86,7 +86,7 @@ class Noise(nn.Module):
 
 
 class RasmusBlock(nn.Module):
-    def __init__(self, height, width, channels_out, act_fn, noise, bias, scale):
+    def __init__(self, height_out, width_out, channels_out, act_fn, noise, bias, scale):
         super().__init__()
         self.act_fn = act_fn
         self.bn = nn.BatchNorm2d(num_features=channels_out, affine=False, momentum=args.bn_momentum)
@@ -94,7 +94,7 @@ class RasmusBlock(nn.Module):
         self.bias_flag = bias
         self.scale_flag = scale
         if noise:
-            self.noise = Noise((args.batch_size, channels_out, height, width))
+            self.noise = Noise((args.batch_size, channels_out, height_out, width_out))
         if bias:
             self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1))).cuda()
         if scale:
@@ -112,9 +112,9 @@ class RasmusBlock(nn.Module):
 
 
 class Conv2DBlock(RasmusBlock):
-    def __init__(self, height, width, channels_in, channels_out, act_fn, kernel_size, padding,
+    def __init__(self, height_out, width_out, channels_in, channels_out, act_fn, kernel_size, padding,
                  noise=True, bias=True, scale=False):
-        super().__init__(height, width, channels_out, act_fn, noise, bias, scale)
+        super().__init__(height_out, width_out, channels_out, act_fn, noise, bias, scale)
         self.conv = nn.Conv2d(channels_in, channels_out, kernel_size=kernel_size, padding=padding)
 
     def forward(self, x):
@@ -122,8 +122,9 @@ class Conv2DBlock(RasmusBlock):
 
 
 class MaxPool2DBlock(RasmusBlock):
-    def __init__(self, height, width, channels_out, act_fn, kernel_size, stride, noise=True, bias=True, scale=True):
-        super().__init__(height, width, channels_out, act_fn, noise, bias, scale)
+    def __init__(self, height_out, width_out, channels_out, act_fn=lambda x: x, kernel_size=2, stride=2,
+                 noise=True, bias=True, scale=True):
+        super().__init__(height_out, width_out, channels_out, act_fn, noise, bias, scale)
         self.kernel_size = kernel_size
         self.stride = stride
 
@@ -132,8 +133,8 @@ class MaxPool2DBlock(RasmusBlock):
 
 
 class GlobalAvgPool2DBlock(RasmusBlock):
-    def __init__(self, height, width, channels_out, act_fn, noise=True, bias=True, scale=True):
-        super().__init__(height, width, channels_out, act_fn, noise, bias, scale)
+    def __init__(self, height_out, width_out, channels_out, act_fn, noise=True, bias=False, scale=False):
+        super().__init__(height_out, width_out, channels_out, act_fn, noise, bias, scale)
 
     def forward(self, x):
         return super().forward(F.avg_pool2d(x, x.size()[2:]))
@@ -153,10 +154,12 @@ class Net(nn.Module):
 
         self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
 
-        self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
-        self.pool1_noise = Noise((args.batch_size, 32, 14, 14))
-        self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
-        self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1))).cuda()
+        # self.pool1_bn = nn.BatchNorm2d(num_features=32, affine=False, momentum=args.bn_momentum)
+        # self.pool1_noise = Noise((args.batch_size, 32, 14, 14))
+        # self.pool1_bias = nn.Parameter(torch.zeros((1, 32, 1, 1))).cuda()
+        # self.pool1_scale = nn.Parameter(torch.ones((1, 32, 1, 1))).cuda()
+
+        self.pool1 = MaxPool2DBlock(14, 14, 32)
 
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.conv2_bn = nn.BatchNorm2d(num_features=64, affine=False, momentum=args.bn_momentum)
