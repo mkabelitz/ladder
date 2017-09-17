@@ -74,14 +74,14 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test
 class Noise(nn.Module):
     def __init__(self, shape, noise_std=args.noise_std):
         super().__init__()
-        self.module_noise = Variable(torch.zeros(shape).cuda())
-        self.module_std = noise_std
+        self.noise = Variable(torch.zeros(shape).cuda())
+        self.std = noise_std
 
     def forward(self, x):
         if not self.training:
             return x
         else:
-            self.noise.data.normal_(0, std=self.module_std)
+            self.noise.data.normal_(0, std=self.std)
             print(x.size(), self.noise.size())
             return x + self.noise
 
