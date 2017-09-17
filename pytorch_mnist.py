@@ -167,7 +167,7 @@ class Net(nn.Module):
         # self.conv5_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
         # self.conv5_noise = Noise((args.batch_size, 10, 7, 7))
         # self.conv5_bias = nn.Parameter(torch.zeros((1, 10, 1, 1))).cuda()
-        self.conv5 = Conv2DBlock(7, 7, 128, 128, F.relu, 1, 0)
+        self.conv5 = Conv2DBlock(7, 7, 128, 10, F.relu, 1, 0)
 
         self.pool3_bn = nn.BatchNorm2d(num_features=10, affine=False, momentum=args.bn_momentum)
         self.pool3_noise = Noise((args.batch_size, 10, 1, 1))
