@@ -85,6 +85,34 @@ class Noise(nn.Module):
             return x + self.noise
 
 
+class RasmusBlock(nn.Module):
+    def __init__(self, height, width, channels_out, act_fn, noise, bias, scale):
+        super().__init__()
+        self.act_fn = act_fn
+        self.bn = nn.BatchNorm2d(num_features=channels_out, affine=False, momentum=args.bn_momentum)
+        self.noise = Noise((args.batch_size, channels_out, height, width)) if noise else None
+        self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1))).cuda() if bias else None
+        self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1))).cuda() if scale else None
+
+    def forward(self, x):
+        x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
+        x = self.bn(x)
+        x = self.noise(x) if self.noise else x
+        x = x + self.bias if self.bias else x
+        x = x * self.scale if self.scale else x
+        return self.act_fn(x)
+
+
+class ConvBlock(RasmusBlock):
+    def __init__(self, height, width, channels_in, channels_out, act_fn, kernel_size, padding,
+                 noise=True, bias=True, scale=False):
+        super().__init__(height, width, channels_out, act_fn, noise, bias, scale)
+        self.conv = nn.Conv2d(channels_in, channels_out, kernel_size=kernel_size, padding=padding)
+
+    def forward(self, x):
+        return super().forward(self.conv(x))
+
+
 class Net(nn.Module):
 
     def __init__(self):
