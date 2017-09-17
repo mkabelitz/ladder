@@ -98,7 +98,9 @@ class RasmusBlock(nn.Module):
         # x = F.relu(self.conv1_bias + self.conv1_noise(self.conv1_bn(self.conv1(x))))
         x = self.bn(x)
         x = self.noise(x) if self.noise else x
-        x = x + self.bias if self.bias else x
+        if self.bias:
+            x += self.bias
+        # x = x + self.bias if self.bias else x
         x = x * self.scale if self.scale else x
         return self.act_fn(x)
 
