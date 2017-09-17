@@ -208,10 +208,13 @@ class Net(nn.Module):
         x = self.conv2(x)
         x = self.conv3(x)
 
-        x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
+        # x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
+        self.pool2(x)
 
-        x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
-        x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
+        # x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
+        # x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
+        x = self.conv4(x)
+        x = self.conv5(x)
 
         x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
 
