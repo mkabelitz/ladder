@@ -208,7 +208,7 @@ def train(epoch):
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct = pred.eq(target.data.view_as(pred)).cpu().sum()
         if args.log_interval and batch_idx % args.log_interval == 0:
-            print('\n\tTrain Epoch {:.1f}%\tLoss: {:.6f}\tCE: {:.6f}\tMSE: {:.6f}\tACC: {}/{}'.format(
+            print('\tTrain Epoch {:.1f}%\tLoss: {:.6f}\tCE: {:.6f}\tMSE: {:.6f}\tACC: {}/{}'.format(
                 100. * batch_idx / len(unlabeled_loader), loss.data[0], ce_loss.data[0], mse_loss.data[0],
                 correct, args.batch_size))
 
