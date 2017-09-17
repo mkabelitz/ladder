@@ -24,7 +24,7 @@ parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
                     help='learning rate decay start in (0,1) interval (default: 0.5)')
 parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
                     help='momentum for batch normalization (default: 0.1)')
-parser.add_argument('--noise-std', type=float, default=, metavar='M',
+parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
