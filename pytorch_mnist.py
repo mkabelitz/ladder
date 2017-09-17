@@ -118,45 +118,34 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        # self.a1 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a2 = nn.Parameter(torch.ones((1, 10))).cuda()
-        # self.a3 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a4 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a5 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a6 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a7 = nn.Parameter(torch.ones((1, 10))).cuda()
-        # self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        # self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
-
-        self.b = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.w = nn.Parameter(torch.ones((1, 10))).cuda()
+        self.a1 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a2 = nn.Parameter(torch.ones((1, 10))).cuda()
+        self.a3 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a4 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a5 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a6 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a7 = nn.Parameter(torch.ones((1, 10))).cuda()
+        self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
 
     def forward(self, x, std):
 
         x = self.gaussian(x, std=std)
 
-        x = F.relu(self.conv1_bias + self.conv1_bn(self.conv1(x)))
-        # x = F.relu(self.conv1_bn(self.conv1(x)))
+        x = F.relu(self.conv1_bias + self.gaussian(self.conv1_bn(self.conv1(x)), std=std))
 
-        x = self.pool1_scale * (self.pool1_bias + self.pool1_bn(F.max_pool2d(x, 2, stride=2)))
-        # x = F.max_pool2d(x, 2, stride=2)
+        x = self.pool1_scale * (self.pool1_bias + self.gaussian(self.pool1_bn(F.max_pool2d(x, 2, stride=2)), std=std))
 
-        x = F.relu(self.conv2_bias + self.conv2_bn(self.conv2(x)))
-        # x = F.relu(self.conv2_bn(self.conv2(x)))
-        x = F.relu(self.conv3_bias + self.conv3_bn(self.conv3(x)))
-        # x = F.relu(self.conv3_bn(self.conv3(x)))
+        x = F.relu(self.conv2_bias + self.gaussian(self.conv2_bn(self.conv2(x)), std=std))
+        x = F.relu(self.conv3_bias + self.gaussian(self.conv3_bn(self.conv3(x)), std=std))
 
-        x = self.pool2_scale * (self.pool2_bias + self.pool2_bn(F.max_pool2d(x, 2, stride=2)))
-        # x = F.max_pool2d(x, 2, stride=2)
+        x = self.pool2_scale * (self.pool2_bias + self.gaussian(self.pool2_bn(F.max_pool2d(x, 2, stride=2)), std=std))
 
-        x = F.relu(self.conv4_bias + self.conv4_bn(self.conv4(x)))
-        # x = F.relu(self.conv4_bn(self.conv4(x)))
-        x = F.relu(self.conv5_bias + self.conv5_bn(self.conv5(x)))
-        # x = F.relu(self.conv5_bn(self.conv5(x)))
+        x = F.relu(self.conv4_bias + self.gaussian(self.conv4_bn(self.conv4(x)), std=std))
+        x = F.relu(self.conv5_bias + self.gaussian(self.conv5_bn(self.conv5(x)), std=std))
 
-        x = self.pool3_scale * (self.pool3_bias + self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])))
-        # x = F.avg_pool2d(x, kernel_size=x.size()[2:])
+        x = self.pool3_scale * (self.pool3_bias + self.gaussian(self.pool3_bn(F.avg_pool2d(x, kernel_size=x.size()[2:])), std=std))
 
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
@@ -164,16 +153,11 @@ class Net(nn.Module):
         z = self.gaussian(x, std=std)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        # if std > 0.0:
-        #     u = self.gamma_bn(h)
-        #     g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-        #     g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-        #     z_est = (z - g_m) * g_v + g_m
-        # else:
-        #     z_est = None
-
         if std > 0.0:
-            z_est = self.w * z + self.b
+            u = self.gamma_bn(h)
+            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            z_est = (z - g_m) * g_v + g_m
         else:
             z_est = None
 
