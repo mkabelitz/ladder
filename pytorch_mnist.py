@@ -7,6 +7,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 from tqdm import tqdm
+import numpy as np
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
