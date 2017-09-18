@@ -203,7 +203,7 @@ class Net(nn.Module):
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
         z_crt = self.fc1_noise(x)
-        h_crt = self.fc1_scale * (self.fc1_bias + z)
+        h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
 
         Noise.add_noise = False
         self.train = True
@@ -219,7 +219,7 @@ class Net(nn.Module):
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
         z_cln = self.fc1_noise(x)
-        h_cln = self.fc1_scale * (self.fc1_bias + z)
+        h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
 
         u = self.gamma_bn(h_crt)
         g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
@@ -264,7 +264,7 @@ def train():
         optimizer.step()
 
         if args.train_log_interval and step % args.train_log_interval == 0:
-            pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+            pred = softmax_crt.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct = pred.eq(target.data.view_as(pred)).cpu().sum()
             print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
@@ -292,7 +292,7 @@ def test():
         data, target = Variable(data, volatile=True), Variable(target)
         softmax_cln = model(data)
         test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
-        pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
