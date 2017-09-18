@@ -194,13 +194,10 @@ class Net(nn.Module):
         z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        if self.training:
-            u = self.gamma_bn(h)
-            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-            z_est = (z - g_m) * g_v + g_m
-        else:
-            z_est = None
+        u = self.gamma_bn(h)
+        g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+        g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+        z_est = (z - g_m) * g_v + g_m
 
         return F.log_softmax(h), z, z_est
 
@@ -236,8 +233,8 @@ def train(epoch):
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
         softmax, _, _ = model(data)
-        _, _, z_est = model(unlabeled)
         model.eval()
+        _, _, z_est = model(unlabeled)
         _, z, _ = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
