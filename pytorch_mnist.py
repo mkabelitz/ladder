@@ -204,14 +204,13 @@ class Net(nn.Module):
         z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        if Noise.add_noise:
-            u = self.gamma_bn(h)
-            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-            z_est = (z - g_m) * g_v + g_m
-            z = z_est
+        u = self.gamma_bn(h)
+        g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+        g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+        z_est = (z - g_m) * g_v + g_m
+        z_est
 
-        return F.log_softmax(h), z
+        return F.log_softmax(h), z, z_est
 
 
 model = Net()
@@ -241,11 +240,11 @@ def train():
         model.train()
         optimizer.zero_grad()
         Noise.add_noise = True
-        softmax, _ = model(data)
+        softmax, _, _ = model(data)
         Noise.add_noise = True
-        _, z_est = model(unlabeled)
+        _, _, z_est = model(unlabeled)
         Noise.add_noise = False
-        _, z = model(unlabeled)
+        _, z, _ = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         loss = ce_loss + mse_loss
@@ -280,7 +279,7 @@ def test():
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         Noise.add_noise = False
-        softmax, _ = model(data)
+        softmax, _, _ = model(data)
         test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
