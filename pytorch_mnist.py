@@ -233,35 +233,34 @@ def linear_lr_decay(step):
 def train():
     for step in tqdm(range(num_steps)):
         linear_lr_decay(step)
-        model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
-        print(torch.sum(unlabeled))
+
+        model.train()
         optimizer.zero_grad()
         Noise.add_noise = True
         softmax, _ = model(data)
+        ce_loss = F.nll_loss(softmax, target)
+        ce_loss.backward()
+        optimizer.step()
+
         model.eval()
+        optimizer.zero_grad()
         Noise.add_noise = True
         _, z_est = model(unlabeled)
-        print(torch.sum(unlabeled))
         Noise.add_noise = False
         _, z = model(unlabeled)
-        print(torch.sum(unlabeled))
-        ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        if step > 1200:
-            loss = ce_loss + mse_loss
-        else:
-            loss = ce_loss
-        loss.backward()
+        mse_loss.backward()
         optimizer.step()
+
         if args.train_log_interval and step % args.train_log_interval == 0:
             pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct = pred.eq(target.data.view_as(pred)).cpu().sum()
             print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
-                loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
+                ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
             test()
