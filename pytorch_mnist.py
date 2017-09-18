@@ -190,7 +190,6 @@ class Net(nn.Module):
     def forward(self, input):
 
         Noise.add_noise = True
-        self.train = False
         x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
@@ -206,7 +205,6 @@ class Net(nn.Module):
         h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
 
         Noise.add_noise = False
-        self.train = True
         x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
