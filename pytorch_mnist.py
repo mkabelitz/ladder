@@ -106,9 +106,9 @@ class RasmusBlock(nn.Module):
         if noise:
             self.noise = Noise((args.batch_size, channels_out, height_out, width_out))
         if bias:
-            self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1))).cuda()
+            self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1)).cuda())
         if scale:
-            self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1))).cuda() if scale else None
+            self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1)).cuda())
 
     def forward(self, x):
         if self.bn_flag:
@@ -175,16 +175,16 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a2 = nn.Parameter(torch.ones((1, 10))).cuda()
-        self.a3 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a4 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a5 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a6 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a7 = nn.Parameter(torch.ones((1, 10))).cuda()
-        self.a8 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a9 = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a5 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a6 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a7 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a8 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a9 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a10 = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
@@ -259,20 +259,16 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
-            # print(model.a1)
-            # print(model.a2)
-            # print(model.a3)
-            # print(model.a4)
-            # print(model.a5)
-            # print(model.a6)
-            # print(model.a7)
-            # print(model.a8)
-            # print(model.a9)
-            # print(model.a10)
-
-            print(model.fc1_bias)
-            print(model.fc1_scale)
-
+            print(model.a1)
+            print(model.a2)
+            print(model.a3)
+            print(model.a4)
+            print(model.a5)
+            print(model.a6)
+            print(model.a7)
+            print(model.a8)
+            print(model.a9)
+            print(model.a10)
             test()
 
 
