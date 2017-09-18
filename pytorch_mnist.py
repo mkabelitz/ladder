@@ -249,7 +249,7 @@ def train():
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         # loss = ce_loss + mse_loss
-        loss = F.mse_loss(model.fc1_bias, model.fc1_bias*2)
+        loss = F.mse_loss(model.fc1_scale, model.fc1_scale*2)
         print("LOSS:", loss)
         loss.backward()
         optimizer.step()
