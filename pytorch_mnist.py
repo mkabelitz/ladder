@@ -28,7 +28,7 @@ parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--train-log-interval', type=int, default=200, metavar='N',
+parser.add_argument('--train-log-interval', type=int, default=600, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--test-log-interval', type=int, default=600, metavar='N',
                     help='how many batches to wait before logging test status')
@@ -272,7 +272,7 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print('\n Test:\tLR: {:.4f}\tAverage loss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)'.format(
+    print(' Test:\tLR: {:.4f}\tAverage loss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)'.format(
         optimizer.param_groups[0]['lr'], test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
