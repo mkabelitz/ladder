@@ -246,6 +246,7 @@ def train():
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
+        print(z_est[0])
         print(z[0])
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
