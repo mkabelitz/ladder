@@ -189,6 +189,8 @@ class Net(nn.Module):
 
     def forward(self, x):
 
+        Noise.add_noise = True
+        self.train = False
         x = self.input_noise(x)
         x = self.conv1(x)
         x = self.pool1(x)
@@ -198,19 +200,33 @@ class Net(nn.Module):
         x = self.conv4(x)
         x = self.conv5(x)
         x = self.pool3(x)
-
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
-        z = self.fc1_noise(x)
-        h = self.fc1_scale * (self.fc1_bias + z)
+        z_crt = self.fc1_noise(x)
+        h_crt = self.fc1_scale * (self.fc1_bias + z)
 
-        u = self.gamma_bn(h)
+        Noise.add_noise = False
+        self.train = True
+        x = self.input_noise(x)
+        x = self.conv1(x)
+        x = self.pool1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.pool2(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.pool3(x)
+        x = x.view(-1, 10)
+        x = self.fc1_bn(self.fc1(x))
+        z_cln = self.fc1_noise(x)
+        h_cln = self.fc1_scale * (self.fc1_bias + z)
+
+        u = self.gamma_bn(h_crt)
         g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
         g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-        z_est = (z - g_m) * g_v + g_m
-        z_est
+        z_est = (z_crt - g_m) * g_v + g_m
 
-        return F.log_softmax(h), z, z_est
+        return F.log_softmax(h_crt), F.log_softmax(h_cln), z_est, z_cln
 
 
 model = Net()
@@ -239,14 +255,10 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        Noise.add_noise = True
-        softmax, _, _ = model(data)
-        Noise.add_noise = True
-        _, _, z_est = model(unlabeled)
-        Noise.add_noise = False
-        _, z, _ = model(unlabeled)
-        ce_loss = F.nll_loss(softmax, target)
-        mse_loss = F.mse_loss(z, z_est)
+        softmax_crt = model(data)[0]
+        _, _, z_est, z_cln = model(unlabeled)
+        ce_loss = F.nll_loss(softmax_crt, target)
+        mse_loss = F.mse_loss(z_cln, z_est)
         loss = ce_loss + mse_loss
         loss.backward()
         optimizer.step()
@@ -278,9 +290,8 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        Noise.add_noise = False
-        softmax, _, _ = model(data)
-        test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
+        softmax_cln = model(data)
+        test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
