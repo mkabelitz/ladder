@@ -251,9 +251,9 @@ def train():
         if args.train_log_interval and step % args.train_log_interval == 0:
             pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct = pred.eq(target.data.view_as(pred)).cpu().sum()
-            print('\nTrain:\tCE Loss: {:.6f}\tMSE Loss: {:.6f}\tTotal Loss: {:.6f}\tAccuracy: {}/{} ({:.2f}%)'.format(
-                ce_loss.data[0], mse_loss.data[0], loss.data[0], correct, args.batch_size,
-                100. * correct / args.batch_size))
+            print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
+                loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
+                ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
             test()
 
@@ -272,20 +272,11 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print(' Test:\tLR: {:.4f}\tAverage loss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)'.format(
-        optimizer.param_groups[0]['lr'], test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
+    print(' Test:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tLR: {:.4f}'.format(
+        test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)),
+        optimizer.param_groups[0]['lr'])
 
 
-
-
-
-for epoch in range(1, args.epochs + 1):
-    linear_lr_decay(epoch)
-    train()
-    print("Epoch {}/{}:".format(epoch, args.epochs))
-    print("\tCurrent learning rate: {:.4f}".format())
-    test()
 
 train()
 print("\nOPTIMIZATION FINISHED!")
