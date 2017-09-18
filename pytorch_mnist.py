@@ -253,7 +253,7 @@ def train():
         Noise.add_noise = False
         _, z = model(unlabeled)
         mse_loss = F.mse_loss(z, z_est)
-        mse_loss.backward()
+        # mse_loss.backward()
         optimizer.step()
 
         if args.train_log_interval and step % args.train_log_interval == 0:
