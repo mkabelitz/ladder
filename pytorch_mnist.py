@@ -78,7 +78,7 @@ class Noise(nn.Module):
         self.std = noise_std
 
     def forward(self, x):
-        if not self.training:
+        if not self.add_noise:
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
@@ -143,11 +143,12 @@ class GlobalAvgPool2DBlock(RasmusBlock):
 
 class Net(nn.Module):
 
-    def __init__(self):
+    def __init__(self, add_noise):
         super(Net, self).__init__()
 
-        self.input_noise = Noise((args.batch_size, 1, 28, 28))
+        self.add_noise = add_noise
 
+        self.input_noise = Noise((args.batch_size, 1, 28, 28))
         self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
         self.pool1 = MaxPool2DBlock(14, 14, 32)
         self.conv2 = Conv2DBlock(14, 14, 32, 64, F.relu, 3, 1)
@@ -194,12 +195,14 @@ class Net(nn.Module):
         z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        u = self.gamma_bn(h)
-        g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-        g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-        z_est = (z - g_m) * g_v + g_m
+        if self.add_noise:
+            u = self.gamma_bn(h)
+            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            z_est = (z - g_m) * g_v + g_m
+            z = z_est
 
-        return F.log_softmax(h), z, z_est
+        return F.log_softmax(h), z
 
 
 model = Net()
@@ -232,14 +235,14 @@ def train(epoch):
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
-        softmax, _, _ = model(data)
+        softmax, _ = model(data, add_noise=True)
         model.eval()
-        _, _, z_est = model(unlabeled)
-        _, z, _ = model(unlabeled)
+        _, z_est = model(unlabeled, add_noise=True)
+        _, z = model(unlabeled, add_noise=False)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        loss = ce_loss + mse_loss
-        # loss = ce_loss
+        # loss = ce_loss + mse_loss
+        loss = ce_loss
         loss.backward()
         optimizer.step()
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
@@ -257,7 +260,7 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        softmax, _, _ = model(data)
+        softmax, _ = model(data, add_noise=False)
         test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
