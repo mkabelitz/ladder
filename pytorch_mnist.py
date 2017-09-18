@@ -218,7 +218,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 def linear_lr_decay(step):
     decay_steps = int(num_steps * (1.0 - args.lr_decay_first))
-    if step > decay_steps - decay_steps:
+    if step > num_steps - decay_steps:
         decay_step = step - (num_steps - decay_steps)
         factor = ((decay_steps - (decay_step - 1)) / decay_steps)
         lr = args.lr * factor
