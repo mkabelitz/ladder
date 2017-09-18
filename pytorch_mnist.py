@@ -196,7 +196,7 @@ class Net(nn.Module):
         z = self.fc1_noise(x)
         h = self.fc1_scale * (self.fc1_bias + z)
 
-        if self.add_noise:
+        if Noise.add_noise:
             u = self.gamma_bn(h)
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
