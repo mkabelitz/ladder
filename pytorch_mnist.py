@@ -72,13 +72,16 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test
 
 
 class Noise(nn.Module):
+
+    add_noise = False
+
     def __init__(self, shape, noise_std=args.noise_std):
         super().__init__()
         self.noise = Variable(torch.zeros(shape).cuda())
         self.std = noise_std
 
     def forward(self, x):
-        if not self.add_noise:
+        if not Noise.add_noise:
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
@@ -146,8 +149,6 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.add_noise = None
-
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
         self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
         self.pool1 = MaxPool2DBlock(14, 14, 32)
@@ -180,7 +181,7 @@ class Net(nn.Module):
 
     def forward(self, x, add_noise):
 
-        self.add_noise = add_noise
+        Noise.add_noise = add_noise
 
         x = self.input_noise(x)
         x = self.conv1(x)
