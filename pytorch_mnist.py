@@ -230,9 +230,9 @@ def train():
     for step in tqdm(range(num_steps)):
         linear_lr_decay(step)
         model.train()
-        unlabeled = unlabeled_loader.__iter__().__next__()[0]
+        unlabeled, unlabeled_target = unlabeled_loader.__iter__().__next__()
         data, target = train_loader.__iter__().__next__()
-        print(torch.sum(target))
+        print(torch.sum(unlabeled_target))
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
