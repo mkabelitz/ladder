@@ -42,7 +42,7 @@ transform = transforms.Compose(
     #  transforms.Normalize((0.1307,), (0.3081,))])
     [transforms.ToTensor()])
 
-kwargs = {'num_workers': 0, 'pin_memory': False}
+kwargs = {'num_workers': 0, 'pin_memory': True}
 
 mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
@@ -259,6 +259,7 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
+            print model.a1
             test()
 
 
