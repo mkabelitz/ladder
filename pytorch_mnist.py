@@ -273,8 +273,8 @@ def test():
 
     test_loss /= len(test_loader.dataset)
     print(' Test:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tLR: {:.4f}'.format(
-        test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)),
-        optimizer.param_groups[0]['lr'])
+        test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset),
+        optimizer.param_groups[0]['lr']))
 
 
 
