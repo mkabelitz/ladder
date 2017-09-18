@@ -28,7 +28,7 @@ parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--train-log-interval', type=int, default=300, metavar='N',
+parser.add_argument('--train-log-interval', type=int, default=200, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--test-log-interval', type=int, default=600, metavar='N',
                     help='how many batches to wait before logging test status')
