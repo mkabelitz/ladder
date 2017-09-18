@@ -179,9 +179,7 @@ class Net(nn.Module):
         self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x, add_noise):
-
-        Noise.add_noise = add_noise
+    def forward(self, x):
 
         x = self.input_noise(x)
         x = self.conv1(x)
@@ -222,10 +220,13 @@ def train(epoch):
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
-        softmax, _ = model(data, add_noise=True)
+        Noise.add_noise = True
+        softmax, _ = model(data)
         model.eval()
-        _, z_est = model(unlabeled, add_noise=True)
-        _, z = model(unlabeled, add_noise=False)
+        Noise.add_noise = True
+        _, z_est = model(unlabeled)
+        Noise.add_noise = False
+        _, z = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         # loss = ce_loss + mse_loss
@@ -247,7 +248,8 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        softmax, _ = model(data, add_noise=False)
+        Noise.add_noise = False
+        softmax, _ = model(data)
         test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
