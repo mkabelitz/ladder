@@ -143,10 +143,10 @@ class GlobalAvgPool2DBlock(RasmusBlock):
 
 class Net(nn.Module):
 
-    def __init__(self, add_noise):
+    def __init__(self):
         super(Net, self).__init__()
 
-        self.add_noise = add_noise
+        self.add_noise = None
 
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
         self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
@@ -178,7 +178,9 @@ class Net(nn.Module):
         self.a10 = nn.Parameter(torch.zeros((1, 10))).cuda()
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x):
+    def forward(self, x, add_noise):
+
+        self.add_noise = add_noise
 
         x = self.input_noise(x)
         x = self.conv1(x)
@@ -210,22 +212,6 @@ model.cuda()
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-
-# def train(epoch):
-#     model.train()
-#     for batch_idx, (data, target) in enumerate(train_loader):
-#         if args.cuda:
-#             data, target = data.cuda(), target.cuda()
-#         data, target = Variable(data), Variable(target)
-#         optimizer.zero_grad()
-#         output = model(data)
-#         loss = F.nll_loss(output, target)
-#         loss.backward()
-#         optimizer.step()
-#         if args.log_interval and batch_idx % args.log_interval == 0:
-#             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-#                 epoch, batch_idx * len(data), len(train_loader.dataset),
-#                 100. * batch_idx / len(train_loader), loss.data[0]))
 
 def train(epoch):
     for batch_idx in tqdm(range(len((unlabeled_loader)))):
