@@ -238,7 +238,7 @@ def train():
         Noise.add_noise = True
         softmax, _ = model(data)
         model.eval()
-        Noise.add_noise = True
+        Noise.add_noise = False
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
