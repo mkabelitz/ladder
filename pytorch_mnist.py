@@ -238,13 +238,12 @@ def train():
         Noise.add_noise = True
         softmax, _ = model(data)
         model.eval()
-        Noise.add_noise = False
+        Noise.add_noise = True
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        print(mse_loss)
         loss = ce_loss + mse_loss
         # loss = ce_loss
         loss.backward()
