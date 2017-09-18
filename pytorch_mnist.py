@@ -274,16 +274,18 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
-            print(model.a1)
-            print(model.a2)
-            print(model.a3)
-            print(model.a4)
-            print(model.a5)
-            print(model.a6)
-            print(model.a7)
-            print(model.a8)
-            print(model.a9)
-            print(model.a10)
+            # print(model.a1)
+            # print(model.a2)
+            # print(model.a3)
+            # print(model.a4)
+            # print(model.a5)
+            # print(model.a6)
+            # print(model.a7)
+            # print(model.a8)
+            # print(model.a9)
+            # print(model.a10)
+            print(model.fc1_bias)
+            print(model.fc1_scale)
             test()
 
 
