@@ -28,8 +28,10 @@ parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--log-interval', type=int, default=300, metavar='N',
+parser.add_argument('--train-log-interval', type=int, default=300, metavar='N',
                     help='how many batches to wait before logging training status')
+parser.add_argument('--test-log-interval', type=int, default=600, metavar='N',
+                    help='how many batches to wait before logging test status')
 args = parser.parse_args()
 
 torch.manual_seed(args.seed)
@@ -69,6 +71,8 @@ else:
 
 unlabeled_loader = torch.utils.data.DataLoader(mnist_tr_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test_batch_size, shuffle=True, **kwargs)
+
+num_steps = args.epochs * len(unlabeled_loader)
 
 
 class Noise(nn.Module):
@@ -212,8 +216,19 @@ model.cuda()
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
 
-def train(epoch):
-    for batch_idx in tqdm(range(len((unlabeled_loader)))):
+def linear_lr_decay(step):
+    decay_steps = int(num_steps * (1.0 - args.lr_decay_first))
+    if step > decay_steps - decay_steps:
+        decay_step = step - (num_steps - decay_steps)
+        factor = ((decay_steps - (decay_step - 1)) / decay_steps)
+        lr = args.lr * factor
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
+
+def train():
+    for step in tqdm(range(num_steps)):
+        linear_lr_decay(step)
         model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
@@ -233,12 +248,14 @@ def train(epoch):
         # loss = ce_loss
         loss.backward()
         optimizer.step()
-        pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
-        correct = pred.eq(target.data.view_as(pred)).cpu().sum()
-        if args.log_interval and batch_idx % args.log_interval == 0:
-            print('\tTrain Epoch {:.1f}%\tLoss: {:.6f}\tCE: {:.6f}\tMSE: {:.6f}\tACC: {}/{}'.format(
-                100. * batch_idx / len(unlabeled_loader), loss.data[0], ce_loss.data[0], mse_loss.data[0],
-                correct, args.batch_size))
+        if args.train_log_interval and step % args.train_log_interval == 0:
+            pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+            correct = pred.eq(target.data.view_as(pred)).cpu().sum()
+            print('\nTrain:\tCE Loss: {:.6f}\tMSE Loss: {:.6f}\tTotal Loss: {:.6f}\tAccuracy: {}/{} ({:.2f}%)'.format(
+                ce_loss.data[0], mse_loss.data[0], loss.data[0], correct, args.batch_size,
+                100. * correct / args.batch_size))
+        if args.test_log_interval and step % args.test_log_interval == 0:
+            test()
 
 
 def test():
@@ -255,27 +272,21 @@ def test():
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
-    print('\tTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
-        test_loss, correct, len(test_loader.dataset),
+    print('\n Test:\tLR: {:.4f}\tAverage loss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)'.format(
+        optimizer.param_groups[0]['lr'], test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
-def linear_lr_decay(epoch):
-    decay_epochs = int(args.epochs * (1.0 - args.lr_decay_first))
-    if epoch > args.epochs - decay_epochs:
-        decay_epoch = epoch - (args.epochs - decay_epochs)
-        factor = ((decay_epochs - (decay_epoch - 1)) / decay_epochs)
-        lr = args.lr * factor
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
+
 
 
 for epoch in range(1, args.epochs + 1):
     linear_lr_decay(epoch)
-    train(epoch)
+    train()
     print("Epoch {}/{}:".format(epoch, args.epochs))
-    print("\tCurrent learning rate: {:.4f}".format(optimizer.param_groups[0]['lr']))
+    print("\tCurrent learning rate: {:.4f}".format())
     test()
 
+train()
 print("\nOPTIMIZATION FINISHED!")
 test()
