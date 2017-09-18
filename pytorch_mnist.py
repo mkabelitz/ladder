@@ -206,9 +206,13 @@ class Net(nn.Module):
 
         if Noise.add_noise:
             u = self.gamma_bn(h)
+            print(u[0])
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            print(g_m[0])
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            print(g_v[0])
             z_est = (z - g_m) * g_v + g_m
+            print(z_est[0])
             z = z_est
 
         return F.log_softmax(h), z
@@ -246,8 +250,8 @@ def train():
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
-        print(z_est[0])
-        print(z[0])
+        # print(z_est[0])
+        # print(z[0])
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         loss = ce_loss + mse_loss
