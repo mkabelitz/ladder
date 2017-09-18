@@ -242,18 +242,14 @@ def train():
         optimizer.zero_grad()
         Noise.add_noise = True
         softmax, _ = model(data)
-        ce_loss = F.nll_loss(softmax, target)
-        ce_loss.backward()
-        optimizer.step()
-
-        model.train()
-        optimizer.zero_grad()
         Noise.add_noise = True
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
+        ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        mse_loss.backward()
+        loss = ce_loss + mse_loss
+        loss.backward()
         optimizer.step()
 
         if args.train_log_interval and step % args.train_log_interval == 0:
