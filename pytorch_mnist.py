@@ -250,7 +250,8 @@ def train():
         mse_loss = F.mse_loss(z, z_est)
         # loss = ce_loss + mse_loss
         loss = F.mse_loss(model.fc1_scale, model.fc1_scale*3)
-        print("LOSS:", loss.data)
+        print("LOSS:", loss)
+        print("GRAD:", model.fc1_scale.grad)
         loss.backward()
         optimizer.step()
 
