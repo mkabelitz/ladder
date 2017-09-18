@@ -157,7 +157,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.input_noise = Noise((args.batch_size, 1, 28, 28))
+        self.input_noise = Noise((args.batch_size, 1, 32, 32))
         self.conv1 = Conv2DBlock(32, 32, 3, 96, F.relu, 3, 1)
         self.conv2 = Conv2DBlock(32, 32, 96, 96, F.relu, 3, 1)
         self.conv3 = Conv2DBlock(32, 32, 96, 96, F.relu, 3, 1)
