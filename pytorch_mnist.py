@@ -9,7 +9,7 @@ from torch.autograd import Variable
 from tqdm import tqdm
 
 # Training settings
-parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+parser = argparse.ArgumentParser(description='PyTorch MNIST Gamma Network')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
@@ -21,9 +21,9 @@ parser.add_argument('--epochs', type=int, default=150, metavar='N',
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
 parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
-                    help='learning rate decay start in (0,1) interval (default: 0.5)')
-parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
-                    help='momentum for batch normalization (default: 0.1)')
+                    help='learning rate decay start in (0,1) interval (default: 0.67)')
+parser.add_argument('--bn-momentum', type=float, default=0.9, metavar='M',
+                    help='momentum for batch normalization (default: 0.9)')
 parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',

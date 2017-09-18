@@ -9,28 +9,28 @@ from torch.autograd import Variable
 from tqdm import tqdm
 
 # Training settings
-parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Gamma Network')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
-parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
-                    help='number of labeled samples for training, None for all (default: 100)')
-parser.add_argument('--epochs', type=int, default=150, metavar='N',
-                    help='number of epochs to train (default: 20)')
+parser.add_argument('--labeled-samples', type=int, default=4000, metavar='N',
+                    help='number of labeled samples for training, None for all (default: 4000)')
+parser.add_argument('--epochs', type=int, default=70, metavar='N',
+                    help='number of epochs to train (default: 70)')
 parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
                     help='learning rate (default: 0.002)')
-parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
-                    help='learning rate decay start in (0,1) interval (default: 0.5)')
-parser.add_argument('--bn-momentum', type=float, default=0.1, metavar='M',
-                    help='momentum for batch normalization (default: 0.1)')
+parser.add_argument('--lr-decay-first', type=float, default=0.86, metavar='M',
+                    help='learning rate decay start in (0,1) interval (default: 0.86)')
+parser.add_argument('--bn-momentum', type=float, default=0.9, metavar='M',
+                    help='momentum for batch normalization (default: 0.9)')
 parser.add_argument('--noise-std', type=float, default=0.3, metavar='M',
                     help='stddev for guassian noise (default: 0.3)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
-parser.add_argument('--train-log-interval', type=int, default=600, metavar='N',
+parser.add_argument('--train-log-interval', type=int, default=500, metavar='N',
                     help='how many batches to wait before logging training status')
-parser.add_argument('--test-log-interval', type=int, default=600, metavar='N',
+parser.add_argument('--test-log-interval', type=int, default=500, metavar='N',
                     help='how many batches to wait before logging test status')
 args = parser.parse_args()
 
@@ -89,7 +89,7 @@ class Noise(nn.Module):
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
-            # print(x.size(), self.noise.size())
+            print(x.size(), self.noise.size())
             return x + self.noise
 
 
@@ -158,20 +158,22 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
-        self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2, bn=False)
-        self.pool1 = MaxPool2DBlock(14, 14, 32)
-        self.conv2 = Conv2DBlock(14, 14, 32, 64, F.relu, 3, 1)
-        self.conv3 = Conv2DBlock(14, 14, 64, 64, F.relu, 3, 1)
-        self.pool2 = MaxPool2DBlock(7, 7, 64)
-        self.conv4 = Conv2DBlock(7, 7, 64, 128, F.relu, 3, 1)
-        self.conv5 = Conv2DBlock(7, 7, 128, 10, F.relu, 1, 0)
-        self.pool3 = GlobalAvgPool2DBlock(1, 1, 10)
+        self.conv1 = Conv2DBlock(32, 32, 3, 96, F.relu, 3, 1)
+        self.conv2 = Conv2DBlock(32, 32, 96, 96, F.relu, 3, 1)
+        self.conv3 = Conv2DBlock(32, 32, 96, 96, F.relu, 3, 1)
+        self.pool1 = MaxPool2DBlock(16, 16, 96)
 
-        self.fc1 = nn.Linear(10, 10)
-        self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
-        self.fc1_noise = Noise((args.batch_size, 10))
-        self.fc1_bias = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.fc1_scale = nn.Parameter(torch.ones((1, 10))).cuda()
+        self.conv4 = Conv2DBlock(16, 16, 96, 192, F.relu, 3, 1)
+        self.conv5 = Conv2DBlock(16, 16, 192, 192, F.relu, 3, 1)
+        self.conv6 = Conv2DBlock(16, 16, 192, 192, F.relu, 3, 1)
+        self.pool2 = MaxPool2DBlock(8, 8, 192)
+
+        self.conv7 = Conv2DBlock(8, 8, 192, 192, F.relu, 3, 1)
+        self.conv8 = Conv2DBlock(8, 8, 192, 192, F.relu, 1, 0)
+        self.conv9 = Conv2DBlock(8, 8, 192, 10, F.relu, 1, 0)
+        self.pool3 = GlobalAvgPool2DBlock(1, 1, 10, bias=False, scale=False)
+
+        self.avg_noise = Noise((args.batch_size, 10))
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
@@ -191,18 +193,21 @@ class Net(nn.Module):
 
         x = self.input_noise(x)
         x = self.conv1(x)
-        x = self.pool1(x)
         x = self.conv2(x)
         x = self.conv3(x)
-        x = self.pool2(x)
+        x = self.pool1(x)
         x = self.conv4(x)
         x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.pool2(x)
+        x = self.conv7(x)
+        x = self.conv8(x)
+        x = self.conv9(x)
         x = self.pool3(x)
 
         x = x.view(-1, 10)
-        x = self.fc1_bn(self.fc1(x))
-        z = self.fc1_noise(x)
-        h = self.fc1_scale * (self.fc1_bias + z)
+        z = self.avg_noise(x)
+        h = z
 
         if Noise.add_noise:
             u = self.gamma_bn(h)
@@ -242,18 +247,14 @@ def train():
         optimizer.zero_grad()
         Noise.add_noise = True
         softmax, _ = model(data)
-        ce_loss = F.nll_loss(softmax, target)
-        ce_loss.backward()
-        optimizer.step()
-
-        model.eval()
-        optimizer.zero_grad()
         Noise.add_noise = True
         _, z_est = model(unlabeled)
         Noise.add_noise = False
         _, z = model(unlabeled)
+        ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        # mse_loss.backward()
+        loss = ce_loss + mse_loss
+        loss.backward()
         optimizer.step()
 
         if args.train_log_interval and step % args.train_log_interval == 0:
