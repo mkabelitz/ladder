@@ -171,7 +171,7 @@ class Net(nn.Module):
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
         self.fc1_noise = Noise((args.batch_size, 10))
         self.fc1_bias = nn.Parameter(torch.zeros((1, 10))).cuda()
-        self.fc1_scale = nn.Parameter(torch.ones((1, 10)))
+        self.fc1_scale = nn.Parameter(torch.ones((1, 10)).cuda())
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
