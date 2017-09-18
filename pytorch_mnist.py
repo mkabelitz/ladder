@@ -244,8 +244,8 @@ def train():
         _, z = model(unlabeled)
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
-        loss = ce_loss + mse_loss
-        # loss = ce_loss
+        # loss = ce_loss + mse_loss
+        loss = ce_loss
         loss.backward()
         optimizer.step()
         if args.train_log_interval and step % args.train_log_interval == 0:
