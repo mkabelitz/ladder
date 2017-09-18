@@ -238,14 +238,17 @@ def train():
         data, target = train_loader.__iter__().__next__()
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
+        print(torch.sum(unlabeled))
         optimizer.zero_grad()
         Noise.add_noise = True
         softmax, _ = model(data)
         model.eval()
         Noise.add_noise = True
         _, z_est = model(unlabeled)
+        print(torch.sum(unlabeled))
         Noise.add_noise = False
         _, z = model(unlabeled)
+        print(torch.sum(unlabeled))
         ce_loss = F.nll_loss(softmax, target)
         mse_loss = F.mse_loss(z, z_est)
         if step > 1200:
