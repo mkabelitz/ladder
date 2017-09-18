@@ -232,6 +232,7 @@ def train():
         model.train()
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
         data, target = train_loader.__iter__().__next__()
+        print(torch.sum(target))
         unlabeled, data, target = unlabeled.cuda(), data.cuda(), target.cuda()
         unlabeled, data, target = Variable(unlabeled), Variable(data), Variable(target)
         optimizer.zero_grad()
@@ -275,8 +276,6 @@ def test():
     print(' Test:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tLR: {:.4f}'.format(
         test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset),
         optimizer.param_groups[0]['lr']))
-
-
 
 train()
 print("\nOPTIMIZATION FINISHED!")
