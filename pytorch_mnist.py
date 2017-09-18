@@ -187,11 +187,11 @@ class Net(nn.Module):
         self.a10 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x):
+    def forward(self, input):
 
         Noise.add_noise = True
         # self.train = False
-        x = self.input_noise(x)
+        x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
         x = self.conv2(x)
@@ -207,7 +207,7 @@ class Net(nn.Module):
 
         Noise.add_noise = False
         # self.train = True
-        x = self.input_noise(x)
+        x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
         x = self.conv2(x)
