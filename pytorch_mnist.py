@@ -42,7 +42,7 @@ transform = transforms.Compose(
     #  transforms.Normalize((0.1307,), (0.3081,))])
     [transforms.ToTensor()])
 
-kwargs = {'num_workers': 0, 'pin_memory': True}
+kwargs = {'num_workers': 5, 'pin_memory': True}
 
 mnist_tr_dataset = datasets.MNIST('./torchvision_data', train=True, download=True, transform=transform)
 mnist_te_dataset = datasets.MNIST('./torchvision_data', train=False, transform=transform)
