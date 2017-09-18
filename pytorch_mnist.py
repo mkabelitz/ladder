@@ -38,9 +38,9 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.1307,), (0.3081,))])
-    # [transforms.ToTensor()])
+    # [transforms.ToTensor(),
+    #  transforms.Normalize((0.1307,), (0.3081,))])
+    [transforms.ToTensor()])
 
 kwargs = {'num_workers': 0, 'pin_memory': True}
 
