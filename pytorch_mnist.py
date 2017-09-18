@@ -170,7 +170,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(10, 10)
         self.fc1_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
         self.fc1_noise = Noise((args.batch_size, 10))
-        self.fc1_bias = nn.Parameter(torch.zeros((1, 10))).cuda()
+        self.fc1_bias = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.fc1_scale = nn.Parameter(torch.ones((1, 10)).cuda())
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
@@ -270,10 +270,8 @@ def train():
             # print(model.a9)
             # print(model.a10)
 
-            # print(model.fc1_bias)
-            # print(model.fc1_scale)
-
-            print("GRAD:", model.fc1_scale)
+            print(model.fc1_bias)
+            print(model.fc1_scale)
 
             test()
 
