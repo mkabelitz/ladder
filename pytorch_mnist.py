@@ -273,7 +273,8 @@ def train():
             # print(model.fc1_bias)
             # print(model.fc1_scale)
 
-            print("GRAD:", model.fc1_scale.data.grad)
+            print("GRAD:", loss.grad)
+            print("GRAD:", model.fc1_scale.grad)
 
             test()
 
