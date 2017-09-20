@@ -262,11 +262,12 @@ def train():
         model.train()
         optimizer.zero_grad()
         softmax_crt, _, _, _ = model(data)
+        model.apply(lambda x: x.eval() if 'BatchNorm' in str(type(x)) else False)
         _, _, z_est, z_cln = model(unlabeled)
         ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
-        # loss = ce_loss + mse_loss
-        loss = mse_loss
+        loss = ce_loss + mse_loss
+        # loss = mse_loss
         loss.backward()
         optimizer.step()
 
