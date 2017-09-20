@@ -159,8 +159,10 @@ def test():
 # print("\nOPTIMIZATION FINISHED!")
 # test()
 
-labels = Variable(torch.zeros((10, 1)))
-print(labels)
+labels1 = Variable(torch.zeros((1, 10)))
+print(labels1)
+labels2 = labels1.view((-1, 1))
+print(labels2)
 
 # def add_semisup_loss(self, a, b, labels, walker_weight=1.0, visit_weight=1.0):
 #     """Add semi-supervised classification loss to the model.
