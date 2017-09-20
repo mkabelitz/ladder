@@ -174,7 +174,7 @@ def train():
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba = get_semisup_loss(emb_l, emb_u, target)
-        loss = loss_aba
+        loss = ce_loss + loss_aba
         loss.backward()
         optimizer.step()
 
