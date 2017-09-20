@@ -46,7 +46,7 @@ def main(_):
 
     with tf.variable_scope('model') as scope:
         logits_tr, _ = models.mnist_assoc(data_tr_batch)
-        scope.reuse_variables()
+        # scope.reuse_variables()
         _, emb = models.mnist_assoc(unlabeled_batch)
         logits_te, _ = models.mnist_assoc(data_te_batch)
 
