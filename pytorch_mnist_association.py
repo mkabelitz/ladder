@@ -157,6 +157,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # visit_loss = add_visit_loss(p_ab, visit_weight)
     # return loss_aba, visit_loss
 
+
 def train():
     for step in tqdm(range(num_steps)):
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
