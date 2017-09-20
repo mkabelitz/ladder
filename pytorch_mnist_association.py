@@ -183,9 +183,9 @@ a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
 print(a)
 b = torch.transpose(a, 0, 1)
 print(b)
-equality_matrix = torch.eq(a, b).double
+equality_matrix = torch.eq(a, b).double()
 print(equality_matrix)
-tmp = torch.sum(equality_matrix, dim=1).double
+tmp = torch.sum(equality_matrix, dim=1).double()
 print(tmp)
 p_target = (equality_matrix / tmp)
 print(p_target)
