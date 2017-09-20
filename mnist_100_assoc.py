@@ -118,6 +118,7 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
 
     equality_matrix = tf.equal(tf.reshape(labels, [-1, 1]), labels)
     equality_matrix = tf.cast(equality_matrix, tf.float32)
+    print(equality_matrix.get_shape())
     p_target = (equality_matrix / tf.reduce_sum(
         equality_matrix, [1], keep_dims=True))
 
@@ -125,8 +126,6 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ab = tf.nn.softmax(match_ab, name='p_ab')
     p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
     p_aba = tf.matmul(p_ab, p_ba, name='p_aba')
-
-    create_walk_statistics(p_aba, equality_matrix)
 
     loss_aba = tf.losses.softmax_cross_entropy(
         p_target,
@@ -153,34 +152,6 @@ def add_visit_loss(p, weight=1.0):
         weights=weight,
         scope='loss_visit')
     return visit_loss
-
-
-def create_walk_statistics(p_aba, equality_matrix):
-    """Adds "walker" loss statistics to the graph.
-    Args:
-      p_aba: [N, N] matrix, where element [i, j] corresponds to the
-          probalility of the round-trip between supervised samples i and j.
-          Sum of each row of 'p_aba' must be equal to one.
-      equality_matrix: [N, N] boolean matrix, [i,j] is True, when samples
-          i and j belong to the same class.
-    """
-    # Using the square root of the correct round trip probalilty as an estimate
-    # of the current classifier accuracy.
-    per_row_accuracy = 1.0 - tf.reduce_sum((equality_matrix * p_aba), 1)**0.5
-    estimate_error = tf.reduce_mean(
-        1.0 - per_row_accuracy, name=p_aba.name[:-2] + '_esterr')
-    add_average(estimate_error)
-    add_average(p_aba)
-
-ema = tf.train.ExponentialMovingAverage(0.99, slim.get_or_create_global_step())
-
-
-def add_average(variable):
-    """Add moving average variable to the model."""
-    tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, ema.apply([variable]))
-    average_variable = tf.identity(
-        ema.average(variable), name=variable.name[:-2] + '_avg')
-    return average_variable
 
 
 if __name__ == '__main__':
