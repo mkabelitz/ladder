@@ -123,12 +123,29 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       visit_weight: Weight coefficient of the "visit" loss.
     """
     labels_transpose = torch.transpose(labels, 0, 1)
-    equality_matrix = torch.eq(labels, labels_transpose).double
-    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).double)
+    equality_matrix = torch.eq(labels, labels_transpose).double()
+    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).double())
 
+    match_ab = torch.mm(a, torch.transpose(b, 0, 1))
+    p_ab = F.log_softmax(match_ab)
+    p_ba = F.log_softmax(torch.transpose(match_ab, 0, 1))
+    p_aba = torch.mm(p_ab, p_ba)
 
+    loss_aba = F.nll_loss(p_target, p_aba)
+    return loss_aba
 
-
+    # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
+    # p_ab = tf.nn.softmax(match_ab, name='p_ab')
+    # p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
+    # p_aba = tf.matmul(p_ab, p_ba, name='p_aba')
+    #
+    # loss_aba = tf.losses.softmax_cross_entropy(
+    #     p_target,
+    #     tf.log(1e-8 + p_aba),
+    #     weights=walker_weight,
+    #     scope='loss_aba')
+    # visit_loss = add_visit_loss(p_ab, visit_weight)
+    # return loss_aba, visit_loss
 
 def train():
     for step in tqdm(range(num_steps)):
@@ -143,6 +160,8 @@ def train():
         _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
+        loss_aba = get_semisup_loss(emb_l, emb_u, target)
+        print(loss_aba)
         loss = ce_loss
         loss.backward()
         optimizer.step()
@@ -174,21 +193,21 @@ def test():
         test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset),
         optimizer.param_groups[0]['lr']))
 
-# train()
-# print("\nOPTIMIZATION FINISHED!")
-# test()
+train()
+print("\nOPTIMIZATION FINISHED!")
+test()
 
 
-a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
-print(a)
-b = torch.transpose(a, 0, 1)
-print(b)
-equality_matrix = torch.eq(a, b).double()
-print(equality_matrix)
-tmp = torch.sum(equality_matrix, dim=1).double()
-print(tmp)
-p_target = (equality_matrix / tmp)
-print(p_target)
+# a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
+# print(a)
+# b = torch.transpose(a, 0, 1)
+# print(b)
+# equality_matrix = torch.eq(a, b).double()
+# print(equality_matrix)
+# tmp = torch.sum(equality_matrix, dim=1).double()
+# print(tmp)
+# p_target = (equality_matrix / tmp)
+# print(p_target)
 
-# p_target = (equality_matrix / tf.reduce_sum(
-#         equality_matrix, [1], keep_dims=True))
+
+
