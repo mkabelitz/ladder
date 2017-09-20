@@ -138,6 +138,8 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
         weights=walker_weight,
         scope='loss_aba')
     visit_loss = add_visit_loss(p_ab, visit_weight)
+    print(loss_aba)
+    print(visit_loss)
     return loss_aba, visit_loss
 
 
