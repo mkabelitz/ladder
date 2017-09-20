@@ -123,15 +123,23 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       visit_weight: Weight coefficient of the "visit" loss.
     """
     labels_transpose = torch.transpose(labels, 0, 1)
+    print(labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).double()
+    print(equality_matrix)
     p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).double())
+    print(p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
+    print(match_ab)
     p_ab = F.log_softmax(match_ab)
+    print(p_ab)
     p_ba = F.log_softmax(torch.transpose(match_ab, 0, 1))
+    print(p_ba)
     p_aba = torch.mm(p_ab, p_ba)
+    print(p_aba)
 
     loss_aba = F.nll_loss(p_target, p_aba)
+    print(loss_aba)
     return loss_aba
 
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
