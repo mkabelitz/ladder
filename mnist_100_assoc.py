@@ -54,7 +54,7 @@ def main(_):
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
     loss_aba, loss_visit = add_semisup_loss(emb_tr, emb_ul, labels_tr)
-    loss_tr = loss_tr + tf.losses.get_total_loss()
+    loss_tr = tf.losses.get_total_loss()
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
