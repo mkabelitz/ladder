@@ -76,16 +76,13 @@ num_steps = args.epochs * len(unlabeled_loader)
 
 
 class Noise(nn.Module):
-
-    add_noise = False
-
     def __init__(self, shape, noise_std=args.noise_std):
         super().__init__()
         self.noise = Variable(torch.zeros(shape).cuda())
         self.std = noise_std
 
     def forward(self, x):
-        if not Noise.add_noise:
+        if not self.train:
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
@@ -173,44 +170,8 @@ class Net(nn.Module):
         self.fc1_bias = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.fc1_scale = nn.Parameter(torch.ones((1, 10)).cuda())
 
-        self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
-
-        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
-        self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a5 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a6 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a7 = nn.Parameter(torch.ones((1, 10)).cuda())
-        self.a8 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a9 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a10 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.sigmoid = nn.Sigmoid()
-
     def forward(self, input):
 
-        if self.training:
-            # self.apply(lambda x: x.eval() if 'BatchNorm' in str(type(x)) else False)
-            Noise.add_noise = True
-            x = self.input_noise(input)
-            x = self.conv1(x)
-            x = self.pool1(x)
-            x = self.conv2(x)
-            x = self.conv3(x)
-            x = self.pool2(x)
-            x = self.conv4(x)
-            x = self.conv5(x)
-            x = self.pool3(x)
-            x = x.view(-1, 10)
-            x = self.fc1_bn(self.fc1(x))
-            z_crt = self.fc1_noise(x)
-            h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
-            softmax_crt = F.log_softmax(h_crt)
-            # self.apply(lambda x: x.train() if 'BatchNorm' in str(type(x)) else False)
-        else:
-            softmax_crt = -1
-
-        Noise.add_noise = False
         x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
@@ -222,19 +183,11 @@ class Net(nn.Module):
         x = self.pool3(x)
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
-        z_cln = self.fc1_noise(x)
-        h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
-        softmax_cln = F.log_softmax(h_cln)
+        z = self.fc1_noise(x)
+        h = self.fc1_scale * (self.fc1_bias + z)
+        softmax = F.log_softmax(h)
 
-        if self.training:
-            u = self.gamma_bn(h_crt)
-            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-            z_est = (z_crt - g_m) * g_v + g_m
-        else:
-            z_est = z_cln
-
-        return softmax_crt, softmax_cln, z_est, z_cln
+        return softmax
 
 
 model = Net()
@@ -263,11 +216,10 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        softmax_crt, _, _, _ = model(data)
-        _, _, z_est, z_cln = model(unlabeled)
+        softmax_crt = model(data)
         ce_loss = F.nll_loss(softmax_crt, target)
-        mse_loss = F.mse_loss(z_cln, z_est)
-        loss = ce_loss + mse_loss
+        loss = ce_loss
+        mse_loss = -11111
         loss.backward()
         optimizer.step()
 
@@ -305,7 +257,7 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        _, softmax_cln, _, _ = model(data)
+        softmax_cln = model(data)
         test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
