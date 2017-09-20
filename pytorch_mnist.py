@@ -175,7 +175,7 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = Variable(torch.zeros((1, 10)).cuda())
+        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
         self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
@@ -261,11 +261,12 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        softmax_crt, _, _, _ = model(data)
+        # softmax_crt, _, _, _ = model(data)
         _, _, z_est, z_cln = model(unlabeled)
-        ce_loss = F.nll_loss(softmax_crt, target)
+        # ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
-        loss = ce_loss + mse_loss
+        # loss = ce_loss + mse_loss
+        loss = mse_loss
         loss.backward()
         optimizer.step()
 
