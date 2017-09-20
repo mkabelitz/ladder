@@ -629,8 +629,8 @@ def mnist_assoc(inputs, emb_size=128, l2_weight_decay=1e-4):
 
         net = slim.flatten(net, scope='flatten')
         emb = slim.fully_connected(net, emb_size, scope='fc1')
-
-    logits = slim.fully_connected(emb, 10, activation_fn=None, weights_regularizer=slim.l2_regularizer(1e-4))
+    with slim.arg_scope([slim.fully_connected], activation_fn=None, weights_regularizer=slim.l2_regularizer(l2_weight_decay)):
+        logits = slim.fully_connected(emb, 10, activation_fn=None, weights_regularizer=slim.l2_regularizer(1e-4))
     return logits, emb
 
 
