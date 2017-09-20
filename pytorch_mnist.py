@@ -189,24 +189,24 @@ class Net(nn.Module):
 
     def forward(self, input):
 
-        if self.training:
-            Noise.add_noise = True
-            x = self.input_noise(input)
-            x = self.conv1(x)
-            x = self.pool1(x)
-            x = self.conv2(x)
-            x = self.conv3(x)
-            x = self.pool2(x)
-            x = self.conv4(x)
-            x = self.conv5(x)
-            x = self.pool3(x)
-            x = x.view(-1, 10)
-            x = self.fc1_bn(self.fc1(x))
-            z_crt = self.fc1_noise(x)
-            h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
-            softmax_crt = F.log_softmax(h_crt)
-        else:
-            softmax_crt = -1
+        # if self.training:
+        Noise.add_noise = True
+        x = self.input_noise(input)
+        x = self.conv1(x)
+        x = self.pool1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.pool2(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.pool3(x)
+        x = x.view(-1, 10)
+        x = self.fc1_bn(self.fc1(x))
+        z_crt = self.fc1_noise(x)
+        h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
+        softmax_crt = F.log_softmax(h_crt)
+        # else:
+        #     softmax_crt = -1
 
         Noise.add_noise = False
         x = self.input_noise(input)
