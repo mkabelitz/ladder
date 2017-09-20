@@ -264,8 +264,6 @@ def train():
         softmax_crt, _, _, _ = model(data)
         model.eval()
         _, _, z_est, z_cln = model(unlabeled)
-        print(z_est[0])
-        print(z_cln[0])
         model.train()
         ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
@@ -281,7 +279,9 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
-            print("\nCOMBINATION GRADS:")
+            print(z_est[0])
+            print(z_cln[0])
+            print("\nCOMBINATION PARAMS:")
             print(model.a1)
             print(model.a2)
             print(model.a3)
