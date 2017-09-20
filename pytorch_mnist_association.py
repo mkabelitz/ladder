@@ -93,7 +93,8 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        x = F.elu(self.conv1_1(x))
+        x = self.conv1_1(x)
+        x = F.elu(x)
         x = F.elu(self.conv1_2(x))
         x = self.pool1(x)
         print("1:", x.size())
