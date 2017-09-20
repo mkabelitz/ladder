@@ -126,9 +126,9 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     print(labels)
     labels_transpose = torch.transpose(labels, 0, 1)
     print(labels_transpose)
-    equality_matrix = torch.eq(labels, labels_transpose).double()
+    equality_matrix = torch.eq(labels, labels_transpose).float()
     print(equality_matrix)
-    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).double())
+    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
     print(p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
