@@ -121,8 +121,14 @@ def get_visit_loss(p, weight=1.0):
     """
 
     visit_probability = torch.sum(p, dim=0)
+    print(visit_probability)
     t_nb = p.size()[1]
-    visit_loss = F.mse_loss(torch.ones((1, t_nb)) / t_nb, torch.log(1e-8 + visit_probability).type(torch.FloatTensor) * weight)
+    print(t_nb)
+    tmp1 = torch.ones((1, t_nb)) / t_nb
+    print(tmp1)
+    tmp2 = torch.log(1e-8 + visit_probability)
+    print(tmp2)
+    visit_loss = F.mse_loss(tmp1, tmp2 * weight)
     return visit_loss
 
     # visit_probability = tf.reduce_mean(
