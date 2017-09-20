@@ -163,4 +163,4 @@ def test():
 a = Variable(torch.ones((1, 10)))
 print(a)
 b = Variable(torch.ones(10, 1))
-print(b.expand_as(a))
+print(b.repeat(1, 2))
