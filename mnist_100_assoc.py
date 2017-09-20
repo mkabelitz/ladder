@@ -52,7 +52,9 @@ def main(_):
     with tf.variable_scope('model', reuse=True) as scope:
         logits_te, _ = models.mnist_assoc(data_te_batch)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + add_semisup_loss(emb_tr, emb_ul, labels_tr)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_aba, loss_visit = add_semisup_loss(emb_tr, emb_ul, labels_tr)
+    loss_tr = loss_tr + loss_aba + loss_visit
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
@@ -88,10 +90,10 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, cur_loss_tr, cur_acc_tr = sess.run([train_op, loss_tr, acc_tr])
+            _, cur_loss_tr, cur_acc_tr, loss_aba, loss_visit = sess.run([train_op, loss_tr, acc_tr, loss_aba, loss_visit])
 
             if FLAGS.eval_interval is not None and i % FLAGS.eval_interval == 0:
-                print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
+                print('train loss: %.4f train acc: %.4f loss_aba: %.4f loss_visit: %.4f' % (cur_loss_tr, cur_acc_tr, loss_aba, loss_visit))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
 
@@ -136,7 +138,7 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
         weights=walker_weight,
         scope='loss_aba')
     visit_loss = add_visit_loss(p_ab, visit_weight)
-    return loss_aba + visit_loss
+    return loss_aba, visit_loss
 
 
 def add_visit_loss(p, weight=1.0):
