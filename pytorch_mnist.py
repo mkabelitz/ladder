@@ -158,7 +158,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
-        self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2, bn=False)
+        self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
         self.pool1 = MaxPool2DBlock(14, 14, 32)
         self.conv2 = Conv2DBlock(14, 14, 32, 64, F.relu, 3, 1)
         self.conv3 = Conv2DBlock(14, 14, 64, 64, F.relu, 3, 1)
@@ -276,6 +276,12 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
+            print("\nOTHER GRADS:")
+            print(model.fc1_bias)
+            print(model.fc1_scale)
+            print(model.conv1.bias)
+            print(model.conv4.bias)
+            print("\nCOMBINATION GRADS:")
             print(model.a1.grad)
             print(model.a2.grad)
             print(model.a3.grad)
