@@ -261,21 +261,22 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        # softmax_crt, _, _, _ = model(data)
+        softmax_crt, _, _, _ = model(data)
+        model.eval()
         _, _, z_est, z_cln = model(unlabeled)
-        # ce_loss = F.nll_loss(softmax_crt, target)
+        model.train()
+        ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
-        # loss = ce_loss + mse_loss
-        loss = mse_loss
+        loss = ce_loss + mse_loss
         loss.backward()
         optimizer.step()
 
-        # if args.train_log_interval and step % args.train_log_interval == 0:
-        #     pred = softmax_crt.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
-        #     correct = pred.eq(target.data.view_as(pred)).cpu().sum()
-        #     print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
-        #         ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
-        #         ce_loss.data[0], mse_loss.data[0]))
+        if args.train_log_interval and step % args.train_log_interval == 0:
+            pred = softmax_crt.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+            correct = pred.eq(target.data.view_as(pred)).cpu().sum()
+            print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
+                ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
+                ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
             print("\nCOMBINATION GRADS:")
             print(model.a1)
