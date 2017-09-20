@@ -175,7 +175,7 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
+        self.a1 = nn.Parameter((0.1 * torch.ones((1, 10))).cuda())
         self.a2 = nn.Parameter(1.0 * torch.ones((1, 10)).cuda())
         self.a3 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
         self.a4 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
@@ -276,11 +276,6 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
-            print("\nOTHER GRADS:")
-            print(model.fc1_bias)
-            print(model.fc1_scale)
-            print(model.conv1.bias)
-            print(model.conv4.bias)
             print("\nCOMBINATION GRADS:")
             print(model.a1.grad)
             print(model.a2.grad)
