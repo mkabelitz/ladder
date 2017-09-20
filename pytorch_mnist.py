@@ -12,8 +12,6 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='PyTorch MNIST Gamma Network')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
-parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
-                    help='input batch size for testing (default: 1000)')
 parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=150, metavar='N',
@@ -70,7 +68,7 @@ else:
                                                **kwargs)
 
 unlabeled_loader = torch.utils.data.DataLoader(mnist_tr_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test_batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
 
 num_steps = args.epochs * len(unlabeled_loader)
 
