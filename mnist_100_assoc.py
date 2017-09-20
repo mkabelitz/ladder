@@ -115,6 +115,8 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
+    locations = tf.where(tf.equal(labels, 1))
+    labels = locations[:, 1]
 
     equality_matrix = tf.equal(tf.reshape(labels, [-1, 1]), labels)
     equality_matrix = tf.cast(equality_matrix, tf.float32)
