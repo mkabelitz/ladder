@@ -175,16 +175,16 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a1 = nn.Parameter(torch.ones((1, 10)).cuda())
         self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
-        self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a5 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a6 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a3 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a4 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a5 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a6 = nn.Parameter(torch.ones((1, 10)).cuda())
         self.a7 = nn.Parameter(torch.ones((1, 10)).cuda())
-        self.a8 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a9 = nn.Parameter(torch.zeros((1, 10)).cuda())
-        self.a10 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a8 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a9 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a10 = nn.Parameter(torch.ones((1, 10)).cuda())
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
