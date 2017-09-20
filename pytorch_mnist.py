@@ -224,7 +224,7 @@ class Net(nn.Module):
         h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
         softmax_cln = F.log_softmax(h_cln)
 
-        if self.training:
+        if corrupted:
             u = self.gamma_bn(h_crt)
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
@@ -240,6 +240,7 @@ model.cuda()
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
+corrupted = False
 
 def linear_lr_decay(step):
     decay_steps = int(num_steps * (1.0 - args.lr_decay_first))
@@ -261,8 +262,10 @@ def train():
 
         model.train()
         optimizer.zero_grad()
+        corrupted = True
         softmax_crt, _, _, _ = model(data)
         model.eval()
+        corrupted = True
         _, _, z_est, z_cln = model(unlabeled)
         model.train()
         ce_loss = F.nll_loss(softmax_crt, target)
@@ -299,6 +302,7 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
+        corrupted = False
         _, softmax_cln, _, _ = model(data)
         test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
