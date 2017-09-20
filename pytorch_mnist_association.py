@@ -112,6 +112,24 @@ model.cuda()
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-3)
 
 
+def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
+    """Add semi-supervised classification loss to the model.
+    The loss constist of two terms: "walker" and "visit".
+    Args:
+      a: [N, emb_size] tensor with supervised embedding vectors.
+      b: [M, emb_size] tensor with unsupervised embedding vectors.
+      labels : [N] tensor with labels for supervised embeddings.
+      walker_weight: Weight coefficient of the "walker" loss.
+      visit_weight: Weight coefficient of the "visit" loss.
+    """
+    labels_transpose = torch.transpose(labels, 0, 1)
+    equality_matrix = torch.eq(labels, labels_transpose).double
+    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).double)
+
+
+
+
+
 def train():
     for step in tqdm(range(num_steps)):
         unlabeled = unlabeled_loader.__iter__().__next__()[0]
@@ -165,9 +183,9 @@ a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
 print(a)
 b = torch.transpose(a, 0, 1)
 print(b)
-equality_matrix = torch.eq(a, b)
+equality_matrix = torch.eq(a, b).double
 print(equality_matrix)
-tmp = torch.sum(equality_matrix, dim=1)
+tmp = torch.sum(equality_matrix, dim=1).double
 print(tmp)
 p_target = (equality_matrix / tmp)
 print(p_target)
