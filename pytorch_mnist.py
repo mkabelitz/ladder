@@ -157,8 +157,6 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.crt_flag = False
-
         self.input_noise = Noise((args.batch_size, 1, 28, 28))
         self.conv1 = Conv2DBlock(28, 28, 1, 32, F.relu, 5, 2)
         self.pool1 = MaxPool2DBlock(14, 14, 32)
@@ -191,7 +189,7 @@ class Net(nn.Module):
 
     def forward(self, input):
 
-        if self.crt_flag:
+        if self.training:
             Noise.add_noise = True
             x = self.input_noise(input)
             x = self.conv1(x)
@@ -226,7 +224,7 @@ class Net(nn.Module):
         h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
         softmax_cln = F.log_softmax(h_cln)
 
-        if self.crt_flag:
+        if self.training:
             u = self.gamma_bn(h_crt)
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
@@ -263,11 +261,10 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        model.crt_flag = True
         softmax_crt, _, _, _ = model(data)
-        # model.eval()
+        model.eval()
         _, _, z_est, z_cln = model(unlabeled)
-        # model.train()
+        model.train()
         ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
         loss = ce_loss + mse_loss
@@ -302,7 +299,6 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        model.crt_flag = False
         _, softmax_cln, _, _ = model(data)
         test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
