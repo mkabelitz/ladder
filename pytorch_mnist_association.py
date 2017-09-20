@@ -140,7 +140,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_aba = F.log_softmax(torch.mm(p_ab, p_ba))
     print(p_aba)
 
-    loss_aba = F.nll_loss(p_aba, p.target)
+    loss_aba = F.nll_loss(p_aba, p_target)
     print(loss_aba)
     return loss_aba
 
