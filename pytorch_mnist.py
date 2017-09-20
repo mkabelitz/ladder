@@ -205,8 +205,9 @@ class Net(nn.Module):
             x = self.fc1_bn(self.fc1(x))
             z_crt = self.fc1_noise(x)
             h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
+            softmax_crt = F.log_softmax(h_crt)
         else:
-            h_crt = 0
+            softmax_crt = -1
 
         Noise.add_noise = False
         x = self.input_noise(input)
@@ -222,6 +223,7 @@ class Net(nn.Module):
         x = self.fc1_bn(self.fc1(x))
         z_cln = self.fc1_noise(x)
         h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
+        softmax_cln = F.log_softmax(h_cln)
 
         if self.training:
             u = self.gamma_bn(h_crt)
@@ -231,7 +233,7 @@ class Net(nn.Module):
         else:
             z_est = z_cln
 
-        return F.log_softmax(h_crt), F.log_softmax(h_cln), z_est, z_cln
+        return softmax_crt, softmax_cln, z_est, z_cln
 
 
 model = Net()
