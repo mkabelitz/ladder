@@ -124,7 +124,7 @@ def get_visit_loss(p, weight=1.0):
     print(visit_probability)
     t_nb = p.size()[1]
     print(t_nb)
-    tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
+    tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb))
     print(tmp1)
     tmp2 = torch.log(1e-8 + visit_probability).type(torch.FloatTensor)
     print(tmp2)
@@ -205,7 +205,7 @@ def train():
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = ce_loss + (loss_aba + visit_loss)
+        loss = ce_loss + loss_aba
         loss.backward()
         optimizer.step()
 
