@@ -140,9 +140,9 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_aba = torch.mm(p_ab, p_ba)
     print(p_aba)
 
-    print(p_target.view(args.batch_size, -1))
-    print(p_aba.view(args.batch_size, -1))
-    loss_aba = F.nll_loss(p_target.view(args.batch_size, -1), p_aba.view(args.batch_size, -1))
+    print(p_target.view(-1))
+    print(p_aba.view(-1))
+    loss_aba = F.nll_loss(p_target.view(-1), p_aba.view(-1))
     print(loss_aba)
     return loss_aba
 
