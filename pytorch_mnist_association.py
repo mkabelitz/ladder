@@ -155,6 +155,12 @@ def test():
         test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset),
         optimizer.param_groups[0]['lr']))
 
-train()
-print("\nOPTIMIZATION FINISHED!")
-test()
+# train()
+# print("\nOPTIMIZATION FINISHED!")
+# test()
+
+
+a = Variable(torch.ones((1, 10)))
+print(a)
+b = Variable(torch.ones(10, 1))
+print(b)
