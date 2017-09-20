@@ -143,7 +143,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # print(p_aba)
 
     loss_aba = F.l1_loss(p_aba, p_target) * walker_weight
-    # print(loss_aba)
+    print(loss_aba)
     return loss_aba
 
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
