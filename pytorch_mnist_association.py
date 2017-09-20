@@ -162,5 +162,5 @@ def test():
 
 a = Variable(torch.FloatTensor([1,2,3,4,5,6,7,8,9,10])).repeat(10, 1)
 print(a)
-b = torch.transpose(a)
-print(b.repeat(1, 10))
+b = torch.transpose(a, 0, 1)
+print(b)
