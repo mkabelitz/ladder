@@ -76,7 +76,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.conv1_1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv1_1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
         self.conv1_2 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
         self.pool1 = nn.MaxPool2d(2, 2)
 
