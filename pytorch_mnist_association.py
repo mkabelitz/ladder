@@ -12,18 +12,12 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='PyTorch MNIST Association Learning')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
-parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
-                    help='input batch size for testing (default: 1000)')
 parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=150, metavar='N',
                     help='number of epochs to train (default: 20)')
-parser.add_argument('--lr', type=float, default=0.002, metavar='LR',
-                    help='learning rate (default: 0.002)')
-parser.add_argument('--lr-decay-first', type=float, default=0.67, metavar='M',
-                    help='learning rate decay start in (0,1) interval (default: 0.67)')
-parser.add_argument('--bn-momentum', type=float, default=0.9, metavar='M',
-                    help='momentum for batch normalization (default: 0.9)')
+parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                    help='learning rate (default: 0.001)')
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=600, metavar='N',
@@ -66,7 +60,7 @@ else:
                                                **kwargs)
 
 unlabeled_loader = torch.utils.data.DataLoader(mnist_tr_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test_batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
 
 num_steps = args.epochs * len(unlabeled_loader)
 
