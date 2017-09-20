@@ -122,6 +122,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
+    print(labels)
     labels_transpose = torch.transpose(labels, 0, 1)
     print(labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).double()
