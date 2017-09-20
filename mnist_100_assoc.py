@@ -10,6 +10,7 @@ from tqdm import tqdm
 import tensorflow as tf
 from tensorflow.python.platform import app
 from tensorflow.python.platform import flags
+import tensorflow.contrib.slim as slim
 
 import input_data
 import models
@@ -45,13 +46,13 @@ def main(_):
                                               min_after_dequeue=FLAGS.batch_size * 20)
 
     with tf.variable_scope('model') as scope:
-        logits_tr, _ = models.mnist_assoc(data_tr_batch)
+        logits_tr, emb_tr = models.mnist_assoc(data_tr_batch)
     with tf.variable_scope('model', reuse=True) as scope:
-        _, emb = models.mnist_assoc(unlabeled_batch)
+        _, emb_ul = models.mnist_assoc(unlabeled_batch)
     with tf.variable_scope('model', reuse=True) as scope:
         logits_te, _ = models.mnist_assoc(data_te_batch)
 
-    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
+    loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch) + add_semisup_loss(emb_tr, emb_ul, labels_tr)
     loss_te = u.get_supervised_loss(logits=logits_te, labels=labels_te_batch)
 
     acc_tr = u.get_accuracy(logits_tr, labels_tr_batch)
@@ -104,7 +105,7 @@ def main(_):
         sess.close()
 
 
-def add_semisup_loss(self, a, b, labels, walker_weight=1.0, visit_weight=1.0):
+def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     """Add semi-supervised classification loss to the model.
     The loss constist of two terms: "walker" and "visit".
     Args:
@@ -125,17 +126,18 @@ def add_semisup_loss(self, a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
     p_aba = tf.matmul(p_ab, p_ba, name='p_aba')
 
-    self.create_walk_statistics(p_aba, equality_matrix)
+    create_walk_statistics(p_aba, equality_matrix)
 
     loss_aba = tf.losses.softmax_cross_entropy(
         p_target,
         tf.log(1e-8 + p_aba),
         weights=walker_weight,
         scope='loss_aba')
-    self.add_visit_loss(p_ab, visit_weight)
+    visit_loss = add_visit_loss(p_ab, visit_weight)
+    return loss_aba + visit_loss
 
 
-def add_visit_loss(self, p, weight=1.0):
+def add_visit_loss(p, weight=1.0):
     """Add the "visit" loss to the model.
     Args:
       p: [N, M] tensor. Each row must be a valid probability distribution
@@ -150,9 +152,10 @@ def add_visit_loss(self, p, weight=1.0):
         tf.log(1e-8 + visit_probability),
         weights=weight,
         scope='loss_visit')
+    return visit_loss
 
 
-def create_walk_statistics(self, p_aba, equality_matrix):
+def create_walk_statistics(p_aba, equality_matrix):
     """Adds "walker" loss statistics to the graph.
     Args:
       p_aba: [N, N] matrix, where element [i, j] corresponds to the
@@ -166,15 +169,17 @@ def create_walk_statistics(self, p_aba, equality_matrix):
     per_row_accuracy = 1.0 - tf.reduce_sum((equality_matrix * p_aba), 1)**0.5
     estimate_error = tf.reduce_mean(
         1.0 - per_row_accuracy, name=p_aba.name[:-2] + '_esterr')
-    self.add_average(estimate_error)
-    self.add_average(p_aba)
+    add_average(estimate_error)
+    add_average(p_aba)
+
+ema = tf.train.ExponentialMovingAverage(0.99, slim.get_or_create_global_step())
 
 
-def add_average(self, variable):
+def add_average(variable):
     """Add moving average variable to the model."""
-    tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, self.ema.apply([variable]))
+    tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, ema.apply([variable]))
     average_variable = tf.identity(
-        self.ema.average(variable), name=variable.name[:-2] + '_avg')
+        ema.average(variable), name=variable.name[:-2] + '_avg')
     return average_variable
 
 
