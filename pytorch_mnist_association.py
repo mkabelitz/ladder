@@ -205,7 +205,7 @@ def train():
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = torch.sum([ce_loss, loss_aba, visit_loss])
+        loss = ce_loss + loss_aba + visit_loss
         loss.backward()
         optimizer.step()
 
