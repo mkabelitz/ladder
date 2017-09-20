@@ -219,7 +219,7 @@ def train():
         softmax_crt = model(data)
         ce_loss = F.nll_loss(softmax_crt, target)
         loss = ce_loss
-        mse_loss = -11111
+        mse_loss = ce_loss
         loss.backward()
         optimizer.step()
 
