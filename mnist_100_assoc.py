@@ -90,10 +90,10 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, cur_loss_tr, cur_acc_tr, loss_aba, loss_visit = sess.run([train_op, loss_tr, acc_tr, loss_aba, loss_visit])
+            _, cur_loss_tr, cur_acc_tr, cur_loss_aba, cur_loss_visit = sess.run([train_op, loss_tr, acc_tr, loss_aba, loss_visit])
 
             if FLAGS.eval_interval is not None and i % FLAGS.eval_interval == 0:
-                print('train loss: %.4f train acc: %.4f' % (cur_loss_tr, cur_acc_tr))
+                print('train loss: %.4f train acc: %.4f loss_aba: %.4f loss_visit: %.4f' % (cur_loss_tr, cur_acc_tr, cur_loss_aba, cur_loss_visit))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
 
@@ -123,7 +123,6 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
 
     equality_matrix = tf.equal(tf.reshape(labels, [-1, 1]), labels)
     equality_matrix = tf.cast(equality_matrix, tf.float32)
-    print(equality_matrix.get_shape())
     p_target = (equality_matrix / tf.reduce_sum(
         equality_matrix, [1], keep_dims=True))
 
@@ -138,8 +137,6 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
         weights=walker_weight,
         scope='loss_aba')
     visit_loss = add_visit_loss(p_ab, visit_weight)
-    print(loss_aba)
-    print(visit_loss)
     return loss_aba, visit_loss
 
 
