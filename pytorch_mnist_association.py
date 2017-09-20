@@ -93,21 +93,17 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        print("0:", x.size())
         x = F.elu(self.conv1_1(x))
         x = F.elu(self.conv1_2(x))
         x = self.pool1(x)
-        print("1:", x.size())
 
         x = F.elu(self.conv2_1(x))
         x = F.elu(self.conv2_2(x))
         x = self.pool2(x)
-        print("2:", x.size())
 
         x = F.elu(self.conv3_1(x))
         x = F.elu(self.conv3_2(x))
         x = self.pool3(x)
-        print("3:", x.size())
 
         x = x.view(x.size(0), -1)
         emb = F.elu(self.fc1(x))
