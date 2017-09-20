@@ -48,6 +48,7 @@ def main(_):
         logits_tr, _ = models.mnist_assoc(data_tr_batch)
     with tf.variable_scope('model', reuse=True) as scope:
         _, emb = models.mnist_assoc(unlabeled_batch)
+    with tf.variable_scope('model', reuse=True) as scope:
         logits_te, _ = models.mnist_assoc(data_te_batch)
 
     loss_tr = u.get_supervised_loss(logits=logits_tr, labels=labels_tr_batch)
