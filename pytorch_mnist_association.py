@@ -140,7 +140,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print(p_ba)
     p_aba = F.softmax(torch.mm(p_ab, p_ba))
-    # print(p_aba)
+    print(p_aba)
 
     loss_aba = F.mse_loss(p_aba, p_target)
     # print(loss_aba)
