@@ -162,5 +162,5 @@ def test():
 
 a = Variable(torch.FloatTensor([1,2,3,4,5,6,7,8,9,10]))
 print(a)
-b = Variable(torch.ones(10, 1))
+b = a.view(-1,10)
 print(b.repeat(1, 10))
