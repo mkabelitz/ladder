@@ -266,8 +266,6 @@ def train():
         ce_loss = F.nll_loss(softmax_crt, target)
         print(z_est[0])
         print(z_cln[0])
-        print(z_est[1])
-        print(z_cln[1])
         mse_loss = F.mse_loss(z_cln, z_est)
         loss = ce_loss + mse_loss
         loss.backward()
