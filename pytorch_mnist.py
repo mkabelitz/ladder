@@ -206,10 +206,10 @@ class Net(nn.Module):
             z_crt = self.fc1_noise(x)
             h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
             softmax_crt = F.log_softmax(h_crt)
+            self.apply(lambda x: x.train() if 'BatchNorm' in str(type(x)) else False)
         else:
             softmax_crt = -1
 
-        self.apply(lambda x: x.train() if 'BatchNorm' in str(type(x)) else False)
         Noise.add_noise = False
         x = self.input_noise(input)
         x = self.conv1(x)
@@ -226,13 +226,13 @@ class Net(nn.Module):
         h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
         softmax_cln = F.log_softmax(h_cln)
 
-        # if self.training:
-        #     u = self.gamma_bn(h_crt)
-        #     g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
-        #     g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
-        #     z_est = (z_crt - g_m) * g_v + g_m
-        # else:
-        z_est = z_cln
+        if self.training:
+            u = self.gamma_bn(h_crt)
+            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            z_est = (z_crt - g_m) * g_v + g_m
+        else:
+            z_est = z_cln
 
         return softmax_crt, softmax_cln, z_est, z_cln
 
