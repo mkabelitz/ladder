@@ -70,64 +70,6 @@ test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test
 
 num_steps = args.epochs * len(unlabeled_loader)
 
-class RasmusBlock(nn.Module):
-    def __init__(self, height_out, width_out, channels_out, act_fn, bn, noise, bias, scale):
-        super().__init__()
-        self.act_fn = act_fn
-        self.bn_flag = bn
-        self.noise_flag = noise
-        self.bias_flag = bias
-        self.scale_flag = scale
-        if bn:
-            self.bn = nn.BatchNorm2d(num_features=channels_out, affine=False, momentum=args.bn_momentum)
-        if noise:
-            self.noise = Noise((args.batch_size, channels_out, height_out, width_out))
-        if bias:
-            self.bias = nn.Parameter(torch.zeros((1, channels_out, 1, 1)).cuda())
-        if scale:
-            self.scale = nn.Parameter(torch.ones((1, channels_out, 1, 1)).cuda())
-
-    def forward(self, x):
-        if self.bn_flag:
-            x = self.bn(x)
-        if self.noise_flag:
-            x = self.noise(x)
-        if self.bias_flag:
-            x += self.bias
-        if self.scale_flag:
-            x = x * self.scale
-        return self.act_fn(x)
-
-
-class Conv2DBlock(RasmusBlock):
-    def __init__(self, height_out, width_out, channels_in, channels_out, act_fn, kernel_size, padding,
-                 bn=True, noise=True, bias=True, scale=False):
-        super().__init__(height_out, width_out, channels_out, act_fn, bn, noise, bias, scale)
-        self.conv = nn.Conv2d(channels_in, channels_out, kernel_size=kernel_size, padding=padding)
-
-    def forward(self, x):
-        return super().forward(self.conv(x))
-
-
-class MaxPool2DBlock(RasmusBlock):
-    def __init__(self, height_out, width_out, channels_out, act_fn=lambda x: x, kernel_size=2, stride=2,
-                 bn=True, noise=True, bias=True, scale=True):
-        super().__init__(height_out, width_out, channels_out, act_fn, bn, noise, bias, scale)
-        self.kernel_size = kernel_size
-        self.stride = stride
-
-    def forward(self, x):
-        return super().forward(F.max_pool2d(x, self.kernel_size, self.stride))
-
-
-class GlobalAvgPool2DBlock(RasmusBlock):
-    def __init__(self, height_out, width_out, channels_out, act_fn=lambda x: x,
-                 bn=True, noise=True, bias=True, scale=True):
-        super().__init__(height_out, width_out, channels_out, act_fn, bn, noise, bias, scale)
-
-    def forward(self, x):
-        return super().forward(F.avg_pool2d(x, x.size()[2:]))
-
 
 class Net(nn.Module):
 
