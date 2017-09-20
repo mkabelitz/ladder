@@ -265,9 +265,9 @@ def train():
         optimizer.zero_grad()
         model.crt_flag = True
         softmax_crt, _, _, _ = model(data)
-        model.eval()
+        # model.eval()
         _, _, z_est, z_cln = model(unlabeled)
-        model.train()
+        # model.train()
         ce_loss = F.nll_loss(softmax_crt, target)
         mse_loss = F.mse_loss(z_cln, z_est)
         loss = ce_loss + mse_loss
