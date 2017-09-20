@@ -160,7 +160,7 @@ def test():
 # test()
 
 
-a = Variable(torch.ones((1, 10)))
+a = Variable({1,2,3,4})
 print(a)
 b = Variable(torch.ones(10, 1))
-print(b.repeat(1, 2))
+print(b.repeat(1, 10))
