@@ -122,7 +122,7 @@ def get_visit_loss(p, weight=1.0):
 
     visit_probability = torch.sum(p, dim=0)
     print(visit_probability)
-    t_nb = p.size()[1]
+    t_nb = p.size()[1].float()
     print(t_nb)
     tmp1 = torch.ones((1, t_nb)) / t_nb
     print(tmp1)
