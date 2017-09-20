@@ -270,12 +270,12 @@ def train():
         loss.backward()
         optimizer.step()
 
-        if args.train_log_interval and step % args.train_log_interval == 0:
-            pred = softmax_crt.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
-            correct = pred.eq(target.data.view_as(pred)).cpu().sum()
-            print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
-                ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
-                ce_loss.data[0], mse_loss.data[0]))
+        # if args.train_log_interval and step % args.train_log_interval == 0:
+        #     pred = softmax_crt.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        #     correct = pred.eq(target.data.view_as(pred)).cpu().sum()
+        #     print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tMSE Loss: {:.6f}'.format(
+        #         ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
+        #         ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
             print("\nCOMBINATION GRADS:")
             print(model.a1)
