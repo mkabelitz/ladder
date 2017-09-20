@@ -36,9 +36,9 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 transform = transforms.Compose(
-    # [transforms.ToTensor(),
-    #  transforms.Normalize((0.1307,), (0.3081,))])
-    [transforms.ToTensor()])
+    [transforms.ToTensor(),
+     transforms.Normalize((0.1307,), (0.3081,))])
+    # [transforms.ToTensor()])
 
 kwargs = {'num_workers': 0, 'pin_memory': True}
 
@@ -84,7 +84,7 @@ class Noise(nn.Module):
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
-            print(x.size(), self.noise.size())
+            # print(x.size(), self.noise.size())
             return x + self.noise
 
 
