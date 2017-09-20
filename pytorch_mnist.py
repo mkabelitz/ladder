@@ -264,13 +264,10 @@ def train():
         model.train()
         optimizer.zero_grad()
         softmax_crt, _, _, _ = model(data)
-        # model.apply(lambda x: x.eval() if 'BatchNorm' in str(type(x)) else False)
-        # _, _, z_est, z_cln = model(unlabeled)
+        _, _, z_est, z_cln = model(unlabeled)
         ce_loss = F.nll_loss(softmax_crt, target)
-        # mse_loss = F.mse_loss(z_cln, z_est)
-        mse_loss = -ce_loss
-        # loss = ce_loss + mse_loss
-        loss = ce_loss
+        mse_loss = F.mse_loss(z_cln, z_est)
+        loss = ce_loss + mse_loss
         loss.backward()
         optimizer.step()
 
@@ -284,9 +281,9 @@ def train():
             print("\nMOVINGS:")
             print(model.conv1.bn.running_mean)
             print(model.conv1.bn.running_var)
-            # print("\n Z_EST AND Z_CLN:")
-            # print(z_est[0])
-            # print(z_cln[0])
+            print("\n Z_EST AND Z_CLN:")
+            print(z_est[0])
+            print(z_cln[0])
             print("\nCOMBINATION PARAMS:")
             print(model.a1)
             print(model.a2)
