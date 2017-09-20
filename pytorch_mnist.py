@@ -190,6 +190,7 @@ class Net(nn.Module):
     def forward(self, input):
 
         if self.training:
+            self.apply(lambda x: x.eval() if 'BatchNorm' in str(type(x)) else False)
             Noise.add_noise = True
             x = self.input_noise(input)
             x = self.conv1(x)
@@ -208,6 +209,7 @@ class Net(nn.Module):
         else:
             softmax_crt = -1
 
+        self.apply(lambda x: x.train() if 'BatchNorm' in str(type(x)) else False)
         Noise.add_noise = False
         x = self.input_noise(input)
         x = self.conv1(x)
