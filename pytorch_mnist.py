@@ -12,6 +12,8 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='PyTorch MNIST Gamma Network')
 parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
+parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
+                    help='input batch size for testing (default: 1000)')
 parser.add_argument('--labeled-samples', type=int, default=100, metavar='N',
                     help='number of labeled samples for training, None for all (default: 100)')
 parser.add_argument('--epochs', type=int, default=150, metavar='N',
@@ -36,9 +38,9 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.1307,), (0.3081,))])
-    # [transforms.ToTensor()])
+    # [transforms.ToTensor(),
+    #  transforms.Normalize((0.1307,), (0.3081,))])
+    [transforms.ToTensor()])
 
 kwargs = {'num_workers': 0, 'pin_memory': True}
 
@@ -68,19 +70,19 @@ else:
                                                **kwargs)
 
 unlabeled_loader = torch.utils.data.DataLoader(mnist_tr_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(mnist_te_dataset, batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
 num_steps = args.epochs * len(unlabeled_loader)
 
-
 class Noise(nn.Module):
+    add_noise = False
     def __init__(self, shape, noise_std=args.noise_std):
         super().__init__()
         self.noise = Variable(torch.zeros(shape).cuda())
         self.std = noise_std
 
     def forward(self, x):
-        if not self.train:
+        if not Noise.add_noise:
             return x
         else:
             self.noise.data.normal_(0, std=self.std)
@@ -168,8 +170,44 @@ class Net(nn.Module):
         self.fc1_bias = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.fc1_scale = nn.Parameter(torch.ones((1, 10)).cuda())
 
+        self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
+
+        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a5 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a6 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a7 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a8 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a9 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a10 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.sigmoid = nn.Sigmoid()
+
     def forward(self, input):
 
+        if self.training:
+            # self.apply(lambda x: x.eval() if 'BatchNorm' in str(type(x)) else False)
+            Noise.add_noise = True
+            x = self.input_noise(input)
+            x = self.conv1(x)
+            x = self.pool1(x)
+            x = self.conv2(x)
+            x = self.conv3(x)
+            x = self.pool2(x)
+            x = self.conv4(x)
+            x = self.conv5(x)
+            x = self.pool3(x)
+            x = x.view(-1, 10)
+            x = self.fc1_bn(self.fc1(x))
+            z_crt = self.fc1_noise(x)
+            h_crt = self.fc1_scale * (self.fc1_bias + z_crt)
+            softmax_crt = F.log_softmax(h_crt)
+            # self.apply(lambda x: x.train() if 'BatchNorm' in str(type(x)) else False)
+        else:
+            softmax_crt = -1
+
+        Noise.add_noise = False
         x = self.input_noise(input)
         x = self.conv1(x)
         x = self.pool1(x)
@@ -181,11 +219,19 @@ class Net(nn.Module):
         x = self.pool3(x)
         x = x.view(-1, 10)
         x = self.fc1_bn(self.fc1(x))
-        z = self.fc1_noise(x)
-        h = self.fc1_scale * (self.fc1_bias + z)
-        softmax = F.log_softmax(h)
+        z_cln = self.fc1_noise(x)
+        h_cln = self.fc1_scale * (self.fc1_bias + z_cln)
+        softmax_cln = F.log_softmax(h_cln)
 
-        return softmax
+        if self.training:
+            u = self.gamma_bn(h_crt)
+            g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
+            g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
+            z_est = (z_crt - g_m) * g_v + g_m
+        else:
+            z_est = z_cln
+
+        return softmax_crt, softmax_cln, z_est, z_cln
 
 
 model = Net()
@@ -214,10 +260,11 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        softmax_crt = model(data)
+        softmax_crt, _, _, _ = model(data)
+        _, _, z_est, z_cln = model(unlabeled)
         ce_loss = F.nll_loss(softmax_crt, target)
-        loss = ce_loss
-        mse_loss = ce_loss
+        mse_loss = F.mse_loss(z_cln, z_est)
+        loss = ce_loss + mse_loss
         loss.backward()
         optimizer.step()
 
@@ -228,6 +275,23 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
+            print("\nMOVINGS:")
+            print(model.conv1.bn.running_mean)
+            print(model.conv1.bn.running_var)
+            print("\n Z_EST AND Z_CLN:")
+            print(z_est[0])
+            print(z_cln[0])
+            print("\nCOMBINATION PARAMS:")
+            print(model.a1)
+            print(model.a2)
+            print(model.a3)
+            print(model.a4)
+            print(model.a5)
+            print(model.a6)
+            print(model.a7)
+            print(model.a8)
+            print(model.a9)
+            print(model.a10)
             test()
 
 
@@ -238,7 +302,7 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        softmax_cln = model(data)
+        _, softmax_cln, _, _ = model(data)
         test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
         pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
