@@ -154,9 +154,10 @@ def test():
     for data, target in test_loader:
         data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        _, softmax_cln, _, _ = model(data)
-        test_loss += F.nll_loss(softmax_cln, target, size_average=False).data[0]  # sum up batch loss
-        pred = softmax_cln.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        logits, emb = model(data)
+        softmax = F.log_softmax(logits)
+        test_loss += F.nll_loss(softmax, target, size_average=False).data[0]  # sum up batch loss
+        pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(test_loader.dataset)
