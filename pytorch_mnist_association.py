@@ -155,6 +155,42 @@ def test():
         test_loss, correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset),
         optimizer.param_groups[0]['lr']))
 
-train()
-print("\nOPTIMIZATION FINISHED!")
-test()
+# train()
+# print("\nOPTIMIZATION FINISHED!")
+# test()
+
+labels = Variable(torch.zeros((10, 1)))
+print(labels)
+
+# def add_semisup_loss(self, a, b, labels, walker_weight=1.0, visit_weight=1.0):
+#     """Add semi-supervised classification loss to the model.
+#     The loss constist of two terms: "walker" and "visit".
+#     Args:
+#       a: [N, emb_size] tensor with supervised embedding vectors.
+#       b: [M, emb_size] tensor with unsupervised embedding vectors.
+#       labels : [N] tensor with labels for supervised embeddings.
+#       walker_weight: Weight coefficient of the "walker" loss.
+#       visit_weight: Weight coefficient of the "visit" loss.
+#     """
+#
+#     # equality_matrix = tf.equal(tf.reshape(labels, [-1, 1]), labels)
+#     equality_matrix = labels.eq(labels.data.view(-1, 1))
+#     equality_matrix = tf.cast(equality_matrix, tf.float32)
+#     p_target = (equality_matrix / tf.reduce_sum(
+#         equality_matrix, [1], keep_dims=True))
+#
+#     match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
+#     p_ab = tf.nn.softmax(match_ab, name='p_ab')
+#     p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
+#     p_aba = tf.matmul(p_ab, p_ba, name='p_aba')
+#
+#     self.create_walk_statistics(p_aba, equality_matrix)
+#
+#     loss_aba = tf.losses.softmax_cross_entropy(
+#         p_target,
+#         tf.log(1e-8 + p_aba),
+#         weights=walker_weight,
+#         scope='loss_aba')
+#     self.add_visit_loss(p_ab, visit_weight)
+#
+#     tf.summary.scalar('Loss_aba', loss_aba)
