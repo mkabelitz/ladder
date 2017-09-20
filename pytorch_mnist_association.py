@@ -140,10 +140,10 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print(p_ba)
     p_aba = F.softmax(torch.mm(p_ab, p_ba))
-    # print(p_aba)
+    print(p_aba)
 
     loss_aba = F.l1_loss(p_aba, p_target) * walker_weight
-    print(loss_aba)
+    # print(loss_aba)
     return loss_aba
 
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
