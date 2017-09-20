@@ -112,6 +112,30 @@ model.cuda()
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
 
+def get_visit_loss(p, weight=1.0):
+    """Add the "visit" loss to the model.
+    Args:
+      p: [N, M] tensor. Each row must be a valid probability distribution
+          (i.e. sum to 1.0)
+      weight: Loss weight.
+    """
+
+    visit_probability = torch.sum(p, dim=0)
+    t_nb = p.size()[1].float()
+    visit_loss = F.soft_margin_loss(torch.ones((1, t_nb)) / t_nb, torch.log(1e-8 + visit_probability))
+    return visit_loss
+
+    # visit_probability = tf.reduce_mean(
+    #     p, [0], keep_dims=True, name='visit_prob')
+    # t_nb = tf.shape(p)[1]
+    # visit_loss = tf.losses.softmax_cross_entropy(
+    #     tf.fill([1, t_nb], 1.0 / tf.cast(t_nb, tf.float32)),
+    #     tf.log(1e-8 + visit_probability),
+    #     weights=weight,
+    #     scope='loss_visit')
+    # return visit_loss
+
+
 def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     """Add semi-supervised classification loss to the model.
     The loss constist of two terms: "walker" and "visit".
@@ -144,7 +168,8 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
 
     loss_aba = F.mse_loss(p_aba, p_target) * walker_weight
     # print(loss_aba)
-    return loss_aba
+    visit_loss = get_visit_loss(p_ab, visit_weight)
+    return loss_aba, visit_loss
 
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
     # p_ab = tf.nn.softmax(match_ab, name='p_ab')
@@ -173,17 +198,17 @@ def train():
         _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
-        loss_aba = get_semisup_loss(emb_l, emb_u, target)
-        loss = ce_loss + loss_aba
+        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
+        loss = torch.sum([ce_loss, loss_aba, visit_loss])
         loss.backward()
         optimizer.step()
 
         if args.log_interval and step % args.log_interval == 0:
             pred = softmax.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct = pred.eq(target.data.view_as(pred)).cpu().sum()
-            print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tABA Loss: {:.6f}'.format(
+            print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tABA Loss: {:.6f}\tVisit Loss: {:.6f}'.format(
                 loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
-                ce_loss.data[0], loss_aba.data[0]))
+                ce_loss.data[0], loss_aba.data[0], visit_loss.data[0]))
             print(model.conv1_1.bias.grad)
             test()
 
