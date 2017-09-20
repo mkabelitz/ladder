@@ -126,7 +126,7 @@ def get_visit_loss(p, weight=1.0):
     print(t_nb)
     tmp1 = torch.ones((1, t_nb)) / t_nb
     print(tmp1)
-    tmp2 = torch.log(1e-8 + visit_probability)
+    tmp2 = torch.log(1e-8 + visit_probability).type(torch.FloatTensor)
     print(tmp2)
     visit_loss = F.mse_loss(tmp1, tmp2 * weight)
     return visit_loss
