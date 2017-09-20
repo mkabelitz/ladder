@@ -84,16 +84,16 @@ class Net(nn.Module):
         self.conv2_2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.pool2 = nn.MaxPool2d(2, 2)
 
-        self.conv2_1 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv2_2 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
-        self.pool2 = nn.MaxPool2d(2, 2)
+        self.conv3_1 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.conv3_2 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.pool3 = nn.MaxPool2d(2, 2)
 
         self.fc1 = nn.Linear(1152, 128)
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):
 
-        print(x.size())
+        print("0:", x.size())
         x = F.elu(self.conv1_1(x))
         x = F.elu(self.conv1_2(x))
         x = self.pool1(x)
