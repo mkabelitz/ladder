@@ -122,16 +122,16 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    print(a)
-    print(b)
+    # print(a)
+    # print(b)
     labels = labels.repeat(args.batch_size, 1)
-    print(labels)
+    # print(labels)
     labels_transpose = torch.transpose(labels, 0, 1)
     # print(labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).float()
     # print(equality_matrix)
     p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
-    print(p_target)
+    # print(p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
     # print(match_ab)
@@ -140,7 +140,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print(p_ba)
     p_aba = F.softmax(torch.mm(p_ab, p_ba))
-    print(p_aba)
+    # print(p_aba)
 
     loss_aba = F.mse_loss(p_aba, p_target)
     # print(loss_aba)
@@ -184,6 +184,7 @@ def train():
             print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tABA Loss: {:.6f}'.format(
                 loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], loss_aba.data[0]))
+            print(model.conv1_1.bias.grad)
             test()
 
 
