@@ -190,7 +190,6 @@ class Net(nn.Module):
     def forward(self, input):
 
         if self.training:
-            print("Here")
             Noise.add_noise = True
             x = self.input_noise(input)
             x = self.conv1(x)
