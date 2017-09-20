@@ -175,16 +175,16 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = nn.Parameter(300000000 * torch.ones((1, 10)).cuda())
-        self.a2 = nn.Parameter(1.0 * torch.ones((1, 10)).cuda())
-        self.a3 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a4 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a5 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a6 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a7 = nn.Parameter(1.0 * torch.ones((1, 10)).cuda())
-        self.a8 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a9 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
-        self.a10 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
+        self.a1 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a2 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a3 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a4 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a5 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a6 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a7 = nn.Parameter(torch.ones((1, 10)).cuda())
+        self.a8 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a9 = nn.Parameter(torch.zeros((1, 10)).cuda())
+        self.a10 = nn.Parameter(torch.zeros((1, 10)).cuda())
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
@@ -225,6 +225,7 @@ class Net(nn.Module):
         softmax_cln = F.log_softmax(h_cln)
 
         if self.training:
+            print("Here")
             u = self.gamma_bn(h_crt)
             g_m = self.a1 * self.sigmoid(self.a2 * u + self.a3) + self.a4 * u + self.a5
             g_v = self.a6 * self.sigmoid(self.a7 * u + self.a8) + self.a9 * u + self.a10
