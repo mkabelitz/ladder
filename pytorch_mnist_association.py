@@ -121,7 +121,7 @@ def get_visit_loss(p, weight=1.0):
     """
 
     visit_probability = torch.sum(p, dim=0)
-    t_nb = p.size()[1].float()
+    t_nb = p.size()[1]
     visit_loss = F.soft_margin_loss(torch.ones((1, t_nb)) / t_nb, torch.log(1e-8 + visit_probability))
     return visit_loss
 
