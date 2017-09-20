@@ -121,7 +121,8 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        logits, emb = model(data)
+        logits, emb_l = model(data)
+        _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss = ce_loss
@@ -164,4 +165,12 @@ a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
 print(a)
 b = torch.transpose(a, 0, 1)
 print(b)
-print(torch.eq(a, b))
+equality_matrix = torch.eq(a, b)
+print(equality_matrix)
+tmp = torch.sum(equality_matrix, dim=1)
+print(tmp)
+p_target = (equality_matrix / tmp)
+print(p_target)
+
+# p_target = (equality_matrix / tf.reduce_sum(
+#         equality_matrix, [1], keep_dims=True))
