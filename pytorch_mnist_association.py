@@ -109,7 +109,7 @@ class Net(nn.Module):
 model = Net()
 model.cuda()
 
-optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
 
 def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
@@ -131,7 +131,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     equality_matrix = torch.eq(labels, labels_transpose).float()
     # print(equality_matrix)
     p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
-    print(p_target)
+    # print(p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
     # print(match_ab)
@@ -140,11 +140,11 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print(p_ba)
     p_aba = F.softmax(torch.mm(p_ab, p_ba))
-    print(p_aba)
+    # print(p_aba)
 
-    loss_aba = F.mse_loss(p_aba, p_target)
+    loss_aba = F.l1_loss(p_aba, p_target) * walker_weight
     # print(loss_aba)
-    return loss_aba * 1000
+    return loss_aba
 
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
     # p_ab = tf.nn.softmax(match_ab, name='p_ab')
