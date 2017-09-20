@@ -278,6 +278,10 @@ def train():
                 ce_loss.data[0] + mse_loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], mse_loss.data[0]))
         if args.test_log_interval and step % args.test_log_interval == 0:
+            print("\nMOVINGS:")
+            print(model.conv1.bn.running_mean)
+            print(model.conv1.bn.running_var)
+            print("\n Z_EST AND Z_CLN:")
             print(z_est[0])
             print(z_cln[0])
             print("\nCOMBINATION PARAMS:")
