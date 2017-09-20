@@ -175,7 +175,7 @@ class Net(nn.Module):
 
         self.gamma_bn = nn.BatchNorm1d(num_features=10, affine=False, momentum=args.bn_momentum)
 
-        self.a1 = nn.Parameter((0.1 * torch.ones((1, 10))).cuda())
+        self.a1 = nn.Parameter(300000000 * torch.ones((1, 10)).cuda())
         self.a2 = nn.Parameter(1.0 * torch.ones((1, 10)).cuda())
         self.a3 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
         self.a4 = nn.Parameter(0.1 * torch.ones((1, 10)).cuda())
