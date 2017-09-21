@@ -117,12 +117,6 @@ class Net(nn.Module):
         return logits_l, emb_l, emb_u
 
 
-model = Net()
-model.cuda()
-
-optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-3)
-
-
 def get_visit_loss(p, weight=1.0):
     """Add the "visit" loss to the model.
     Args:
@@ -203,6 +197,12 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     #     scope='loss_aba')
     # visit_loss = add_visit_loss(p_ab, visit_weight)
     # return loss_aba, visit_loss
+
+model = Net()
+model.cuda()
+
+# optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-3)
+optimizer = optim.Adadelta(weight_decay=1e-4)
 
 
 def train():
