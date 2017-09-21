@@ -156,10 +156,10 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    # print("emb labeled:")
-    # print(a)
-    # print("emb unlabeled:")
-    # print(b)
+    print("emb labeled size:")
+    print(a.size())
+    print("emb unlabeled size:")
+    print(b.size())
     labels = labels.repeat(args.batch_size, 1)
     print("labels:")
     print(labels)
