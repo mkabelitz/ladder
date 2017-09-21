@@ -230,7 +230,7 @@ def train():
             print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tABA Loss: {:.6f}\tVisit Loss: {:.6f}'.format(
                 loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], loss_aba.data[0], visit_loss.data[0]))
-            # print(model.conv1_1.bias.grad)
+            print(model.conv1_1.bias.grad)
             test()
 
 
