@@ -160,8 +160,8 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    print("emb labeled size:\n", a)
-    print("emb unlabeled size:\n", b)
+    # print("emb labeled size:\n", a)
+    # print("emb unlabeled size:\n", b)
     labels = labels.repeat(args.batch_size, 1)
     # print("labels:\n", labels)
     labels_transpose = torch.transpose(labels, 0, 1)
@@ -216,9 +216,9 @@ def train():
         optimizer.zero_grad()
         logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
-        ce_loss = F.nll_loss(softmax, target)
+        ce_loss = F.kl_div(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = loss_aba
+        loss = ce_loss
         loss.backward()
         optimizer.step()
 
