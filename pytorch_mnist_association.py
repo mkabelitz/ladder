@@ -134,7 +134,7 @@ def get_visit_loss(p, weight=1.0):
     print("tmp2:")
     print(tmp2)
 
-    visit_loss = F.kl_div(input=F.log_softmax(tmp2), target=tmp2) * weight
+    visit_loss = F.kl_div(input=F.log_softmax(tmp2), target=tmp1) * weight
     return visit_loss
 
     # visit_probability = tf.reduce_mean(
