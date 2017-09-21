@@ -173,7 +173,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # print("p_ab:\n", p_ab)
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print("p_ba:\n", p_ba)
-    p_aba = F.softmax(torch.mm(p_ab, p_ba))
+    p_aba = F.log_softmax(torch.mm(p_ab, p_ba))
     # print("p_aba:\n", p_aba)
 
     loss_fn = nn.KLDivLoss()
