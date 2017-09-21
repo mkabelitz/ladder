@@ -85,25 +85,36 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(1152, 128)
         self.fc2 = nn.Linear(128, 10, bias=False)
 
-    def forward(self, x):
+    def forward(self, labeled, unlabeled):
 
-        x = F.elu(self.conv1_1(x))
-        x = F.elu(self.conv1_2(x))
-        x = self.pool1(x)
+        # pass for labeled batch
+        x_l = F.elu(self.conv1_1(labeled))
+        x_l = F.elu(self.conv1_2(x_l))
+        x_l = self.pool1(x_l)
+        x_l = F.elu(self.conv2_1(x_l))
+        x_l = F.elu(self.conv2_2(x_l))
+        x_l = self.pool2(x_l)
+        x_l = F.elu(self.conv3_1(x_l))
+        x_l = F.elu(self.conv3_2(x_l))
+        x_l = self.pool3(x_l)
+        x_l = x_l.view(x_l.size(0), -1)
+        emb_l = F.elu(self.fc1(x_l))
+        logits_l = self.fc2(emb_l)
 
-        x = F.elu(self.conv2_1(x))
-        x = F.elu(self.conv2_2(x))
-        x = self.pool2(x)
+        # pass for unlabeled batch
+        x_u = F.elu(self.conv1_1(unlabeled))
+        x_u = F.elu(self.conv1_2(x_u))
+        x_u = self.pool1(x_u)
+        x_u = F.elu(self.conv2_1(x_u))
+        x_u = F.elu(self.conv2_2(x_u))
+        x_u = self.pool2(x_u)
+        x_u = F.elu(self.conv3_1(x_u))
+        x_u = F.elu(self.conv3_2(x_u))
+        x_u = self.pool3(x_u)
+        x_u = x_u.view(x_u.size(0), -1)
+        emb_u = F.elu(self.fc1(x_u))
 
-        x = F.elu(self.conv3_1(x))
-        x = F.elu(self.conv3_2(x))
-        x = self.pool3(x)
-
-        x = x.view(x.size(0), -1)
-        emb = F.elu(self.fc1(x))
-        logits = self.fc2(emb)
-
-        return logits, emb
+        return logits_l, emb_l, emb_u
 
 
 model = Net()
@@ -203,14 +214,12 @@ def train():
 
         model.train()
         optimizer.zero_grad()
-        logits, emb_l = model(data)
-        _, emb_u = model(unlabeled)
+        logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = ce_loss
+        loss = ce_loss + (loss_aba + visit_loss)
         loss.backward()
-        print(model.conv1_1.bias.grad)
         optimizer.step()
 
         if args.log_interval and step % args.log_interval == 0:
