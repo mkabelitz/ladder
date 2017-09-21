@@ -160,8 +160,8 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    # print("emb labeled size:\n", a.size())
-    # print("emb unlabeled size:\n", b.size())
+    print("emb labeled size:\n", a.size())
+    print("emb unlabeled size:\n", b.size())
     labels = labels.repeat(args.batch_size, 1)
     # print("labels:\n", labels)
     labels_transpose = torch.transpose(labels, 0, 1)
@@ -169,7 +169,6 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     equality_matrix = torch.eq(labels, labels_transpose).float()
     # print("equality matrix:\n", equality_matrix)
     p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
-    print("p_target:\n", p_target[0])
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
     # print("match_ab:\n", match_ab)
@@ -178,7 +177,6 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(1e-8 + torch.transpose(match_ab, 0, 1))
     # print("p_ba:\n", p_ba)
     p_aba = F.log_softmax(1e-8 + torch.mm(p_ab, p_ba))
-    print("p_aba:\n", p_aba[0])
 
     loss_fn = nn.KLDivLoss()
     loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
