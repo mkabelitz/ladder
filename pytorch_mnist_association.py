@@ -206,7 +206,7 @@ def train():
         logits, emb_l = model(data)
         _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
-        print(softmax.grad)
+        print(model.conv1_1.bias.grad)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
         loss = ce_loss
