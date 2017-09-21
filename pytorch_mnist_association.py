@@ -202,7 +202,7 @@ model = Net()
 model.cuda()
 
 # optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-3)
-optimizer = optim.Adadelta(model.parameters(), weight_decay=1e-4)
+optimizer = optim.Adadelta(model.parameters(), weight_decay=0)
 
 
 def train():
