@@ -176,7 +176,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # print("p_aba:\n", p_aba)
 
     loss_fn = nn.KLDivLoss()
-    loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
+    loss_aba = F.cross_entropy(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
     return loss_aba, visit_loss
 
