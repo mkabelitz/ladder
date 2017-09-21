@@ -217,8 +217,8 @@ def train():
         logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
-        loss_aba, visit_loss = get_semisup_loss(emb_l.data.normal_(0, std=0.3), emb_u, target)
-        loss = loss_aba
+        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
+        loss = loss_aba * 1000
         loss.backward()
         optimizer.step()
 
