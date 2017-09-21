@@ -124,6 +124,7 @@ def get_visit_loss(p, weight=1.0):
     print("visit_probability:")
     print(visit_probability)
     t_nb = p.size()[1]
+    print("t_nb:")
     print(t_nb)
     tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     print("tmp1:")
