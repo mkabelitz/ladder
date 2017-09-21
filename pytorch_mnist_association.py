@@ -121,8 +121,7 @@ def get_visit_loss(p, weight=1.0):
     """
 
     visit_probability = torch.sum(p, dim=0)
-    # print("visit_probability:")
-    # print(visit_probability)
+    print("visit_probability:\n", visit_probability)
     t_nb = p.size()[1]
     # print("t_nb:")
     # print(t_nb)
