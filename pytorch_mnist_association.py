@@ -28,9 +28,9 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 
 transform = transforms.Compose(
-    # [transforms.ToTensor(),
-    #  transforms.Normalize((0.1307,), (0.3081,))])
-    [transforms.ToTensor()])
+    [transforms.ToTensor(),
+     transforms.Normalize((0.1307,), (0.3081,))])
+    # [transforms.ToTensor()])
 
 kwargs = {'num_workers': 0, 'pin_memory': True}
 
@@ -217,7 +217,7 @@ def train():
         logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
-        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
+        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u * 2, target)
         loss = ce_loss + (loss_aba + visit_loss)
         loss.backward()
         optimizer.step()
