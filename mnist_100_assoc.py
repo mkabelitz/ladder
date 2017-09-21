@@ -90,10 +90,10 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
 
         for i in tqdm(range(FLAGS.num_iters)):
-            _, cur_loss_tr, cur_acc_tr, cur_loss_aba, cur_loss_visit = sess.run([train_op, loss_tr, acc_tr, loss_aba, loss_visit])
+            _, cur_loss_tr, cur_acc_tr, cur_loss_sup, cur_loss_aba, cur_loss_visit = sess.run([train_op, loss_tr, loss_sup, acc_tr, loss_aba, loss_visit])
 
             if FLAGS.eval_interval is not None and i % FLAGS.eval_interval == 0:
-                print('train loss: %.4f train acc: %.4f loss_aba: %.4f loss_visit: %.4f' % (cur_loss_tr, cur_acc_tr, cur_loss_aba, cur_loss_visit))
+                print('train loss: %.4f train acc: %.4f loss_sup: %.4f loss_aba: %.4f loss_visit: %.4f' % (cur_loss_tr, cur_acc_tr, cur_loss_sup cur_loss_aba, cur_loss_visit))
                 cur_loss_te, cur_acc_te = eval_test()
                 print(' test loss: %.4f  test acc: %.4f' % (cur_loss_te, cur_acc_te))
 
