@@ -132,7 +132,8 @@ def get_visit_loss(p, weight=1.0):
     tmp2 = torch.log(1e-8 + visit_probability)
     print("tmp2:")
     print(tmp2)
-    visit_loss = F.kl_div(tmp1, tmp2 * weight)
+
+    visit_loss = F.kl_div(input=F.log_softmax(tmp2), target=tmp2) * weight
     return visit_loss
 
     # visit_probability = tf.reduce_mean(
@@ -182,11 +183,11 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     print("p_ba:")
     print(p_ba)
-    p_aba = F.softmax(torch.mm(p_ab, p_ba))
+    p_aba = F.log_softmax(torch.mm(p_ab, p_ba))
     print("p_aba:")
     print(p_aba)
 
-    loss_aba = F.kl_div(p_aba, p_target) * walker_weight
+    loss_aba = F.kl_div(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
     return loss_aba, visit_loss
 
