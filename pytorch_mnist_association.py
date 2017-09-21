@@ -217,7 +217,7 @@ def train():
         logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
-        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u * 2, target)
+        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u * 2000, target)
         loss = ce_loss + (loss_aba + visit_loss)
         loss.backward()
         optimizer.step()
@@ -228,7 +228,7 @@ def train():
             print('\nTrain:\tLoss: {:.4f}\tAccuracy: {}/{} ({:.2f}%)\tCE Loss: {:.6f}\tABA Loss: {:.6f}\tVisit Loss: {:.6f}'.format(
                 loss.data[0], correct, args.batch_size, 100. * correct / args.batch_size,
                 ce_loss.data[0], loss_aba.data[0], visit_loss.data[0]))
-            # print(model.conv1_1.bias.grad)
+            print(model.conv1_1.bias.grad)
             test()
 
 
