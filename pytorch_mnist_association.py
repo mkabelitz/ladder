@@ -171,7 +171,6 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ab = F.softmax(1e-8 + match_ab)
     # print("p_ab:\n", p_ab)
     p_ba = F.softmax(1e-8 + torch.transpose(match_ab, 0, 1))
-    print(p_ba.grad)
     # print("p_ba:\n", p_ba)
     p_aba = F.log_softmax(1e-8 + torch.mm(p_ab, p_ba))
     # print("p_aba:\n", p_aba)
@@ -207,9 +206,10 @@ def train():
         logits, emb_l = model(data)
         _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
+        print(softmax.grad)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = loss_aba
+        loss = ce_loss
         loss.backward()
         optimizer.step()
 
