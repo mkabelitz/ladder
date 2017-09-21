@@ -125,7 +125,7 @@ def get_visit_loss(p, weight=1.0):
     t_nb = p.size()[1]
     # print("t_nb:\n", t_nb)
     # tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
-    tmp1 = F.log_softmax(Variable((torch.ones((t_nb, 1)) / t_nb).cuda()))
+    tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     # print("tmp1:\n", tmp1)
     # tmp2 = F.log_softmax(1e-8 + visit_probability)
     tmp2 = visit_probability
@@ -163,8 +163,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # print("labels transpose:\n", labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).float()
     # print("equality matrix:\n", equality_matrix)
-    # p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
-    p_target = F.log_softmax((equality_matrix / torch.sum(equality_matrix, dim=1).float()))
+    p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
     # print("p_target:\n", p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
@@ -173,7 +172,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     # print("p_ab:\n", p_ab)
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
     # print("p_ba:\n", p_ba)
-    p_aba = F.log_softmax(torch.mm(p_ab, p_ba))
+    p_aba = torch.mm(p_ab, p_ba)
     # print("p_aba:\n", p_aba)
 
     loss_fn = nn.KLDivLoss()
