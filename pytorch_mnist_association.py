@@ -219,7 +219,7 @@ def train():
         _, emb_u = model(unlabeled)
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
-        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
+        loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target, 4.0, 4.0)
         loss = (loss_aba + visit_loss)
         loss.backward()
         optimizer.step()
