@@ -121,18 +121,15 @@ def get_visit_loss(p, weight=1.0):
     """
 
     visit_probability = torch.sum(p, dim=0)
-    print("visit_probability:\n", visit_probability)
+    # print("visit_probability:\n", visit_probability)
     t_nb = p.size()[1]
-    # print("t_nb:")
-    # print(t_nb)
+    # print("t_nb:\n", t_nb)
     # tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     tmp1 = F.log_softmax(Variable((torch.ones((t_nb, 1)) / t_nb).cuda()))
-    # print("tmp1:")
-    # print(tmp1)
+    # print("tmp1:\n", tmp1)
     # tmp2 = F.log_softmax(1e-8 + visit_probability)
     tmp2 = visit_probability
-    # print("tmp2:")
-    # print(tmp2)
+    # print("tmp2:\n", tmp2)
 
     visit_loss = F.kl_div(input=tmp2, target=tmp1) * weight
     return visit_loss
@@ -158,39 +155,29 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    # print("emb labeled size:")
-    # print(a.size())
-    # print("emb unlabeled size:")
-    # print(b.size())
+    # print("emb labeled size:\n", a.size())
+    # print("emb unlabeled size:\n", b.size())
     labels = labels.repeat(args.batch_size, 1)
-    # print("labels:")
-    # print(labels)
+    # print("labels:\n", labels)
     labels_transpose = torch.transpose(labels, 0, 1)
-    # print("labels transpose:")
-    # print(labels_transpose)
+    # print("labels transpose:\n", labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).float()
-    # print("equality matrix:")
-    # print(equality_matrix)
+    # print("equality matrix:\n", equality_matrix)
     # p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
     p_target = F.log_softmax((equality_matrix / torch.sum(equality_matrix, dim=1).float()))
-    # print("p_target:")
-    # print(p_target)
+    # print("p_target:\n", p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
-    # print("match_ab:")
-    # print(match_ab)
+    # print("match_ab:\n", match_ab)
     p_ab = F.softmax(match_ab)
-    # print("p_ab:")
-    # print(p_ab)
+    # print("p_ab:\n", p_ab)
     p_ba = F.softmax(torch.transpose(match_ab, 0, 1))
-    # print("p_ba:")
-    # print(p_ba)
-    # p_aba = F.log_softmax(1e-8 + torch.mm(p_ab, p_ba))
-    p_aba = torch.mm(p_ab, p_ba)
-    # print("p_aba:")
-    # print(p_aba)
+    # print("p_ba:\n", p_ba)
+    p_aba = F.softmax(torch.mm(p_ab, p_ba))
+    # print("p_aba:\n", p_aba)
 
-    loss_aba = F.kl_div(input=p_aba, target=p_target) * walker_weight
+    loss_fn = nn.KLDivLoss()
+    loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
     return loss_aba, visit_loss
 
@@ -222,8 +209,7 @@ def train():
         softmax = F.log_softmax(logits)
         ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        # loss = ce_loss + (loss_aba + visit_loss)
-        loss = visit_loss
+        loss = loss_aba
         loss.backward()
         optimizer.step()
 
