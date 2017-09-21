@@ -131,7 +131,7 @@ def get_visit_loss(p, weight=1.0):
     # print(tmp1)
     tmp2 = F.log_softmax(1e-8 + visit_probability)
     # print("tmp2:")
-    print(tmp2)
+    # print(tmp2)
 
     visit_loss = F.kl_div(input=tmp2, target=tmp1) * weight
     return visit_loss
