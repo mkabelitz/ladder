@@ -18,7 +18,7 @@ parser.add_argument('--epochs', type=int, default=150, metavar='N',
                     help='number of epochs to train (default: 20)')
 parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                     help='learning rate (default: 0.001)')
-parser.add_argument('--seed', type=int, default=1, metavar='S',
+parser.add_argument('--seed', type=int, default=111, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=600, metavar='N',
                     help='how many batches to wait before logging train/test status')
@@ -53,6 +53,8 @@ if args.labeled_samples:
                                                batch_size=args.batch_size,
                                                sampler=torch.utils.data.sampler.SubsetRandomSampler(balanced_index_set),
                                                **kwargs)
+    print("index_set:", balanced_index_set)
+    print("len train_loarder:", len(train_loader))
 else:
     train_loader = torch.utils.data.DataLoader(mnist_tr_dataset,
                                                batch_size=args.batch_size,
@@ -124,21 +126,21 @@ def get_visit_loss(p, weight=1.0):
           (i.e. sum to 1.0)
       weight: Loss weight.
     """
-
     visit_probability = torch.sum(p, dim=0)
-    # print("visit_probability:\n", visit_probability)
     t_nb = p.size()[1]
-    # print("t_nb:\n", t_nb)
-    # tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
-    # print("tmp1:\n", tmp1)
-    # tmp2 = F.log_softmax(1e-8 + visit_probability)
     tmp2 = F.log_softmax(1e-8 + visit_probability)
-    # print("tmp2:\n", tmp2)
-
     visit_loss = F.kl_div(input=tmp2, target=tmp1) * weight
+
+    print("visit_probability:\n", visit_probability)
+    print("t_nb:\n", t_nb)
+    print("tmp1:\n", tmp1)
+    print("tmp2:\n", tmp2)
+
     return visit_loss
 
+    # Tensorflow original:
+    #
     # visit_probability = tf.reduce_mean(
     #     p, [0], keep_dims=True, name='visit_prob')
     # t_nb = tf.shape(p)[1]
@@ -160,31 +162,36 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
       walker_weight: Weight coefficient of the "walker" loss.
       visit_weight: Weight coefficient of the "visit" loss.
     """
-    # print("emb labeled size:\n", a)
-    # print("emb unlabeled size:\n", b)
     labels = labels.repeat(args.batch_size, 1)
-    # print("labels:\n", labels)
     labels_transpose = torch.transpose(labels, 0, 1)
-    # print("labels transpose:\n", labels_transpose)
     equality_matrix = torch.eq(labels, labels_transpose).float()
-    # print("equality matrix:\n", equality_matrix)
     p_target = (equality_matrix / torch.sum(equality_matrix, dim=1).float())
-    # print("p_target:\n", p_target)
 
     match_ab = torch.mm(a, torch.transpose(b, 0, 1))
-    # print("match_ab:\n", match_ab)
     p_ab = F.softmax(1e-8 + match_ab)
-    # print("p_ab:\n", p_ab)
     p_ba = F.softmax(1e-8 + torch.transpose(match_ab, 0, 1))
-    # print("p_ba:\n", p_ba)
     p_aba = F.log_softmax(1e-8 + torch.mm(p_ab, p_ba))
-    # print("p_aba:\n", p_aba)
 
+    # we use KLDiv instead of cross entropy since cross entropy in Pytorch requires distinct class labels as targets
     loss_fn = nn.KLDivLoss()
     loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
+
+    print("emb labeled:\n", a)
+    print("emb unlabeled:\n", b)
+    print("labels:\n", labels)
+    print("labels transpose:\n", labels_transpose)
+    print("equality matrix:\n", equality_matrix)
+    print("p_target:\n", p_target)
+    print("match_ab:\n", match_ab)
+    print("p_ab:\n", p_ab)
+    print("p_ba:\n", p_ba)
+    print("p_aba:\n", p_aba)
+
     return loss_aba, visit_loss
 
+    # Tensorflow original:
+    #
     # match_ab = tf.matmul(a, b, transpose_b=True, name='match_ab')
     # p_ab = tf.nn.softmax(match_ab, name='p_ab')
     # p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
@@ -216,9 +223,9 @@ def train():
         optimizer.zero_grad()
         logits, emb_l, emb_u = model(data, unlabeled)
         softmax = F.log_softmax(logits)
-        ce_loss = F.kl_div(softmax, target)
+        ce_loss = F.nll_loss(softmax, target)
         loss_aba, visit_loss = get_semisup_loss(emb_l, emb_u, target)
-        loss = ce_loss
+        loss = ce_loss + (loss_aba + visit_loss)
         loss.backward()
         optimizer.step()
 
@@ -253,18 +260,3 @@ def test():
 train()
 print("\nOPTIMIZATION FINISHED!")
 test()
-
-
-# a = Variable(torch.FloatTensor([1,2,2,4,1,6,8,8,9,10])).repeat(10, 1)
-# print(a)
-# b = torch.transpose(a, 0, 1)
-# print(b)
-# equality_matrix = torch.eq(a, b).double()
-# print(equality_matrix)
-# tmp = torch.sum(equality_matrix, dim=1).double()
-# print(tmp)
-# p_target = (equality_matrix / tmp)
-# print(p_target)
-
-
-
