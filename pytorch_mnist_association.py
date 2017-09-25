@@ -130,13 +130,16 @@ def get_visit_loss(p, weight=1.0):
     t_nb = p.size()[1]
     tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     tmp2 = F.log_softmax(1e-8 + visit_probability)
-    loss_fn = nn.KLDivLoss(size_average=False)
+    loss_fn = nn.KLDivLoss()
     visit_loss = loss_fn(input=tmp2, target=tmp1) * weight
 
     print("visit_probability:\n", visit_probability)
     print("t_nb:\n", t_nb)
     print("tmp1:\n", tmp1)
     print("tmp2:\n", tmp2)
+
+    print("!!!!!!:", F.softmax(tmp1))
+    print("!!!!!!:", F.log_softmax(tmp1))
 
     return visit_loss
 
