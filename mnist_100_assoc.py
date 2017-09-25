@@ -131,11 +131,12 @@ def add_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_ba = tf.nn.softmax(tf.transpose(match_ab), name='p_ba')
     p_aba = tf.matmul(p_ab, p_ba, name='p_aba')
 
-    loss_aba = tf.losses.softmax_cross_entropy(
-        p_target,
-        tf.log(1e-8 + p_aba),
-        weights=walker_weight,
-        scope='loss_aba')
+    # loss_aba = tf.losses.softmax_cross_entropy(
+    #     p_target,
+    #     tf.log(1e-8 + p_aba),
+    #     weights=walker_weight,
+    #     scope='loss_aba')
+    loss_aba = u.get_softmax_loss(logits=p_aba, labels=p_target)
     visit_loss = add_visit_loss(p_ab, visit_weight)
     return loss_aba, visit_loss
 
@@ -150,11 +151,12 @@ def add_visit_loss(p, weight=1.0):
     visit_probability = tf.reduce_mean(
         p, [0], keep_dims=True, name='visit_prob')
     t_nb = tf.shape(p)[1]
-    visit_loss = tf.losses.softmax_cross_entropy(
-        tf.fill([1, t_nb], 1.0 / tf.cast(t_nb, tf.float32)),
-        tf.log(1e-8 + visit_probability),
-        weights=weight,
-        scope='loss_visit')
+    # visit_loss = tf.losses.softmax_cross_entropy(
+    #     tf.fill([1, t_nb], 1.0 / tf.cast(t_nb, tf.float32)),
+    #     tf.log(1e-8 + visit_probability),
+    #     weights=weight,
+    #     scope='loss_visit')
+    visit_loss = u.get_softmax_loss(logits=visit_probability, labels=tf.fill([1, t_nb], 1.0 / tf.cast(t_nb, tf.float32)))
     return visit_loss
 
 
