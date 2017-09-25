@@ -130,7 +130,8 @@ def get_visit_loss(p, weight=1.0):
     t_nb = p.size()[1]
     tmp1 = Variable((torch.ones((t_nb, 1)) / t_nb).cuda())
     tmp2 = F.log_softmax(1e-8 + visit_probability)
-    visit_loss = F.kl_div(input=tmp2, target=tmp1) * weight
+    loss_fn = nn.KLDivLoss()
+    visit_loss = loss_fn(input=tmp2, target=tmp1) * weight
 
     print("visit_probability:\n", visit_probability)
     print("t_nb:\n", t_nb)
@@ -173,7 +174,7 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     p_aba = F.log_softmax(1e-8 + torch.mm(p_ab, p_ba))
 
     # we use KLDiv instead of cross entropy since cross entropy in Pytorch requires distinct class labels as targets
-    loss_fn = nn.KLDivLoss(size_average=False)
+    loss_fn = nn.KLDivLoss()
     loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
 
