@@ -177,16 +177,16 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
     loss_aba = loss_fn(input=p_aba, target=p_target) * walker_weight
     visit_loss = get_visit_loss(p_ab, visit_weight)
 
-    print("emb labeled:\n", a)
-    print("emb unlabeled:\n", b)
+    # print("emb labeled:\n", a)
+    # print("emb unlabeled:\n", b)
     print("labels:\n", labels)
     print("labels transpose:\n", labels_transpose)
     print("equality matrix:\n", equality_matrix)
     print("p_target:\n", p_target)
     print("match_ab:\n", match_ab)
     print("p_ab:\n", p_ab)
-    print("p_ba:\n", p_ba)
-    print("p_aba:\n", p_aba)
+    # print("p_ba:\n", p_ba)
+    # print("p_aba:\n", p_aba)
 
     return loss_aba, visit_loss
 
