@@ -133,13 +133,10 @@ def get_visit_loss(p, weight=1.0):
     loss_fn = nn.KLDivLoss()
     visit_loss = loss_fn(input=tmp2, target=tmp1) * weight
 
-    print("visit_probability:\n", visit_probability)
-    print("t_nb:\n", t_nb)
-    print("tmp1:\n", tmp1)
-    print("tmp2:\n", tmp2)
-
-    print("!!!!!!:", F.softmax(tmp1))
-    print("!!!!!!:", F.log_softmax(tmp1))
+    # print("visit_probability:\n", visit_probability)
+    # print("t_nb:\n", t_nb)
+    # print("tmp1:\n", tmp1)
+    # print("tmp2:\n", tmp2)
 
     return visit_loss
 
@@ -183,12 +180,12 @@ def get_semisup_loss(a, b, labels, walker_weight=1.0, visit_weight=1.0):
 
     # print("emb labeled:\n", a)
     # print("emb unlabeled:\n", b)
-    print("labels:\n", labels)
-    print("labels transpose:\n", labels_transpose)
-    print("equality matrix:\n", equality_matrix)
-    print("p_target:\n", p_target)
-    print("match_ab:\n", match_ab)
-    print("p_ab:\n", p_ab)
+    # print("labels:\n", labels)
+    # print("labels transpose:\n", labels_transpose)
+    # print("equality matrix:\n", equality_matrix)
+    # print("p_target:\n", p_target)
+    # print("match_ab:\n", match_ab)
+    # print("p_ab:\n", p_ab)
     # print("p_ba:\n", p_ba)
     # print("p_aba:\n", p_aba)
 
